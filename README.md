@@ -26,6 +26,7 @@ project-root/
 ```bash
 cd frontend
 npm install
+npm install react-router-dom
 npm run dev
 ```
 Access at: [http://localhost:5173](http://localhost:5173)
