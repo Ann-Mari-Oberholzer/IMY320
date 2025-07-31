@@ -1,6 +1,6 @@
 # IMY320
 
-Here is a short tutorial overview and some guidance for anyone who migth be a bit lost or suck at any point with how React works 
+Here is a short tutorial overview and some guidance for anyone who migth be a bit lost or stuck at any point with how React works 
 
 ```markdown
 # � Full Stack Project Setup: Frontend (React) + Backend (Node.js)
