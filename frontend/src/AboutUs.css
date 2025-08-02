@@ -1,0 +1,246 @@
+/* Main Container */
+.about-us-container {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Tabs Section */
+.tabs-section {
+  background: white;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.tabs-container {
+  display: flex;
+  justify-content: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.tab-button {
+  background: none;
+  border: none;
+  padding: 20px 30px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-bottom: 3px solid transparent;
+}
+
+.tab-button:hover {
+  color:#ea8a66;
+}
+
+.tab-active {
+  color:#ea8a66;
+  border-bottom-color:#ea8a66;
+}
+
+/* Content Section */
+.content-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 60px 20px;
+}
+
+/* Story Content */
+.story-content {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.story-intro {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.section-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.story-description {
+  font-size: 1.2rem;
+  line-height: 1.7;
+  color: #666;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Features Content */
+.features-content {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.features-intro {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.features-description {
+  font-size: 1.2rem;
+  line-height: 1.7;
+  color: #666;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+  margin-bottom: 60px;
+}
+
+.feature-card {
+  background: white;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.feature-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.feature-icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, #ea8a66 0%, #a26b47 100%);
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.feature-icon {
+  width: 25px;
+  height: 25px;
+  color: white;
+}
+
+.feature-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.feature-description {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #666;
+}
+
+/* Team Content */
+.team-content {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.team-intro {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.team-description {
+  font-size: 1.2rem;
+  line-height: 1.7;
+  color: #666;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+  margin-bottom: 60px;
+}
+
+.team-card {
+  background: white;
+  padding: 30px;
+  border-radius: 15px;
+  text-align: center;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.team-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.team-avatar {
+  font-size: 3rem;
+  margin-bottom: 20px;
+}
+
+.team-name {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.team-role {
+  font-size: 1.1rem;
+  color:#ea8a66;
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+
+.team-specialty {
+  font-size: 1rem;
+  color: #666;
+  line-height: 1.5;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .team-grid {
+    grid-template-columns: 1fr;
+  }
+  .tabs-container {
+    flex-direction: column;
+  }
+  
+  .tab-button {
+    border-bottom: 1px solid #e9ecef;
+    border-right: none;
+  }
+  
+  .tab-active {
+    border-bottom-color:#ea8a66;
+  }
+}
+@media (max-width: 480px) {
+  
+  .section-title {
+    font-size: 2rem;
+  }
+  .content-section {
+    padding: 40px 15px;
+  }
+} 
