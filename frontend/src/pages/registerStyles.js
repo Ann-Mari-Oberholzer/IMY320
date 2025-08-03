@@ -52,8 +52,8 @@ export const cardStyle = {
 };
 
 export const logoStyle = {
-  width: "100px",
-  height: "100px",
+  width: "170px",
+  height: "170px",
   objectFit: "contain",
   margin: "0 auto 1rem auto",
 };

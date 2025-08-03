@@ -63,7 +63,7 @@ function Register() {
       <div style={overlayStyle}></div>
 
       <div style={{ ...cardStyle, zIndex: 1 }}>
-       <img src="/game craft logo.jpeg" alt="Game Craft Logo" style={logoStyle} />
+       <img src="/GameCraft3.png" alt="Game Craft Logo" style={logoStyle} />
         <h1 style={{ textAlign: "center", marginBottom: "1.5rem" }}>Create Account</h1>
 
         <form onSubmit={handleRegister}>
