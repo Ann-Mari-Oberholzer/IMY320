@@ -84,7 +84,7 @@ app.use(cors());
 ## 🧪 Running Both Servers
 **Terminal 1 (Frontend):**
 ```bash
-cd frontend && npm run dev
+cd frontend && npm start
 ```
 
 **Terminal 2 (Backend):**
