@@ -52,7 +52,7 @@ function Register() {
       alert("Please accept the terms and conditions");
       return;
     }
-    navigate("/dashboard");
+    navigate("/about");
   };
 
   const passwordStrength = getPasswordStrength();

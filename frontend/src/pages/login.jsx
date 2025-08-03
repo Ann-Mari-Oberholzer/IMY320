@@ -31,7 +31,7 @@ function Login() {
     const handleLogin = (e) => {
         e.preventDefault();
         // Login logic here
-        navigate("/dashboard");
+        navigate("/about");
     };
 
     return (
