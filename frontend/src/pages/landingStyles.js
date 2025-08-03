@@ -1,159 +1,232 @@
 export const page = {
-  fontFamily: "'Helvetica Neue', sans-serif",
-  backgroundColor: "#EEEEEE",
-  color: "#222831",
+  fontFamily: "'Inter', sans-serif",
+  color: "#1E232C",
   padding: "0",
-  position: "fixed",
-  top: 0,
-  left: 0,
-  width: "100vw",
-  height: "100vh",
-  overflow: "auto",
+  minHeight: "100vh",
+  overflowX: "hidden"
 };
 
 export const navBar = {
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
-  padding: "1rem 0 0.5rem 0",
-  borderBottom: "1px solid #333",
-  backgroundColor: "#EEEEEE",
+  padding: "1.5rem 2rem",
+  backgroundColor: "#ffffff",
+  boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+  position: "sticky",
+  top: 0,
+  zIndex: 100
 };
 
 export const logo = {
-   height: "50px",
+  height: "50px",
 };
 
 export const navRight = {
   display: "flex",
-  gap: "1.5rem",
+  gap: "2rem",
 };
 
 export const navItem = {
   cursor: "pointer",
   fontSize: "1rem",
-  color: "#222831",
+  color: "#00AEBB",
   fontWeight: "600",
+  transition: "all 0.3s ease",
+  ":hover": {
+    color: "#F7CA66",
+    transform: "translateY(-2px)"
+  }
 };
 
-export const headerSection = {
-  textAlign: "center",
-  margin: "4rem 0 2rem",
+export const heroSection = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  padding: "4rem 2rem",
+  flexWrap: "wrap",
+  background: "linear-gradient(to bottom right, #f8f9fa, #ffffff)"
 };
 
-export const heading = {
-  fontSize: "5rem",
-  color: "#222831",
-  fontWeight: "bold",
-  marginBottom: "0.5rem",
+export const heroLeft = {
+  flex: "1",
+  minWidth: "300px",
+  padding: "2rem"
 };
 
-export const subheading = {
-  fontSize: "2rem",
+export const heroRight = {
+  flex: "1",
+  minWidth: "300px",
+  textAlign: "center"
+};
+
+export const heroMascot = {
+  width: "120px",
+  marginBottom: "1.5rem"
+};
+
+export const gradientHeading = {
+  fontSize: "3.5rem",
+  fontWeight: "800",
+  background: "linear-gradient(90deg, #00AEBB, #F7CA66)",
+  WebkitBackgroundClip: "text",
+  WebkitTextFillColor: "transparent",
+  marginBottom: "1.5rem",
+  lineHeight: "1.2"
+};
+
+export const heroText = {
+  fontSize: "1.2rem",
   color: "#393E46",
   marginBottom: "2rem",
+  maxWidth: "500px"
 };
 
-export const joinButton = {
-  padding: "12px 24px",
+export const ctaButton = {
+  padding: "14px 32px",
   fontSize: "1rem",
-  backgroundColor: "#FFD369",
-  color: "#fff",
+  borderRadius: "12px",
+  background: "linear-gradient(to right, #00AEBB, #F7CA66)",
   border: "none",
-  borderRadius: "10px",
-  fontWeight: "600",
+  color: "#fff",
+  fontWeight: "700",
+  boxShadow: "0 4px 14px rgba(0,0,0,0.1)",
   cursor: "pointer",
+  transition: "all 0.3s ease",
+  ":hover": {
+    transform: "translateY(-2px)",
+    boxShadow: "0 6px 16px rgba(0,0,0,0.15)"
+  }
+};
+
+export const darkSection = {
+  textAlign: "center",
+  padding: "4rem 2rem",
+  backgroundColor: "#1E232C",
+  color: "#ffffff"
 };
 
 export const section = {
   textAlign: "center",
-  marginTop: "4rem",
-};
-
-export const classCard = {
-  backgroundColor: "#222831",
-  borderRadius: "12px",
-  padding: "1.5rem",
-  width: "200px",
-};
-
-export const cardTitle = {
-  fontSize: "1.2rem",
-  fontWeight: "bold",
-  marginBottom: "0.5rem",
-  color:"#00ADB5",
-};
-
-export const cardDescription = {
-  fontSize: "0.9rem",
-  color: "#EEEEEE",
-};
-
-export const footer = {
-  textAlign: "center",
-  marginTop: "4rem",
-  padding: "1rem 0 0.5rem 0",
-  borderTop: "1px solid #333",
-  color: "#393E46",
-};
-
-export const section2 = {
-  textAlign: "center",
-  padding: "20px 20px 60px 20px",
-  backgroundColor: "#ffffff",
-  borderRadius: "1rem",
+  padding: "4rem 2rem",
+  backgroundColor: "#ffffff"
 };
 
 export const sectionTitle = {
-  fontSize: "2rem",
+  fontSize: "2.5rem",
   fontWeight: "bold",
-  marginBottom: "40px",
-  color: "#222831"
+  marginBottom: "2rem",
+  background: "linear-gradient(90deg, #00AEBB, #F7CA66)",
+  WebkitBackgroundClip: "text",
+  WebkitTextFillColor: "transparent",
+  display: "inline-block"
 };
 
 export const productGrid = {
   display: "flex",
   justifyContent: "center",
-  gap: "30px",
+  gap: "2rem",
   flexWrap: "wrap",
-  marginTop: "20px"
+  marginTop: "2rem"
 };
 
 export const cardBase = {
-  backgroundColor: "#fff",
-  borderRadius: "15px",
-  boxShadow: "0 5px 20px rgba(0, 0, 0, 0.08)",
-  padding: "20px",
-  maxWidth: "280px",
-  textAlign: "center",
-  transition: "transform 0.3s ease, box-shadow 0.3s ease"
+  backgroundColor: "#ffffff",
+  borderRadius: "20px",
+  padding: "1.5rem",
+  width: "280px",
+  transition: "all 0.3s ease",
+  cursor: "pointer",
+  ":hover": {
+    transform: "translateY(-10px)",
+    boxShadow: "0 15px 30px rgba(0,0,0,0.1)"
+  }
 };
 
 export const mainCard = {
   ...cardBase,
-  transform: "scale(1.1)",
-  maxWidth: "320px",
-  zIndex: 1
+  backgroundColor: "#00AEBB",
+  color: "#ffffff",
+  transform: "translateY(-10px)",
+  boxShadow: "0 15px 30px rgba(0,0,0,0.1)",
+  ":hover": {
+    transform: "translateY(-15px)"
+  }
 };
 
 export const productImage = {
   width: "100%",
-  height: "300px",
+  height: "180px",
   objectFit: "cover",
   borderRadius: "12px",
-  marginBottom: "15px"
+  marginBottom: "1rem"
 };
 
 export const productTitle = {
-  fontSize: "1.2rem",
-  fontWeight: "600",
-  color: "#222831",
-  marginBottom: "10px"
+  fontSize: "1.3rem",
+  fontWeight: "700",
+  marginBottom: "0.5rem",
+  color: "#00AEBB"
 };
 
 export const productDescription = {
   fontSize: "1rem",
-  color: "#393E46"
+  color: "#666"
 };
 
+export const productTitle2 = {
+  fontSize: "1.3rem",
+  fontWeight: "700",
+  marginBottom: "0.5rem",
+  color: "#ffffff"
+};
 
+export const productDescription2 = {
+  fontSize: "1rem",
+  color: "#ffffff"
+};
+
+export const pastelCard = {
+  backgroundColor: "#f8f9fa",
+  borderRadius: "20px",
+  padding: "2rem",
+  width: "240px",
+  transition: "all 0.3s ease",
+  cursor: "pointer",
+  textAlign: "center",
+  boxShadow: "0 5px 15px rgba(0,0,0,0.05)",
+  ":hover": {
+    transform: "translateY(-10px)",
+    boxShadow: "0 15px 30px rgba(0,0,0,0.1)"
+  }
+};
+
+export const pastelIcon = {
+  fontSize: "2.5rem",
+  color: "#00AEBB",
+  marginBottom: "1rem"
+};
+
+export const pastelHeading = {
+  fontSize: "1.3rem",
+  fontWeight: "700",
+  marginBottom: "0.5rem",
+  color: "#1E232C"
+};
+
+export const pastelText = {
+  fontSize: "1rem",
+  color: "#666"
+};
+
+export const footer = {
+  textAlign: "center",
+  padding: "2rem",
+  backgroundColor: "#1E232C",
+  color: "#ffffff"
+};
+
+export const joinButton = {
+  ...ctaButton,
+  marginTop: "1rem"
+};

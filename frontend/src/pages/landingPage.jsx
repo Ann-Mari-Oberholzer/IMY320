@@ -1,28 +1,39 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { SiHeadphonezone, SiHeadspace, SiNintendo, SiPlaystation} from "react-icons/si";
+    import { FaXbox } from 'react-icons/fa';
 import {
   page,
   navBar,
   navItem,
-  headerSection,
   heading,
   subheading,
   section,
-  classCard,
-  cardTitle,
-  cardDescription,
   footer,
   logo,
   navRight,
   joinButton,
-  section2,
   sectionTitle,
   productGrid,
   cardBase,
   mainCard,
   productTitle,
+  productTitle2,
   productDescription,
+  productDescription2,
   productImage,
+  heroSection,
+  heroLeft,
+  heroRight,
+  heroMascot,
+  gradientHeading,
+  heroText,
+  ctaButton,
+  pastelCard,
+  pastelIcon,
+  pastelHeading,
+  pastelText,
+  darkSection,
 } from "./landingStyles";
 
 function LandingPage() {
@@ -41,55 +52,62 @@ function LandingPage() {
       </nav>
 
       {/* HERO SECTION */}
-      <section style={headerSection}>
-        <h1 style={heading}>Welcome to Game Craft</h1>
-        <p style={subheading}>Your One-Stop Hub for Games, Gear, and Glory.</p>
-        <button style={joinButton} onClick={() => navigate("/register")}>
-          Join Us
-        </button>
+      <section style={heroSection}>
+        <div style={heroLeft}>
+          {/* <img src="/GameCraftMascot.png" alt="Game Mascot" style={heroMascot} /> */}
+          <h1 style={gradientHeading}>Create. Play. Repeat.</h1>
+          <p style={heroText}>Jump into a world where every player is a creator.</p>
+          <button style={ctaButton} onClick={() => navigate("/register")}>
+            Start Your Journey
+          </button>
+        </div>
+        <div style={heroRight}>
+          <img src="/Best_Video.png" alt="Game Visual" style={{ width: "100%", maxWidth: "600px", borderRadius: "16px" }} />
+        </div>
       </section>
 
-      {/* IMAGES / CARDS */}
-        <section style={section2}>
-            <h2 style={sectionTitle}>Featured Products</h2>
-            <div style={productGrid}>
-                <div style={cardBase}>
-                <img src="/headphones.jpg" style={productImage} />
-                <h3 style={productTitle}>Surround Sound Headphones</h3>
-                <p style={productDescription}>Feel the game with immersive sound and deep bass clarity.</p>
-                </div>
+      {/* FEATURED PRODUCTS */}
+      <section style={darkSection}>
+        <h2 style={sectionTitle}>Featured Products</h2>
+        <div style={productGrid}>
+          <div style={cardBase}>
+            <img src="/headphones.jpg" style={productImage} alt="Headphones" />
+            <h3 style={productTitle}>Surround Sound Headphones</h3>
+            <p style={productDescription}>Feel the game with immersive sound and deep bass clarity.</p>
+          </div>
 
-                <div style={mainCard}>
-                <img src="/nintendo.jpg" style={productImage} />
-                <h3 style={productTitle}>Nintendo Switch</h3>
-                <p style={productDescription}>Switch between handheld and docked mode for non-stop fun.</p>
-                </div>
+          <div style={mainCard}>
+            <img src="/nintendo.jpg" style={productImage} alt="Nintendo Switch" />
+            <h3 style={productTitle2}>Nintendo Switch</h3>
+            <p style={productDescription2}>Switch between handheld and docked mode for non-stop fun.</p>
+          </div>
 
-                <div style={cardBase}>
-                <img src="/controllers.jpg" style={productImage} />
-                <h3 style={productTitle}>Pro Gaming Controllers</h3>
-                <p style={productDescription}>Ergonomic design with ultra-responsive analog sticks.</p>
-                </div>
+          <div style={cardBase}>
+            <img src="/controllers.jpg" style={productImage} alt="Controllers" />
+            <h3 style={productTitle}>Pro Gaming Controllers</h3>
+            <p style={productDescription}>Ergonomic design with ultra-responsive analog sticks.</p>
+          </div>
         </div>
-    </section>
+      </section>
 
-
-      
-      {/* CLASSES SECTION */}
+      {/* CATEGORIES SECTION */}
       <section style={section}>
-        <h2 style={{color:"222831"}}>Our Categories</h2>
-        <div style={{ display: "flex", gap: "1.5rem", justifyContent: "center", marginTop: "1rem" }}>
-          <div style={classCard}>
-            <h3 style={cardTitle}>Consoles</h3>
-            <p style={cardDescription}>From PS5 to Nintendo—find your power system.</p>
+        <h2 style={sectionTitle}>Our Categories</h2>
+        <div style={productGrid}>
+          <div style={pastelCard}>
+            <SiPlaystation style={pastelIcon} />
+            <h3 style={pastelHeading}>Consoles</h3>
+            <p style={pastelText}>From PS5 to Nintendo—find your power system.</p>
           </div>
-          <div style={classCard}>
-            <h3 style={cardTitle}>Accessories</h3>
-            <p style={cardDescription}>High-performance gear built for serious play.</p>
+          <div style={pastelCard}>
+            <FaXbox style={pastelIcon} />
+            <h3 style={pastelHeading}>Accessories</h3>
+            <p style={pastelText}>High-performance gear built for serious play.</p>
           </div>
-          <div style={classCard}>
-            <h3 style={cardTitle}>Tech Reviews</h3>
-            <p style={cardDescription}>Honest, in-depth looks at what’s worth your coins.</p>
+          <div style={pastelCard}>
+            <SiHeadphonezone style={pastelIcon} />
+            <h3 style={pastelHeading}>Tech Reviews</h3>
+            <p style={pastelText}>Honest, in-depth looks at what's worth your coins.</p>
           </div>
         </div>
       </section>
@@ -104,4 +122,3 @@ function LandingPage() {
 }
 
 export default LandingPage;
-
