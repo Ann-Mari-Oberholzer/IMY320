@@ -59,8 +59,16 @@ function Register() {
 
   return (
     <div style={containerStyle}>
+      <div style={{
+        position: "absolute",
+        inset: 0,
+        backgroundColor: "rgba(255, 255, 255, 0.3)",
+        backdropFilter: "blur(4px)",
+        backgroundPosition: "center",
+        zIndex: 0,
+      }}></div>
       <div style={{ ...cardStyle, zIndex: 1 }}>
-       <img src="/GameCraft3.png" alt="Game Craft Logo" style={logoStyle} />
+        <img src="/GameCraft3-1.png" alt="Game Craft Logo" style={logoStyle} />
         <h1 style={{ textAlign: "center", marginBottom: "1.5rem" }}>Create Account</h1>
 
         <form onSubmit={handleRegister}>
@@ -143,12 +151,6 @@ function Register() {
               <input type="checkbox" />
               Remember me
             </label>
-            <span
-              style={{ color: "#0066cc", cursor: "pointer", fontWeight: "500" }}
-              onClick={() => alert("Password reset not implemented")}
-            >
-              Forgot password?
-            </span>
           </div>
 
           <button style={buttonStyle} type="submit">

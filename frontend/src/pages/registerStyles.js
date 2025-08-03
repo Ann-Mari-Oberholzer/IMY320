@@ -51,13 +51,14 @@ export const cardStyle = {
   boxShadow: "0 0 30px rgba(28, 118, 148, 0.2)",
   fontFamily: "'Inter', sans-serif",
   textAlign: "center",
+  height:"85vh",
 };
 
 export const logoStyle = {
   width: "170px",
   height: "170px",
   objectFit: "contain",
-  margin: "0 auto 1rem auto",
+  margin: "0 auto 0.1rem auto",
 };
 
 export const inputStyle = {
@@ -77,7 +78,7 @@ export const inputWithIcon = {
 
 export const iconContainer = {
   position: "relative",
-  marginBottom: "1rem",
+  marginBottom: "0.7rem",
 };
 
 export const inputIcon = {
@@ -118,6 +119,7 @@ export const dividerStyle = {
   display: "flex",
   alignItems: "center",
   margin: "1.2rem 0",
+  marginTop: "5px",
 };
 
 export const lineStyle = {
