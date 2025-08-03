@@ -1,7 +1,9 @@
 export const containerStyle = {
-  minHeight: "100vh",
-  width: "100%",
-  position: "relative",
+  position: "fixed",
+  top: 0,
+  left: 0,
+  width: "100vw",
+  height: "100vh",
   backgroundImage: "url('/Field.jpeg')",
   backgroundSize: "cover",
   backgroundPosition: "center",
@@ -9,7 +11,7 @@ export const containerStyle = {
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  padding: "1rem",
+  padding: "0",
   boxSizing: "border-box",
   overflow: "hidden",
 };

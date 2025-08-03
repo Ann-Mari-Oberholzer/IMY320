@@ -16,8 +16,7 @@ import {
   iconContainer,
   inputIcon,
   passwordToggle,
-  inputWithIcon,
-  overlayStyle
+  inputWithIcon
 } from "./registerStyles";
 import { roundedIcon, roundedIconButton, roundedIconRow } from "./loginStyles";
 import { SiGoogle, SiSteam, SiTwitch } from "react-icons/si";
@@ -60,8 +59,6 @@ function Register() {
 
   return (
     <div style={containerStyle}>
-      <div style={overlayStyle}></div>
-
       <div style={{ ...cardStyle, zIndex: 1 }}>
        <img src="/GameCraft3.png" alt="Game Craft Logo" style={logoStyle} />
         <h1 style={{ textAlign: "center", marginBottom: "1.5rem" }}>Create Account</h1>
