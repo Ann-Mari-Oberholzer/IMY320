@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaGoogle, FaGithub, FaFacebook } from "react-icons/fa";
+import { FaEnvelope, FaLock, FaEye, FaEyeSlash, } from "react-icons/fa";
+import { SiGoogle, SiMicrosoft, SiSteam, SiTwitch } from "react-icons/si";
+
 import {
     containerStyle,
     cardStyle,
@@ -11,13 +13,13 @@ import {
     lineStyle,
     dividerTextStyle,
     toggleStyle,
-    iconStyle,
     iconContainer,
     inputIcon,
     passwordToggle,
     inputWithIcon,
-    thirdPartyContainer,
-    thirdPartyButton
+    roundedIconRow,
+    roundedIconButton,
+    roundedIcon
 } from "./loginStyles";
 
 function Login() {
@@ -34,11 +36,17 @@ function Login() {
 
     return (
         <div style={containerStyle}>
-            <div style={cardStyle}>
-                <div style={logoStyle}>
-                    {/* Logo image would go here */}
-                </div>
+            <div style={{
+                position: "absolute",
+                inset: 0,
+                backgroundColor: "rgba(255, 255, 255, 0.3)",
+                backdropFilter: "blur(4px)",
+                backgroundPosition: "center",
+                zIndex: 0,
+            }}></div>
 
+            <div style={{ ...cardStyle, zIndex: 1 }}>
+                <img src="/game craft logo.jpeg" alt="Game Craft Logo" style={logoStyle} />
                 <h1 style={{ textAlign: "center", marginBottom: "1.5rem" }}>Welcome Back</h1>
 
                 <form onSubmit={handleLogin}>
@@ -101,26 +109,23 @@ function Login() {
                     </button>
                 </form>
 
+                {/* divider style */}
                 <div style={dividerStyle}>
                     <div style={lineStyle}></div>
-                    <div style={dividerTextStyle}>or</div>
+                    <div style={dividerTextStyle}>or continue with</div>
                     <div style={lineStyle}></div>
                 </div>
 
-                <div style={thirdPartyContainer}>
-                    <button style={thirdPartyButton} onClick={() => alert("Google sign-in")}>
-                        <FaGoogle style={{ ...iconStyle, color: "#DB4437" }} />
-                        <span style={{ fontSize: "0.7rem", marginTop: "5px" }}>Google</span>
+                {/* Third party sign in */}
+                <div style={roundedIconRow}>
+                    <button style={roundedIconButton} onClick={() => alert("Steam sign-in")}>
+                        <SiSteam style={{ ...roundedIcon, color: "#3c48ceff" }} />
                     </button>
-
-                    <button style={thirdPartyButton} onClick={() => alert("GitHub sign-in")}>
-                        <FaGithub style={iconStyle} />
-                        <span style={{ fontSize: "0.7rem", marginTop: "5px" }}>GitHub</span>
+                    <button style={roundedIconButton} onClick={() => alert("Google sign-in")}>
+                        <SiGoogle style={{ ...roundedIcon, color: "#f05e51ff" }} />
                     </button>
-
-                    <button style={thirdPartyButton} onClick={() => alert("Facebook sign-in")}>
-                        <FaFacebook style={{ ...iconStyle, color: "#4267B2" }} />
-                        <span style={{ fontSize: "0.7rem", marginTop: "5px" }}>Facebook</span>
+                    <button style={roundedIconButton} onClick={() => alert("Twitch sign-in")}>
+                        <SiTwitch style={{ ...roundedIcon, color: "#8118f2ff" }} />
                     </button>
                 </div>
 
