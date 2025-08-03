@@ -13,17 +13,14 @@ import {
   lineStyle,
   dividerTextStyle,
   toggleStyle,
-  iconStyle,
-  termsStyle,
-  termsLinkStyle,
-  // Add the new style imports
   iconContainer,
   inputIcon,
   passwordToggle,
   inputWithIcon,
-  thirdPartyContainer,
-  thirdPartyButton
+  overlayStyle
 } from "./registerStyles";
+import { roundedIcon, roundedIconButton, roundedIconRow } from "./loginStyles";
+import { SiGoogle, SiSteam, SiTwitch } from "react-icons/si";
 
 function Register() {
   const navigate = useNavigate();
@@ -63,9 +60,10 @@ function Register() {
 
   return (
     <div style={containerStyle}>
-      <div style={cardStyle}>
-        <div style={logoStyle}>{/* Logo placeholder */}</div>
+      <div style={overlayStyle}></div>
 
+      <div style={{ ...cardStyle, zIndex: 1 }}>
+       <img src="/GameCraft3.png" alt="Game Craft Logo" style={logoStyle} />
         <h1 style={{ textAlign: "center", marginBottom: "1.5rem" }}>Create Account</h1>
 
         <form onSubmit={handleRegister}>
@@ -156,46 +154,28 @@ function Register() {
             </span>
           </div>
 
-          {/* terms and conditions */}
-          {/* <div style={termsStyle}>
-            <input
-              type="checkbox"
-              checked={acceptedTerms}
-              onChange={(e) => setAcceptedTerms(e.target.checked)}
-              style={{ marginRight: "8px" }}
-              required
-            />
-            <span>
-              I agree to the <a href="/terms" style={termsLinkStyle}>Terms and Conditions</a>
-            </span>
-          </div> */}
-
           <button style={buttonStyle} type="submit">
             Create Account
           </button>
         </form>
 
-        {/* second divider */}
+        {/* divider style */}
         <div style={dividerStyle}>
           <div style={lineStyle}></div>
-          <div style={dividerTextStyle}>or</div>
+          <div style={dividerTextStyle}>or continue with</div>
           <div style={lineStyle}></div>
         </div>
 
-        <div style={thirdPartyContainer}>
-          <button style={thirdPartyButton} onClick={() => alert("Google sign-in")}>
-            <FaGoogle style={{ ...iconStyle, color: "#DB4437" }} />
-            <span style={{ fontSize: "0.7rem", marginTop: "5px" }}>Google</span>
+        {/* Third party sign in */}
+        <div style={roundedIconRow}>
+          <button style={roundedIconButton} onClick={() => alert("Steam sign-in")}>
+            <SiSteam style={{ ...roundedIcon, color: "#3c48ceff" }} />
           </button>
-
-          <button style={thirdPartyButton} onClick={() => alert("GitHub sign-in")}>
-            <FaGithub style={iconStyle} />
-            <span style={{ fontSize: "0.7rem", marginTop: "5px" }}>GitHub</span>
+          <button style={roundedIconButton} onClick={() => alert("Google sign-in")}>
+            <SiGoogle style={{ ...roundedIcon, color: "#f05e51ff" }} />
           </button>
-
-          <button style={thirdPartyButton} onClick={() => alert("Facebook sign-in")}>
-            <FaFacebook style={{ ...iconStyle, color: "#4267B2" }} />
-            <span style={{ fontSize: "0.7rem", marginTop: "5px" }}>Facebook</span>
+          <button style={roundedIconButton} onClick={() => alert("Twitch sign-in")}>
+            <SiTwitch style={{ ...roundedIcon, color: "#8118f2ff" }} />
           </button>
         </div>
 

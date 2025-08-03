@@ -1,135 +1,211 @@
 export const containerStyle = {
-  fontFamily: "'Helvetica Neue', sans-serif",
-  backgroundColor: "#f0f2f5",
-  height: "100vh",
+  minHeight: "100vh",
+  width: "100%",
+  position: "relative",
+  backgroundImage: "url('/Field.jpeg')",
+  backgroundSize: "cover",
+  backgroundPosition: "center",
+  backgroundRepeat: "no-repeat",
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  padding: "1rem"
+  padding: "1rem",
+  boxSizing: "border-box",
+  overflow: "hidden",
+};
+
+export const backgroundImageStyle = {
+  position: "fixed",
+  top: 0,
+  left: 0,
+  width: "100vw",
+  height: "100vh",
+  backgroundImage: "url('/Field.jpg')", // e.g., background-login.jpg
+  backgroundSize: "cover",
+  backgroundPosition: "center",
+  backgroundRepeat: "no-repeat",
+  zIndex: 0,
+  overflow: "hidden",
+};
+
+export const overlayStyle = {
+  position: "absolute",
+  top: 0,
+  left: 0,
+  width: "100vw",
+  height: "100vh",
+  backgroundColor: "rgba(255, 255, 255, 0.3)",
+  backdropFilter: "blur(4px)",
+  zIndex: 0,
 };
 
 export const cardStyle = {
-  background: "#fff",
+  backgroundColor: "#FFFFFF",
+  color: "#1f3c44ff",
   padding: "2.5rem",
-  borderRadius: "16px",
-  boxShadow: "0 12px 32px rgba(0,0,0,0.05)",
+  borderRadius: "1rem",
   width: "100%",
   maxWidth: "400px",
+  boxShadow: "0 0 30px rgba(28, 118, 148, 0.2)",
+  fontFamily: "'Inter', sans-serif",
+  textAlign: "center",
 };
 
 export const logoStyle = {
-  display: "block",
-  width: "70px",
-  height: "70px",
-  margin: "0 auto 1.25rem",
-  borderRadius: "50%",
-  backgroundColor: "#e0e0e0",
+  width: "170px",
+  height: "170px",
+  objectFit: "contain",
+  margin: "0 auto 1rem auto",
 };
 
 export const inputStyle = {
-  width: "100%",
-  padding: "12px",
-  marginBottom: "1.25rem",
-  border: "1px solid #ccc",
-  borderRadius: "12px",
+  backgroundColor: "#f8f8f8ff",
+  border: "1px solid #CCC",
+  borderRadius: "0.75rem",
+  padding: "0.75rem 1.25rem",
+  width: "85%",
+  color: "#1E232C",
   fontSize: "1rem",
-  boxSizing: "border-box",
+  outline: "none",
+};
+
+export const inputWithIcon = {
+  paddingLeft: "2.5rem",
+};
+
+export const iconContainer = {
+  position: "relative",
+  marginBottom: "1rem",
+};
+
+export const inputIcon = {
+  position: "absolute",
+  left: "0.9rem",
+  top: "45%",
+  transform: "translateY(-50%)",
+  color: "#00AEBB",
+  fontSize: "1.2rem",
+};
+
+export const passwordToggle = {
+  position: "absolute",
+  right: "0.9rem",
+  top: "55%",
+  transform: "translateY(-50%)",
+  background: "none",
+  border: "none",
+  color: "#00AEBB", // teal
+  fontSize: "1.1rem",
+  cursor: "pointer",
 };
 
 export const buttonStyle = {
-  width: "100%",
-  padding: "12px",
-  backgroundColor: "#000",
-  color: "#fff",
-  fontSize: "1rem",
+  backgroundColor: "#F7CA66",
+  color: "#ffffffff",
   border: "none",
-  borderRadius: "12px",
+  borderRadius: "0.75rem",
+  padding: "0.75rem",
+  fontWeight: "600",
+  fontSize: "1rem",
   cursor: "pointer",
-  marginTop: "0.5rem",
+  width: "100%",
+  marginBottom: "1.2rem",
 };
 
 export const dividerStyle = {
   display: "flex",
   alignItems: "center",
-  margin: "1.5rem 0",
-  color: "#999",
+  margin: "1.2rem 0",
 };
 
 export const lineStyle = {
   flex: 1,
   height: "1px",
-  backgroundColor: "#ddd",
+  backgroundColor: "#CCC",
 };
 
 export const dividerTextStyle = {
-  padding: "0 1rem",
-  fontSize: "0.85rem",
+  margin: "0 1rem",
+  color: "#888",
+  fontSize: "0.9rem",
+};
+
+// Replace thirdPartyContainer to be vertical
+export const thirdPartyContainer = {
+  display: "flex",
+  flexDirection: "column",
+  gap: "0.75rem",
+  marginBottom: "1.5rem",
+};
+
+// Updated third-party button with icon & text aligned horizontally
+export const thirdPartyButton = {
+  backgroundColor: "#F5F5F5",
+  color: "#1E232C",
+  borderRadius: "0.75rem",
+  padding: "0.65rem 1rem",
+  display: "flex",
+  alignItems: "center",
+  gap: "0.75rem",
+  fontWeight: "500",
+  fontSize: "0.9rem",
+  cursor: "pointer",
+  border: "1px solid #DDD",
+  transition: "transform 0.2s, box-shadow 0.2s",
+  width: "100%", // matches Sign In width
+};
+
+export const iconStyle = {
+  fontSize: "1.25rem",
+  display: "inline-block",
+};
+
+// Add hover effect for buttons
+export const hoverable = {
+  transition: "all 0.2s ease-in-out",
+  ":hover": {
+    transform: "scale(1.03)",
+    boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+  },
+};
+
+// Optional: refine title
+export const headingStyle = {
+  fontSize: "1.6rem",
+  fontWeight: "700",
+  marginBottom: "1rem",
+  color: "#1E232C",
 };
 
 export const toggleStyle = {
   textAlign: "center",
-  marginTop: "1.2rem",
-  color: "#777",
-  fontSize: "0.9rem",
+  fontSize: "0.85rem",
+  color: "#1E232C",
   cursor: "pointer",
 };
 
-export const iconStyle = {
-  width: "20px",
-  height: "20px",
-};
-
-export const iconContainer = {
-  position: "relative",
-  width: "100%",
-  marginBottom: "1.25rem",
-};
-
-// email and password icons plaacement 
-export const inputIcon = {
-  position: "absolute",
-  left: "12px",
-  top: "35%",
-  transform: "translateY(-50%)",
-  color: "#777",
-  fontSize: "1.2rem",
-};
-
-// password eye icon
-export const passwordToggle = {
-  position: "absolute",
-  right: "12px",
-  top: "38%",
-  transform: "translateY(-50%)",
-  color: "#777",
-  fontSize: "1.2rem",
-  cursor: "pointer",
-  backgroundColor: "transparent",
-  border: "none",
-};
-
-export const inputWithIcon = {
-  paddingLeft: "40px",
-};
-
-export const thirdPartyContainer = {
-  display: "grid",
-  gridTemplateColumns: "repeat(3, 1fr)",
-  gap: "10px",
-};
-
-export const thirdPartyButton = {
-  padding: "10px",
+export const roundedIconRow = {
   display: "flex",
-  flexDirection: "column",
+  justifyContent: "center",
+  gap: "1rem",
+  marginTop: "1rem",
+};
+
+export const roundedIconButton = {
+  width: "48px",
+  height: "48px",
+  borderRadius: "50%",
+  backgroundColor: "#fff",
+  border: "1px solid #DDD",
+  display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  backgroundColor: "#fff",
-  color: "#333",
-  fontSize: "0.8rem",
-  border: "1px solid #ddd",
-  borderRadius: "10px",
   cursor: "pointer",
+  transition: "transform 0.2s ease",
+};
+
+export const roundedIcon = {
+  fontSize: "1.2rem",
 };
 
 export const passwordMeterStyle = {
@@ -148,21 +224,3 @@ export const passwordStrengthStyle = (strength) => ({
   transition: "width 0.3s ease",
 });
 
-export const socialButtonStyle = {
-  ...thirdPartyButton,
-  flexDirection: "row",
-  gap: "8px",
-};
-
-export const termsStyle = {
-  display: "flex",
-  alignItems: "center",
-  margin: "1rem 0",
-  fontSize: "0.85rem",
-  color: "#555",
-};
-
-export const termsLinkStyle = {
-  color: "#0066cc",
-  textDecoration: "none",
-};
