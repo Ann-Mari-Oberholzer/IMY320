@@ -48,10 +48,6 @@ function Register() {
       alert("Passwords don't match!");
       return;
     }
-    if (!acceptedTerms) {
-      alert("Please accept the terms and conditions");
-      return;
-    }
     navigate("/about");
   };
 
