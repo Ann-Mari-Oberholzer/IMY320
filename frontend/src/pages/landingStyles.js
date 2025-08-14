@@ -41,22 +41,27 @@ export const navItem = {
 
 export const heroSection = {
   display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  padding: "4rem 2rem",
+  justifyContent: "center", // center horizontally
+  alignItems: "center",     // center vertically
+  gap: "3rem",              // add space between text and image
+  padding: "5rem 2rem",
+  paddingBottom: "5rem",
   flexWrap: "wrap",
   background: "linear-gradient(to bottom right, #f8f9fa, #ffffff)"
 };
 
 export const heroLeft = {
   flex: "1",
-  minWidth: "300px",
-  padding: "2rem"
+  minWidth: "280px",
+  maxWidth: "500px",  // limit width so text doesn't stretch too much
+  padding: "1rem",
+  textAlign: "center" // center text horizontally
 };
 
 export const heroRight = {
   flex: "1",
-  minWidth: "300px",
+  minWidth: "280px",
+  maxWidth: "600px",
   textAlign: "center"
 };
 

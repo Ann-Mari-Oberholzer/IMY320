@@ -39,6 +39,53 @@ import {
 function LandingPage() {
   const navigate = useNavigate();
 
+  const [hoveredIndex, setHoveredIndex] = React.useState(null);
+
+  const getCardStyle = (index) => ({
+    backgroundColor: hoveredIndex === index ? "#00AEBB" : "#ffffff",
+    color: hoveredIndex === index ? "#ffffff" : "#1E232C",
+    borderRadius: "20px",
+    padding: "1.5rem",
+    width: "280px",
+    cursor: "pointer",
+    boxShadow:
+      hoveredIndex === index
+        ? "0 15px 30px rgba(0,0,0,0.1)"
+        : "0 5px 15px rgba(0,0,0,0.05)",
+    transform: hoveredIndex === index ? "translateY(-10px)" : "none",
+    transition: "all 0.3s ease"
+  });
+
+  const [hoveredCategoryIndex, setHoveredCategoryIndex] = React.useState(null);
+
+  const getCategoryCardStyle = (index) => ({
+    backgroundColor: hoveredCategoryIndex === index ? "#00AEBB" : "#ffffff",
+    color: hoveredCategoryIndex === index ? "#ffffff" : "#1E232C",
+    borderRadius: "20px",
+    padding: "1.5rem",
+    width: "280px",
+    cursor: "pointer",
+    boxShadow:
+      hoveredCategoryIndex === index
+        ? "0 15px 30px rgba(0,0,0,0.1)"
+        : "0 5px 15px rgba(0,0,0,0.05)",
+    transform: hoveredCategoryIndex === index ? "translateY(-10px)" : "none",
+    transition: "all 0.3s ease",
+    textAlign: "center"
+  });
+
+  const getPastelIconStyle = (index) => ({
+    fontSize: "2.5rem",
+    color: hoveredCategoryIndex === index ? "#ffffff" : "#00AEBB",
+    marginBottom: "1rem",
+    transition: "color 0.3s ease"
+  });
+
+  const getCategoryTextStyle = (index, isHeading = false) => ({
+    ...(isHeading ? pastelHeading : pastelText),
+    color: hoveredCategoryIndex === index ? "#000000" : (isHeading ? pastelHeading.color : pastelText.color)
+  });
+
   return (
     <div style={page}>
       {/* NAVIGATION */}
@@ -70,23 +117,38 @@ function LandingPage() {
       <section style={darkSection}>
         <h2 style={sectionTitle}>Featured Products</h2>
         <div style={productGrid}>
-          <div style={cardBase}>
-            <img src="/headphones.jpg" style={productImage} alt="Headphones" />
-            <h3 style={productTitle}>Surround Sound Headphones</h3>
-            <p style={productDescription}>Feel the game with immersive sound and deep bass clarity.</p>
-          </div>
-
-          <div style={mainCard}>
-            <img src="/nintendo.jpg" style={productImage} alt="Nintendo Switch" />
-            <h3 style={productTitle2}>Nintendo Switch</h3>
-            <p style={productDescription2}>Switch between handheld and docked mode for non-stop fun.</p>
-          </div>
-
-          <div style={cardBase}>
-            <img src="/controllers.jpg" style={productImage} alt="Controllers" />
-            <h3 style={productTitle}>Pro Gaming Controllers</h3>
-            <p style={productDescription}>Ergonomic design with ultra-responsive analog sticks.</p>
-          </div>
+          {[
+            {
+              img: "/headphones.jpg",
+              title: "Surround Sound Headphones",
+              desc: "Feel the game with immersive sound and deep bass clarity."
+            },
+            {
+              img: "/nintendo.jpg",
+              title: "Nintendo Switch",
+              desc: "Switch between handheld and docked mode for non-stop fun."
+            },
+            {
+              img: "/controllers.jpg",
+              title: "Pro Gaming Controllers",
+              desc: "Ergonomic design with ultra-responsive analog sticks."
+            }
+          ].map((item, index) => (
+            <div
+              key={index}
+              style={getCardStyle(index)}
+              onMouseEnter={() => setHoveredIndex(index)}
+              onMouseLeave={() => setHoveredIndex(null)}
+            >
+              <img src={item.img} style={productImage} alt={item.title} />
+              <h3 style={hoveredIndex === index ? productTitle2 : productTitle}>
+                {item.title}
+              </h3>
+              <p style={hoveredIndex === index ? productDescription2 : productDescription}>
+                {item.desc}
+              </p>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -94,21 +156,34 @@ function LandingPage() {
       <section style={section}>
         <h2 style={sectionTitle}>Our Categories</h2>
         <div style={productGrid}>
-          <div style={pastelCard}>
-            <SiPlaystation style={pastelIcon} />
-            <h3 style={pastelHeading}>Consoles</h3>
-            <p style={pastelText}>From PS5 to Nintendo—find your power system.</p>
-          </div>
-          <div style={pastelCard}>
-            <FaXbox style={pastelIcon} />
-            <h3 style={pastelHeading}>Accessories</h3>
-            <p style={pastelText}>High-performance gear built for serious play.</p>
-          </div>
-          <div style={pastelCard}>
-            <SiHeadphonezone style={pastelIcon} />
-            <h3 style={pastelHeading}>Tech Reviews</h3>
-            <p style={pastelText}>Honest, in-depth looks at what's worth your coins.</p>
-          </div>
+          {[
+            {
+              icon: (index) => <SiPlaystation style={getPastelIconStyle(index)} />,
+              title: "Consoles",
+              text: "From PS5 to Nintendo—find your power system."
+            },
+            {
+              icon: (index) => <FaXbox style={getPastelIconStyle(index)} />,
+              title: "Accessories",
+              text: "High-performance gear built for serious play."
+            },
+            {
+              icon: (index) => <SiHeadphonezone style={getPastelIconStyle(index)} />,
+              title: "Tech Reviews",
+              text: "Honest, in-depth looks at what's worth your coins."
+            }
+          ].map((item, index) => (
+            <div
+              key={index}
+              style={getCategoryCardStyle(index)}
+              onMouseEnter={() => setHoveredCategoryIndex(index)}
+              onMouseLeave={() => setHoveredCategoryIndex(null)}
+            >
+              {item.icon(index)}
+              <h3 style={getCategoryTextStyle(index, true)}>{item.title}</h3>
+              <p style={getCategoryTextStyle(index)}>{item.text}</p>
+            </div>
+          ))}
         </div>
       </section>
 
