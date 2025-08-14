@@ -10,7 +10,7 @@ export const navBar = {
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
-  padding: "1.5rem 2rem",
+  padding: "0.75rem 2rem",
   backgroundColor: "#ffffff",
   boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
   position: "sticky",
@@ -24,7 +24,7 @@ export const logo = {
 
 export const navRight = {
   display: "flex",
-  gap: "2rem",
+  gap: "5rem",
 };
 
 export const navItem = {
@@ -32,11 +32,7 @@ export const navItem = {
   fontSize: "1rem",
   color: "#00AEBB",
   fontWeight: "600",
-  transition: "all 0.3s ease",
-  ":hover": {
-    color: "#F7CA66",
-    transform: "translateY(-2px)"
-  }
+  transition: "all 0.3s ease"
 };
 
 export const heroSection = {
@@ -47,7 +43,8 @@ export const heroSection = {
   padding: "5rem 2rem",
   paddingBottom: "5rem",
   flexWrap: "wrap",
-  background: "linear-gradient(to bottom right, #f8f9fa, #ffffff)"
+  background: "linear-gradient(to bottom right, #f8f9fa, #ffffff)",
+  height: "70vh",
 };
 
 export const heroLeft = {
@@ -91,7 +88,7 @@ export const ctaButton = {
   padding: "14px 32px",
   fontSize: "1rem",
   borderRadius: "12px",
-  background: "linear-gradient(to right, #00AEBB, #F7CA66)",
+  background: "#F7CA66",
   border: "none",
   color: "#fff",
   fontWeight: "700",
@@ -106,14 +103,14 @@ export const ctaButton = {
 
 export const darkSection = {
   textAlign: "center",
-  padding: "4rem 2rem",
+  padding: "1rem 2rem 3rem 2rem",
   backgroundColor: "#1E232C",
   color: "#ffffff"
 };
 
 export const section = {
   textAlign: "center",
-  padding: "4rem 2rem",
+  padding: "1rem 2rem 3rem 2rem",
   backgroundColor: "#ffffff"
 };
 
@@ -141,11 +138,7 @@ export const cardBase = {
   padding: "1.5rem",
   width: "280px",
   transition: "all 0.3s ease",
-  cursor: "pointer",
-  ":hover": {
-    transform: "translateY(-10px)",
-    boxShadow: "0 15px 30px rgba(0,0,0,0.1)"
-  }
+  cursor: "pointer"
 };
 
 export const mainCard = {
@@ -154,9 +147,6 @@ export const mainCard = {
   color: "#ffffff",
   transform: "translateY(-10px)",
   boxShadow: "0 15px 30px rgba(0,0,0,0.1)",
-  ":hover": {
-    transform: "translateY(-15px)"
-  }
 };
 
 export const productImage = {
@@ -222,13 +212,6 @@ export const pastelHeading = {
 export const pastelText = {
   fontSize: "1rem",
   color: "#666"
-};
-
-export const footer = {
-  textAlign: "center",
-  padding: "2rem",
-  backgroundColor: "#1E232C",
-  color: "#ffffff"
 };
 
 export const joinButton = {
