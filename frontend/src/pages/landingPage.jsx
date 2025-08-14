@@ -1,12 +1,18 @@
-import React from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { SiHeadphonezone, SiPlaystation } from "react-icons/si";
+import { FaXbox } from "react-icons/fa";
 import { SiHeadphonezone, SiHeadspace, SiNintendo, SiPlaystation} from "react-icons/si"; 
 import { FaXbox,FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn } from 'react-icons/fa';
 import {
   page,
   navBar,
+  navItem,
+  section,
+  footer,
   logo,
   navRight,
+  sectionTitle,
   heroSection,
   heroLeft,
   heroRight,
@@ -17,8 +23,14 @@ import {
   mainCard,
   productImage,
   productTitle,
-  productTitle2,
   productDescription,
+  productImage,
+  heroSection,
+  heroLeft,
+  heroRight,
+  gradientHeading,
+  heroText,
+  ctaButton,
   productDescription2,
   pastelCard,
   pastelIcon,
@@ -29,10 +41,58 @@ import {
   sectionTitle,
 } from "./landingStyles";
 
+// QUICKSET: always use your backend port directly
+const API_BASE = "http://localhost:4000";
+
 import "./landingStyles.css";
 
 function LandingPage() {
   const navigate = useNavigate();
+
+  // ---- Featured Games state ----
+  const [games, setGames] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState("");
+
+  // Build the URL to your backend: newest games, small payload
+  const gamesUrl = useMemo(() => {
+    const params = new URLSearchParams({
+      limit: "6",
+      sort: "original_release_date:desc",
+      field_list: "id,name,deck,image,site_detail_url",
+    });
+    return `${API_BASE}/api/games?${params.toString()}`;
+  }, []);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const res = await fetch(gamesUrl);
+
+        // Helpful check if the proxy/URL is wrong and HTML is returned
+        const ct = res.headers.get("content-type") || "";
+        if (!ct.includes("application/json")) {
+          const text = await res.text();
+          throw new Error(
+            `Expected JSON, got ${ct}. First chars: ${text.slice(0, 60)}`
+          );
+        }
+
+        if (!res.ok) throw new Error(`Backend error ${res.status}`);
+        const data = await res.json();
+        if (!alive) return;
+        setGames(Array.isArray(data?.results) ? data.results : []);
+      } catch (e) {
+        setErr(e.message || "Failed to load games");
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [gamesUrl]);
 
   return (
     <div style={page}>
@@ -46,7 +106,7 @@ function LandingPage() {
         </div>
       </nav>
 
-      {/* HERO SECTION */}
+      {/* HERO */}
       <section style={heroSection}>
         <div style={heroLeft}>
           <h1 style={gradientHeading}>Create. Play. Repeat.</h1>
@@ -56,6 +116,11 @@ function LandingPage() {
           </button>
         </div>
         <div style={heroRight}>
+          <img
+            src="/Best_Video.png"
+            alt="Game Visual"
+            style={{ width: "100%", maxWidth: "600px", borderRadius: "16px" }}
+          />
           <img src="/Best_Video.png" alt="Game Visual" style={{
       width: "110%",
       height: "100%",
@@ -64,8 +129,17 @@ function LandingPage() {
         </div>
       </section>
 
-      {/* FEATURED PRODUCTS */}
+      {/* FEATURED GAMES (live from backend) */}
       <section style={darkSection}>
+        <h2 style={sectionTitle}>Featured Games</h2>
+
+        {loading && (
+          <div style={{ marginTop: "1rem", opacity: 0.9 }}>Loading…</div>
+        )}
+
+        {err && (
+          <div style={{ marginTop: "1rem", color: "#ffb3b3" }}>
+            {err}. Check that your backend is running at {API_BASE}.
         <h2 style={sectionTitle}>Featured Products</h2>
         <div style={productGrid}>
           <div className="card-base" style={cardBase}>
@@ -79,16 +153,39 @@ function LandingPage() {
             <h3 style={productTitle2}>Nintendo Switch</h3>
             <p style={productDescription2}>Switch between handheld and docked mode for non-stop fun.</p>
           </div>
+        )}
+
+        {!loading && !err && (
+          <div style={productGrid}>
+            {games.map((g) => (
+              <a
+                key={g.id}
+                href={g.site_detail_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ ...cardBase, textDecoration: "none" }}
+              >
+                <img
+                  src={g.image?.original || g.image?.square_small || "/controllers.jpg"}
+                  alt={g.name}
+                  style={productImage}
+                />
+                <h3 style={productTitle}>{g.name}</h3>
+                <p style={productDescription}>
+                  {g.deck || "No description provided."}
+                </p>
+              </a>
+            ))}
 
           <div className="card-base" style={cardBase}>
             <img src="/controllers.jpg" style={productImage} alt="Controllers" />
             <h3 style={productTitle}>Pro Gaming Controllers</h3>
             <p style={productDescription}>Ergonomic design with ultra-responsive analog sticks.</p>
           </div>
-        </div>
+        )}
       </section>
 
-      {/* CATEGORIES SECTION */}
+      {/* CATEGORIES */}
       <section style={section}>
         <h2 style={sectionTitle}>Our Categories</h2>
         <div style={productGrid}>
