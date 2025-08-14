@@ -1,31 +1,24 @@
-import React from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { SiHeadphonezone, SiHeadspace, SiNintendo, SiPlaystation} from "react-icons/si";
-    import { FaXbox } from 'react-icons/fa';
+import { SiHeadphonezone, SiPlaystation } from "react-icons/si";
+import { FaXbox } from "react-icons/fa";
 import {
   page,
   navBar,
   navItem,
-  heading,
-  subheading,
   section,
   footer,
   logo,
   navRight,
-  joinButton,
   sectionTitle,
   productGrid,
   cardBase,
-  mainCard,
   productTitle,
-  productTitle2,
   productDescription,
-  productDescription2,
   productImage,
   heroSection,
   heroLeft,
   heroRight,
-  heroMascot,
   gradientHeading,
   heroText,
   ctaButton,
@@ -36,8 +29,56 @@ import {
   darkSection,
 } from "./landingStyles";
 
+// QUICKSET: always use your backend port directly
+const API_BASE = "http://localhost:4000";
+
 function LandingPage() {
   const navigate = useNavigate();
+
+  // ---- Featured Games state ----
+  const [games, setGames] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState("");
+
+  // Build the URL to your backend: newest games, small payload
+  const gamesUrl = useMemo(() => {
+    const params = new URLSearchParams({
+      limit: "6",
+      sort: "original_release_date:desc",
+      field_list: "id,name,deck,image,site_detail_url",
+    });
+    return `${API_BASE}/api/games?${params.toString()}`;
+  }, []);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const res = await fetch(gamesUrl);
+
+        // Helpful check if the proxy/URL is wrong and HTML is returned
+        const ct = res.headers.get("content-type") || "";
+        if (!ct.includes("application/json")) {
+          const text = await res.text();
+          throw new Error(
+            `Expected JSON, got ${ct}. First chars: ${text.slice(0, 60)}`
+          );
+        }
+
+        if (!res.ok) throw new Error(`Backend error ${res.status}`);
+        const data = await res.json();
+        if (!alive) return;
+        setGames(Array.isArray(data?.results) ? data.results : []);
+      } catch (e) {
+        setErr(e.message || "Failed to load games");
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [gamesUrl]);
 
   return (
     <div style={page}>
@@ -51,10 +92,9 @@ function LandingPage() {
         </div>
       </nav>
 
-      {/* HERO SECTION */}
+      {/* HERO */}
       <section style={heroSection}>
         <div style={heroLeft}>
-          {/* <img src="/GameCraftMascot.png" alt="Game Mascot" style={heroMascot} /> */}
           <h1 style={gradientHeading}>Create. Play. Repeat.</h1>
           <p style={heroText}>Jump into a world where every player is a creator.</p>
           <button style={ctaButton} onClick={() => navigate("/register")}>
@@ -62,35 +102,54 @@ function LandingPage() {
           </button>
         </div>
         <div style={heroRight}>
-          <img src="/Best_Video.png" alt="Game Visual" style={{ width: "100%", maxWidth: "600px", borderRadius: "16px" }} />
+          <img
+            src="/Best_Video.png"
+            alt="Game Visual"
+            style={{ width: "100%", maxWidth: "600px", borderRadius: "16px" }}
+          />
         </div>
       </section>
 
-      {/* FEATURED PRODUCTS */}
+      {/* FEATURED GAMES (live from backend) */}
       <section style={darkSection}>
-        <h2 style={sectionTitle}>Featured Products</h2>
-        <div style={productGrid}>
-          <div style={cardBase}>
-            <img src="/headphones.jpg" style={productImage} alt="Headphones" />
-            <h3 style={productTitle}>Surround Sound Headphones</h3>
-            <p style={productDescription}>Feel the game with immersive sound and deep bass clarity.</p>
-          </div>
+        <h2 style={sectionTitle}>Featured Games</h2>
 
-          <div style={mainCard}>
-            <img src="/nintendo.jpg" style={productImage} alt="Nintendo Switch" />
-            <h3 style={productTitle2}>Nintendo Switch</h3>
-            <p style={productDescription2}>Switch between handheld and docked mode for non-stop fun.</p>
-          </div>
+        {loading && (
+          <div style={{ marginTop: "1rem", opacity: 0.9 }}>Loading…</div>
+        )}
 
-          <div style={cardBase}>
-            <img src="/controllers.jpg" style={productImage} alt="Controllers" />
-            <h3 style={productTitle}>Pro Gaming Controllers</h3>
-            <p style={productDescription}>Ergonomic design with ultra-responsive analog sticks.</p>
+        {err && (
+          <div style={{ marginTop: "1rem", color: "#ffb3b3" }}>
+            {err}. Check that your backend is running at {API_BASE}.
           </div>
-        </div>
+        )}
+
+        {!loading && !err && (
+          <div style={productGrid}>
+            {games.map((g) => (
+              <a
+                key={g.id}
+                href={g.site_detail_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ ...cardBase, textDecoration: "none" }}
+              >
+                <img
+                  src={g.image?.original || g.image?.square_small || "/controllers.jpg"}
+                  alt={g.name}
+                  style={productImage}
+                />
+                <h3 style={productTitle}>{g.name}</h3>
+                <p style={productDescription}>
+                  {g.deck || "No description provided."}
+                </p>
+              </a>
+            ))}
+          </div>
+        )}
       </section>
 
-      {/* CATEGORIES SECTION */}
+      {/* CATEGORIES */}
       <section style={section}>
         <h2 style={sectionTitle}>Our Categories</h2>
         <div style={productGrid}>
