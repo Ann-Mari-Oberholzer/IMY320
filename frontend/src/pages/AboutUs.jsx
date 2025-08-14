@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from "react-router-dom";
 import {
   FaShoppingCart,
   FaUsers,
@@ -8,6 +9,8 @@ import '../AboutUs.css';
 
 const AboutUs = () => {
   const [activeTab, setActiveTab] = useState('story');
+
+  const navigate = useNavigate();
 
   const features = [
     {
@@ -57,6 +60,15 @@ const AboutUs = () => {
   return (
     <div className="about-us-container">
       {/* Navigation Tabs */}
+      <nav className="navbar">
+        <img src="./GameCraft3.png" alt="Logo" className="logo" />
+        <div className="nav-right">
+          <div className="nav-item" onClick={() => navigate("/")}>Home</div>
+          <div className="nav-item">Store</div>
+          <div className="nav-item" onClick={() => navigate("/about")}>About</div>
+        </div>
+      </nav>
+      
       <div className="tabs-section">
         <div className="tabs-container">
           {[
