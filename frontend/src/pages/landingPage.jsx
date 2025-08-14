@@ -1,7 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { SiHeadphonezone, SiPlaystation } from "react-icons/si";
-import { FaXbox } from "react-icons/fa";
 import { SiHeadphonezone, SiHeadspace, SiNintendo, SiPlaystation} from "react-icons/si"; 
 import { FaXbox,FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn } from 'react-icons/fa';
 import {
@@ -13,15 +11,8 @@ import {
   logo,
   navRight,
   sectionTitle,
-  heroSection,
-  heroLeft,
-  heroRight,
-  gradientHeading,
-  heroText,
   productGrid,
   cardBase,
-  mainCard,
-  productImage,
   productTitle,
   productDescription,
   productImage,
@@ -31,20 +22,17 @@ import {
   gradientHeading,
   heroText,
   ctaButton,
-  productDescription2,
   pastelCard,
   pastelIcon,
   pastelHeading,
   pastelText,
   darkSection,
-  section,
-  sectionTitle,
 } from "./landingStyles";
+
+import "./landingStyles.css";
 
 // QUICKSET: always use your backend port directly
 const API_BASE = "http://localhost:4000";
-
-import "./landingStyles.css";
 
 function LandingPage() {
   const navigate = useNavigate();
@@ -106,7 +94,7 @@ function LandingPage() {
         </div>
       </nav>
 
-      {/* HERO */}
+      {/* HERO SECTION */}
       <section style={heroSection}>
         <div style={heroLeft}>
           <h1 style={gradientHeading}>Create. Play. Repeat.</h1>
@@ -116,11 +104,6 @@ function LandingPage() {
           </button>
         </div>
         <div style={heroRight}>
-          <img
-            src="/Best_Video.png"
-            alt="Game Visual"
-            style={{ width: "100%", maxWidth: "600px", borderRadius: "16px" }}
-          />
           <img src="/Best_Video.png" alt="Game Visual" style={{
       width: "110%",
       height: "100%",
@@ -140,18 +123,6 @@ function LandingPage() {
         {err && (
           <div style={{ marginTop: "1rem", color: "#ffb3b3" }}>
             {err}. Check that your backend is running at {API_BASE}.
-        <h2 style={sectionTitle}>Featured Products</h2>
-        <div style={productGrid}>
-          <div className="card-base" style={cardBase}>
-            <img src="/headphones.jpg" style={productImage} alt="Headphones" />
-            <h3 style={productTitle}>Surround Sound Headphones</h3>
-            <p style={productDescription}>Feel the game with immersive sound and deep bass clarity.</p>
-          </div>
-
-          <div className="main-card" style={mainCard}>
-            <img src="/nintendo.jpg" style={productImage} alt="Nintendo Switch" />
-            <h3 style={productTitle2}>Nintendo Switch</h3>
-            <p style={productDescription2}>Switch between handheld and docked mode for non-stop fun.</p>
           </div>
         )}
 
@@ -176,16 +147,11 @@ function LandingPage() {
                 </p>
               </a>
             ))}
-
-          <div className="card-base" style={cardBase}>
-            <img src="/controllers.jpg" style={productImage} alt="Controllers" />
-            <h3 style={productTitle}>Pro Gaming Controllers</h3>
-            <p style={productDescription}>Ergonomic design with ultra-responsive analog sticks.</p>
           </div>
         )}
       </section>
 
-      {/* CATEGORIES */}
+      {/* CATEGORIES SECTION */}
       <section style={section}>
         <h2 style={sectionTitle}>Our Categories</h2>
         <div style={productGrid}>
@@ -244,7 +210,7 @@ function LandingPage() {
 
       {/* Copyright */}
       <div className="footer-bottom">
-<p>KEEP PLAYING UNTIL YOU FIND YOUR STYLE</p> <p>© GameCraft {new Date().getFullYear()}</p>      </div>
+        <p>KEEP PLAYING UNTIL YOU FIND YOUR STYLE</p> <p>© GameCraft {new Date().getFullYear()}</p>      </div>
     </footer>
     </div>
   );
