@@ -1,19 +1,30 @@
 {
-  "name": "backend",
+  "name": "gamecraft-backend",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Backend server for GameCraft with GameSpot API integration and authentication",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "dev": "node server.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
+  "keywords": [
+    "express",
+    "backend",
+    "api",
+    "gaming",
+    "gamespot",
+    "authentication"
+  ],
+  "author": "Fantastic Four",
+  "license": "MIT",
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
-    "express-rate-limit": "^8.0.1"
+    "express-rate-limit": "^8.0.1",
+    "json-server": "^0.17.4"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.0"
   }
 }

@@ -2,11 +2,11 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
+const jsonServer = require('json-server');
 
-// const fetch = (...args) => import('node-fetch').then(({default: f}) => f(...args));
 const app = express();
 
-// basic config 
+// Basic config 
 const PORT = process.env.PORT || 4000;
 const API_KEY = process.env.GAMESPOT_API_KEY;
 const UA = process.env.UPSTREAM_USER_AGENT || 'Pou-GamesHub/1.0';
@@ -17,12 +17,11 @@ if (!API_KEY) {
   process.exit(1);
 }
 
-// ---- middleware ----
-// const cors = require('cors');
-app.use(cors({ origin: ["http://localhost:5173", "http://localhost:3000"] })); // add your dev port(s)
+// Middleware
+app.use(cors({ origin: ["http://localhost:5173", "http://localhost:3000"] }));
 app.use(express.json());
 
-// basic rate limiting for IpP
+// Basic rate limiting for IP
 app.use('/api/', rateLimit({
   windowMs: 60 * 1000, // 1 minute
   max: 60,             // 60 req/min
@@ -30,7 +29,7 @@ app.use('/api/', rateLimit({
   legacyHeaders: false,
 }));
 
-// ---- simple inside memory cache ----
+// Simple in-memory cache
 const cache = new Map(); // key -> { data, expiresAt }
 const getCache = (key) => {
   const hit = cache.get(key);
@@ -42,11 +41,11 @@ const setCache = (key, data) => {
   cache.set(key, { data, expiresAt: Date.now() + CACHE_TTL * 1000 });
 };
 
-// ---- Helpers ----
+// Helpers
 const API_BASE = 'https://www.gamespot.com/api';
 
 /**
- * build a GameSpot API URL with shared params.
+ * Build a GameSpot API URL with shared params.
  * @param {string} resource e.g. 'games', 'reviews', 'articles', 'videos', 'platforms'
  * @param {object} params   key/value map (limit, offset, filter, sort, field_list)
  */
@@ -65,7 +64,7 @@ function buildUrl(resource, params = {}) {
 }
 
 /**
- * proxy GameSpot API request -> caching & proper user-agent.
+ * Proxy GameSpot API request -> caching & proper user-agent.
  */
 async function proxy(resource, params, res) {
   const url = buildUrl(resource, params);
@@ -93,10 +92,68 @@ async function proxy(resource, params, res) {
   return res.json(data);
 }
 
-// ---- Routes ----
+// Authentication routes
+app.post('/auth/login', (req, res) => {
+  const { email, password } = req.body;
+  
+  // Find user by email (using json-server db)
+  const router = jsonServer.router('db.json');
+  const users = router.db.get('users').filter({ email }).value();
+  
+  if (users.length === 0) {
+    return res.status(401).json({ success: false, error: 'User not found' });
+  }
+  
+  const user = users[0];
+  
+  // Check password (simple comparison for now)
+  if (user.password !== password) {
+    return res.status(401).json({ success: false, error: 'Invalid password' });
+  }
+  
+  // Remove password from response
+  const { password: _, ...userWithoutPassword } = user;
+  
+  res.json({
+    success: true,
+    user: userWithoutPassword
+  });
+});
 
-// GET /api/games?search=zelda&platforms=18,130&limit=10
-// the current params supported by GameSpot: limit, offset, sort, filter, field_list
+app.post('/auth/register', (req, res) => {
+  const { email, password, name } = req.body;
+  
+  // Check if user already exists
+  const router = jsonServer.router('db.json');
+  const existingUsers = router.db.get('users').filter({ email }).value();
+  
+  if (existingUsers.length > 0) {
+    return res.status(400).json({ success: false, error: 'User already exists' });
+  }
+  
+  // Create new user
+  const newUser = {
+    id: Date.now(),
+    email,
+    password,
+    name,
+    createdAt: new Date().toISOString()
+  };
+  
+  // Add to database
+  const createdUser = router.db.get('users').push(newUser).write();
+  const user = createdUser[createdUser.length - 1];
+  
+  // Remove password from response
+  const { password: _, ...userWithoutPassword } = user;
+  
+  res.status(201).json({
+    success: true,
+    user: userWithoutPassword
+  });
+});
+
+// GameSpot API routes
 app.get('/api/games', async (req, res) => {
   const {
     search,
@@ -110,13 +167,13 @@ app.get('/api/games', async (req, res) => {
 
   let builtFilter = filter ? String(filter) : '';
 
-  // add a name search if nneeded later
+  // Add a name search if needed
   if (search) {
     const nameFilter = `name:${String(search)}`;
     builtFilter = builtFilter ? `${builtFilter},${nameFilter}` : nameFilter;
   }
 
-  // filter by platform IDs if needed later
+  // Filter by platform IDs if needed
   if (platforms) {
     const platformFilter = `platforms:${String(platforms)}`;
     builtFilter = builtFilter ? `${builtFilter},${platformFilter}` : platformFilter;
@@ -128,34 +185,30 @@ app.get('/api/games', async (req, res) => {
   }, res);
 });
 
-// GET /api/reviews?limit=10&sort=publish_date:desc
 app.get('/api/reviews', async (req, res) => {
   const { limit = '10', offset = '0', sort = 'publish_date:desc', field_list, filter } = req.query;
   return proxy('reviews', { limit, offset, sort, field_list, ...(filter ? { filter } : {}) }, res);
 });
 
-// GET /api/articles?limit=10&sort=publish_date:desc
 app.get('/api/articles', async (req, res) => {
   const { limit = '10', offset = '0', sort = 'publish_date:desc', field_list, filter } = req.query;
   return proxy('articles', { limit, offset, sort, field_list, ...(filter ? { filter } : {}) }, res);
 });
 
-// GET /api/videos?limit=10
 app.get('/api/videos', async (req, res) => {
   const { limit = '10', offset = '0', sort, field_list, filter } = req.query;
   return proxy('videos', { limit, offset, sort, field_list, ...(filter ? { filter } : {}) }, res);
 });
 
-// GET /api/platforms (to build dropdowns)
 app.get('/api/platforms', async (req, res) => {
   const { limit = '100', offset = '0', sort = 'name:asc', field_list = 'id,name,abbreviation' } = req.query;
   return proxy('platforms', { limit, offset, sort, field_list }, res);
 });
 
-// simple browser check
+// Health check
 app.get('/health', (_, res) => res.json({ ok: true }));
 
-// ---- start for the server ----
+// Start server
 app.listen(PORT, () => {
-  console.log(`GameSpot proxy running on http://localhost:${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}`);
 });
