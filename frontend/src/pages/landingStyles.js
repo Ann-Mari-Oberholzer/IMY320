@@ -39,7 +39,11 @@ export const navItem = {
   fontSize: "1rem",
   color: "#00AEBB",
   fontWeight: "600",
-  transition: "all 0.3s ease"
+  transition: "all 0.3s ease",
+  ":hover": {
+    color: "#F7CA66",
+    transform: "translateY(-2px)"
+  }
 };
 
 export const heroSection = {
@@ -61,9 +65,9 @@ export const heroSection = {
 export const heroLeft = {
   flex: "1",
   minWidth: "280px",
-  maxWidth: "500px",  // limit width so text doesn't stretch too much
+  maxWidth: "500px",
   padding: "1rem",
-  textAlign: "center" // center text horizontally
+  textAlign: "center"
 };
 
 export const heroRight = {

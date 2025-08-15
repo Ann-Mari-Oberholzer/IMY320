@@ -150,11 +150,7 @@ function LandingPage() {
           </button>
         </div>
         <div style={heroRight}>
-          <img src="/Best_Video.png" alt="Game Visual" style={{
-      width: "110%",
-      height: "100%",
-      objectFit: "cover"
-    }}  />
+          <img src="/Best_Video.png" alt="Game Visual"/>
         </div>
       </section>
 
@@ -189,8 +185,8 @@ function LandingPage() {
                   alt={g.name}
                   style={productImage}
                 />
-                <h3 style={productTitle}>{g.name}</h3>
-                <p style={productDescription}>
+                <h3 style={{ ...productTitle, color: hoveredIndex === index ? "#fff" : "#1E232C" }}>{g.name}</h3>
+                <p style={{ ...productDescription, color: hoveredIndex === index ? "#fff" : "#1E232C" }}>
                   {g.deck || "No description provided."}
                 </p>
               </a>
