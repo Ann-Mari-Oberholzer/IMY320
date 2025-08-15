@@ -40,7 +40,12 @@ const Navbar = ({ currentPage = 'home', user = null, onLogout }) => {
           Home
         </span>
         
-        <span className="nav-item">Store</span>
+        <span 
+          className={`nav-item ${currentPage === 'catalogue' ? 'active' : ''}`}
+          onClick={() => handleNavigation('/catalogue')}
+        >
+          Store
+        </span>
         
         <span 
           className={`nav-item ${currentPage === 'about' ? 'active' : ''}`}

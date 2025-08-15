@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaExclamationCircle } from "react-icons/fa";
+import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaExclamationCircle, FaUser } from "react-icons/fa";
 import NavBar from '../components/NavBar';
 import { useUser } from '../contexts/UserContext';
 import apiService from '../services/api';
@@ -128,6 +128,36 @@ function Register() {
           <h1 style={{ textAlign: "center", marginBottom: "1.5rem" }}>Create Account</h1>
 
           <form onSubmit={handleRegister}>
+                        {/* Name input */}
+            <div style={iconContainer}>
+              <FaUser style={inputIcon} />
+              <input
+                style={{
+                  ...inputStyle,
+                  ...inputWithIcon,
+                  transition: 'all 0.3s ease',
+                  border: fieldErrors.name ? '2px solid #e74c3c' : '1px solid #CCC'
+                }}
+                type="text"
+                placeholder="Full Name"
+                value={name}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  if (fieldErrors.name) {
+                    setFieldErrors(prev => ({ ...prev, name: null }));
+                  }
+                }}
+                onFocus={(e) => {
+                  e.target.style.border = fieldErrors.name ? '2px solid #e74c3c' : '2px solid #00AEBB';
+                  e.target.style.boxShadow = fieldErrors.name ? '0 0 0 3px rgba(231, 76, 60, 0.1)' : '0 0 0 3px rgba(0, 174, 187, 0.1)';
+                }}
+                onBlur={(e) => {
+                  e.target.style.border = fieldErrors.name ? '2px solid #e74c3c' : '1px solid #CCC';
+                  e.target.style.boxShadow = fieldErrors.name ? '0 0 0 3px rgba(231, 76, 60, 0.1)' : 'none';
+                }}
+              />
+            </div>
+            
             {/* Email input */}
             <div style={iconContainer}>
               <FaEnvelope style={inputIcon} />
@@ -174,35 +204,6 @@ function Register() {
                 {fieldErrors.email}
               </div>
             )}
-
-            {/* Name input */}
-            <div style={iconContainer}>
-              <input
-                style={{
-                  ...inputStyle,
-                  ...inputWithIcon,
-                  transition: 'all 0.3s ease',
-                  border: fieldErrors.name ? '2px solid #e74c3c' : '1px solid #CCC'
-                }}
-                type="text"
-                placeholder="Full Name"
-                value={name}
-                onChange={(e) => {
-                  setName(e.target.value);
-                  if (fieldErrors.name) {
-                    setFieldErrors(prev => ({ ...prev, name: null }));
-                  }
-                }}
-                onFocus={(e) => {
-                  e.target.style.border = fieldErrors.name ? '2px solid #e74c3c' : '2px solid #00AEBB';
-                  e.target.style.boxShadow = fieldErrors.name ? '0 0 0 3px rgba(231, 76, 60, 0.1)' : '0 0 0 3px rgba(0, 174, 187, 0.1)';
-                }}
-                onBlur={(e) => {
-                  e.target.style.border = fieldErrors.name ? '2px solid #e74c3c' : '1px solid #CCC';
-                  e.target.style.boxShadow = fieldErrors.name ? '0 0 0 3px rgba(231, 76, 60, 0.1)' : 'none';
-                }}
-              />
-            </div>
 
             {/* Name error message */}
             {fieldErrors.name && (
