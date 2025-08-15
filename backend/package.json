@@ -1,0 +1,25 @@
+{
+    "name": "gamecraft-backend",
+    "version": "1.0.0",
+    "description": "Simple JSON Server backend for GameCraft hobby store",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js",
+        "dev": "node server.js"
+    },
+    "dependencies": {
+        "cors": "^2.8.5",
+        "json-server": "^0.17.4"
+    },
+    "keywords": [
+        "json-server",
+        "backend",
+        "api",
+        "gaming"
+    ],
+    "author": "Fantastic Four",
+    "license": "MIT",
+    "devDependencies": {
+        "concurrently": "^9.2.0"
+    }
+}

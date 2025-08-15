@@ -1,0 +1,244 @@
+{
+    "products": [
+      {
+        "id": 1,
+        "name": "SteelSeries Arctis 7 Wireless Gaming Headset",
+        "price": 4299.99,
+        "category": "headphones",
+        "image": "/headphones/steelseries-arctis7.jpg",
+        "description": "Lag-free wireless gaming headset with DTS Headphone:X v2.0 surround sound.",
+        "brand": "SteelSeries",
+        "inStock": true,
+        "rating": 4.5,
+        "features": ["Wireless", "7.1 Surround Sound", "24-hour battery", "Discord Certified"]
+      },
+      {
+        "id": 2,
+        "name": "Razer BlackShark V2 Pro",
+        "price": 3899.99,
+        "category": "headphones",
+        "image": "/headphones/razer-blackshark-v2.jpg",
+        "description": "Esports gaming headset with THX 7.1 Spatial Audio and advanced passive noise cancellation.",
+        "brand": "Razer",
+        "inStock": true,
+        "rating": 4.6,
+        "features": ["THX 7.1 Audio", "Noise Cancellation", "Detachable Mic", "Ultra-light"]
+      },
+      {
+        "id": 3,
+        "name": "HyperX Cloud Alpha S",
+        "price": 2599.99,
+        "category": "headphones",
+        "image": "/headphones/hyperx-cloud-alpha.jpg",
+        "description": "Gaming headset with dual chamber drivers and 7.1 surround sound.",
+        "brand": "HyperX",
+        "inStock": true,
+        "rating": 4.4,
+        "features": ["Dual Chamber Drivers", "7.1 Surround", "Adjustable Bass", "Detachable Cable"]
+      },
+      {
+        "id": 4,
+        "name": "Logitech G Pro X Gaming Headset",
+        "price": 2899.99,
+        "category": "headphones",
+        "image": "/headphones/logitech-pro-x.jpg",
+        "description": "Professional gaming headset with Blue VO!CE filters and PRO-G 50mm drivers.",
+        "brand": "Logitech",
+        "inStock": false,
+        "rating": 4.3,
+        "features": ["Blue VO!CE Filters", "PRO-G Drivers", "Memory Foam", "Tournament Ready"]
+      },
+      {
+        "id": 5,
+        "name": "PlayStation 5 Console",
+        "price": 13999.99,
+        "category": "consoles",
+        "image": "/consoles/ps5-console.jpg",
+        "description": "Next-gen gaming with ultra-high speed SSD and ray tracing support.",
+        "brand": "Sony",
+        "inStock": true,
+        "rating": 4.8,
+        "features": ["4K Gaming", "Ray Tracing", "Ultra-fast SSD", "DualSense Controller"]
+      },
+      {
+        "id": 6,
+        "name": "Xbox Series X",
+        "price": 12999.99,
+        "category": "consoles",
+        "image": "/consoles/xbox-series-x.jpg",
+        "description": "Most powerful Xbox with 12 teraflops and Quick Resume feature.",
+        "brand": "Microsoft",
+        "inStock": true,
+        "rating": 4.7,
+        "features": ["12 Teraflops", "4K 120fps", "Quick Resume", "Smart Delivery"]
+      },
+      {
+        "id": 7,
+        "name": "Nintendo Switch OLED Model",
+        "price": 7999.99,
+        "category": "consoles",
+        "image": "/consoles/nintendo-switch-oled.jpg",
+        "description": "Handheld and TV gaming with vibrant 7-inch OLED screen.",
+        "brand": "Nintendo",
+        "inStock": true,
+        "rating": 4.6,
+        "features": ["OLED Screen", "Portable/Docked", "Enhanced Audio", "64GB Storage"]
+      },
+      {
+        "id": 8,
+        "name": "Steam Deck",
+        "price": 8999.99,
+        "category": "consoles",
+        "image": "/consoles/steam-deck.jpg",
+        "description": "Portable PC gaming with access to your entire Steam library.",
+        "brand": "Valve",
+        "inStock": false,
+        "rating": 4.4,
+        "features": ["PC Gaming", "Steam Library", "7-inch Touchscreen", "Custom APU"]
+      },
+      {
+        "id": 9,
+        "name": "The Witcher 3: Wild Hunt Complete Edition",
+        "price": 899.99,
+        "category": "games",
+        "image": "/games/witcher3-complete.jpg",
+        "description": "Award-winning RPG with all DLCs and next-gen enhancements.",
+        "brand": "CD Projekt Red",
+        "inStock": true,
+        "rating": 4.9,
+        "features": ["Complete Edition", "Next-Gen Graphics", "All DLCs", "150+ Hours Content"],
+        "platform": "PC/PS5/Xbox"
+      },
+      {
+        "id": 10,
+        "name": "Elden Ring",
+        "price": 1199.99,
+        "category": "games",
+        "image": "/games/elden-ring.jpg",
+        "description": "FromSoftware's masterpiece combining dark fantasy with open-world exploration.",
+        "brand": "FromSoftware",
+        "inStock": true,
+        "rating": 4.8,
+        "features": ["Open World", "Co-op", "PvP", "Character Customization"],
+        "platform": "PC/PS5/Xbox"
+      },
+      {
+        "id": 11,
+        "name": "Cyberpunk 2077: Phantom Liberty",
+        "price": 1099.99,
+        "category": "games",
+        "image": "/games/cyberpunk-phantom-liberty.jpg",
+        "description": "Futuristic RPG set in Night City with the latest expansion.",
+        "brand": "CD Projekt Red",
+        "inStock": true,
+        "rating": 4.2,
+        "features": ["Open World", "RPG Elements", "Phantom Liberty DLC", "Ray Tracing"],
+        "platform": "PC/PS5/Xbox"
+      },
+      {
+        "id": 12,
+        "name": "FIFA 24",
+        "price": 1399.99,
+        "category": "games",
+        "image": "/games/fifa24.jpg",
+        "description": "Latest football simulation with enhanced HyperMotion technology.",
+        "brand": "EA Sports",
+        "inStock": true,
+        "rating": 4.1,
+        "features": ["HyperMotion V", "Ultimate Team", "Career Mode", "Online Seasons"],
+        "platform": "PC/PS5/Xbox"
+      },
+      {
+        "id": 13,
+        "name": "Hogwarts Legacy",
+        "price": 1299.99,
+        "category": "games",
+        "image": "/games/hogwarts-legacy.jpg",
+        "description": "Open-world action RPG set in the 1800s Wizarding World.",
+        "brand": "Avalanche Software",
+        "inStock": true,
+        "rating": 4.5,
+        "features": ["Open World", "Magic System", "Character Creation", "Hogwarts Castle"],
+        "platform": "PC/PS5/Xbox"
+      },
+      {
+        "id": 14,
+        "name": "Spider-Man 2",
+        "price": 1399.99,
+        "category": "games",
+        "image": "/games/spiderman2.jpg",
+        "description": "Swing through New York as both Peter Parker and Miles Morales.",
+        "brand": "Insomniac Games",
+        "inStock": true,
+        "rating": 4.7,
+        "features": ["Dual Spider-Men", "Open World NYC", "Web-Swinging", "Symbiote Powers"],
+        "platform": "PS5 Exclusive"
+      },
+      {
+        "id": 15,
+        "name": "Corsair HS80 RGB Wireless Gaming Headset",
+        "price": 3199.99,
+        "category": "headphones",
+        "image": "/headphones/corsair-hs80-rgb.jpg",
+        "description": "Premium wireless gaming headset with Dolby Atmos and RGB lighting.",
+        "brand": "Corsair",
+        "inStock": true,
+        "rating": 4.4,
+        "features": ["Dolby Atmos", "RGB Lighting", "Wireless", "Memory Foam Ear Pads"]
+      }
+    ],
+    "categories": [
+      {
+        "id": "headphones",
+        "name": "Gaming Headphones",
+        "description": "Premium headsets for immersive gaming audio"
+      },
+      {
+        "id": "consoles",
+        "name": "Gaming Consoles", 
+        "description": "Next-generation gaming systems"
+      },
+      {
+        "id": "games",
+        "name": "PC & Console Games",
+        "description": "Latest video game titles and classics"
+      }
+    ],
+    "users": [
+      {
+        "id": 1,
+        "email": "test@example.com",
+        "password": "password123",
+        "name": "Test User",
+        "createdAt": "2024-08-14T10:00:00Z"
+      }
+    ],
+    "orders": [
+      {
+        "id": 1,
+        "userId": 1,
+        "products": [
+          {
+            "productId": 1,
+            "quantity": 1,
+            "price": 4299.99
+          }
+        ],
+        "total": 4299.99,
+        "status": "completed",
+        "orderDate": "2024-08-14T10:30:00Z"
+      }
+    ],
+    "cart": [
+      {
+        "id": 1,
+        "userId": 1,
+        "products": [
+          {
+            "productId": 2,
+            "quantity": 1
+          }
+        ]
+      }
+    ]
+  }
