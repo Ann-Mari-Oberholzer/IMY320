@@ -18,7 +18,7 @@ if (!API_KEY) {
 }
 
 // ---- middleware ----
-const cors = require('cors');
+// const cors = require('cors');
 app.use(cors({ origin: ["http://localhost:5173", "http://localhost:3000"] })); // add your dev port(s)
 app.use(express.json());
 

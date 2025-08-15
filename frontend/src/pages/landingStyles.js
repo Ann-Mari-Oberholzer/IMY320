@@ -32,27 +32,30 @@ export const navItem = {
   fontSize: "1rem",
   color: "#00AEBB",
   fontWeight: "600",
-  transition: "all 0.3s ease"
+  transition: "all 0.3s ease",
+  ":hover": {
+    color: "#F7CA66",
+    transform: "translateY(-2px)"
+  }
 };
 
 export const heroSection = {
   display: "flex",
-  justifyContent: "center", // center horizontally
-  alignItems: "center",     // center vertically
-  gap: "3rem",              // add space between text and image
-  padding: "5rem 2rem",
-  paddingBottom: "5rem",
+  justifyContent: "center",
+  alignItems: "center",
+  gap: "3rem",
+  padding: "6rem 2rem",
+  paddingBottom: "6rem",
   flexWrap: "wrap",
   background: "linear-gradient(to bottom right, #f8f9fa, #ffffff)",
-  height: "70vh",
 };
 
 export const heroLeft = {
   flex: "1",
   minWidth: "280px",
-  maxWidth: "500px",  // limit width so text doesn't stretch too much
+  maxWidth: "500px",
   padding: "1rem",
-  textAlign: "center" // center text horizontally
+  textAlign: "center"
 };
 
 export const heroRight = {
