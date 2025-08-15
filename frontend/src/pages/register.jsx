@@ -424,58 +424,35 @@ function Register() {
 
           {/* Third party sign in */}
           <div style={roundedIconRow}>
-            <button 
-              style={{
-                ...roundedIconButton,
-                transition: 'all 0.3s ease'
-              }} 
-              onClick={() => alert("Steam sign-in")}
-              onMouseEnter={(e) => {
-                e.target.style.transform = 'scale(1.1)';
-                e.target.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.transform = 'scale(1)';
-                e.target.style.boxShadow = 'none';
-              }}
-            >
-              <SiSteam style={{ ...roundedIcon, color: "#3c48ceff" }} />
-            </button>
-            <button 
-              style={{
-                ...roundedIconButton,
-                transition: 'all 0.3s ease'
-              }} 
-              onClick={() => alert("Google sign-in")}
-              onMouseEnter={(e) => {
-                e.target.style.transform = 'scale(1.1)';
-                e.target.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.transform = 'scale(1)';
-                e.target.style.boxShadow = 'none';
-              }}
-            >
-              <SiGoogle style={{ ...roundedIcon, color: "#f05e51ff" }} />
-            </button>
-            <button 
-              style={{
-                ...roundedIconButton,
-                transition: 'all 0.3s ease'
-              }} 
-              onClick={() => alert("Twitch sign-in")}
-              onMouseEnter={(e) => {
-                e.target.style.transform = 'scale(1.1)';
-                e.target.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.transform = 'scale(1)';
-                e.target.style.boxShadow = 'none';
-              }}
-            >
-              <SiTwitch style={{ ...roundedIcon, color: "#8118f2ff" }} />
-            </button>
-          </div>
+            {[
+                { Icon: SiSteam, color: "#3c48ceff" },
+                { Icon: SiGoogle, color: "#f05e51ff" },
+                { Icon: SiTwitch, color: "#8118f2ff" }
+            ].map(({ Icon, color }, idx) => (
+                <button
+                    key={idx}
+                    style={{
+                        ...roundedIconButton,
+                        transition: "all 0.3s ease"
+                    }}
+                    onClick={() => alert(`${Icon.name} sign-in`)}
+                    onMouseEnter={(e) => {
+                        e.target.style.transform = "scale(1.1)";
+                        e.target.style.backgroundColor = "#00AEBB";
+                        e.target.querySelector("svg").style.color = "#fff";
+                        e.target.style.boxShadow = "0 4px 12px rgba(0,0,0,0.15)";
+                    }}
+                    onMouseLeave={(e) => {
+                        e.target.style.transform = "scale(1)";
+                        e.target.style.backgroundColor = "";
+                        e.target.querySelector("svg").style.color = color;
+                        e.target.style.boxShadow = "none";
+                    }}
+                >
+                    <Icon style={{ ...roundedIcon, color }} />
+                </button>
+            ))}
+        </div>
 
           <p 
             style={{

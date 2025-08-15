@@ -36,8 +36,6 @@ export const contentWrapper = {
   padding: "2rem 0",
 };
 
-
-
 export const backgroundImageStyle = {
   position: "absolute",
   top: 0,
@@ -66,26 +64,27 @@ export const overlayStyle = {
 export const cardStyle = {
   backgroundColor: "#FFFFFF",
   color: "#1f3c44ff",
-  padding: "2.5rem",
+  padding: "2rem 2.5rem", // Slightly reduce top/bottom padding
   borderRadius: "1rem",
   width: "100%",
   maxWidth: "400px",
   boxShadow: "0 0 30px rgba(28, 118, 148, 0.2)",
   fontFamily: "'Inter', sans-serif",
   textAlign: "center",
+  minHeight: "auto", // Let content determine height
   display: "flex",
   flexDirection: "column",
-  justifyContent: "center",
+  justifyContent: "flex-start", // Align content to top
   position: "relative",
   zIndex: 1,
-  margin: "0 1rem", // Add some margin for mobile
+  margin: "0 1rem",
 };
 
 export const logoStyle = {
-  width: "170px",
-  height: "170px",
+  width: "120px", // Smaller logo for register form
+  height: "120px",
   objectFit: "contain",
-  margin: "0 auto 1rem auto", // unify spacing
+  margin: "0 auto 1rem auto",
 };
 
 export const inputStyle = {
@@ -105,7 +104,7 @@ export const inputWithIcon = {
 
 export const iconContainer = {
   position: "relative",
-  marginBottom: "0.75rem", // unify spacing
+  marginBottom: "0.5rem", // Tighter spacing for register form
 };
 
 export const inputIcon = {
@@ -139,13 +138,13 @@ export const buttonStyle = {
   fontSize: "1rem",
   cursor: "pointer",
   width: "100%",
-  marginBottom: "1.2rem",
+  marginBottom: "1rem", // Reduced margin
 };
 
 export const dividerStyle = {
   display: "flex",
   alignItems: "center",
-  margin: "1.2rem 0",
+  margin: "1rem 0", // Reduced margin
 };
 
 export const lineStyle = {
@@ -214,7 +213,7 @@ export const roundedIconRow = {
   display: "flex",
   justifyContent: "center",
   gap: "1rem",
-  marginTop: "1rem",
+  marginTop: "0.5rem", // Reduced margin
 };
 
 export const roundedIconButton = {
