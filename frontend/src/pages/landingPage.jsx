@@ -1,18 +1,15 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { SiHeadphonezone, SiHeadspace, SiNintendo, SiPlaystation} from "react-icons/si"; 
-import { FaXbox,FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn } from 'react-icons/fa';
+import { SiHeadphonezone, SiPlaystation} from "react-icons/si"; 
+import { FaXbox } from 'react-icons/fa';
+import NavBar from '../components/NavBar'; // Import the new NavBar component
+import Footer from '../components/Footer';
+import { useUser } from '../contexts/UserContext';
 import {
   page,
-  navBar,
-  navItem,
   section,
-  footer,
-  logo,
-  navRight,
   sectionTitle,
   productGrid,
-  cardBase,
   productTitle,
   productDescription,
   productImage,
@@ -21,9 +18,6 @@ import {
   heroRight,
   gradientHeading,
   heroText,
-  ctaButton,
-  pastelCard,
-  pastelIcon,
   pastelHeading,
   pastelText,
   darkSection,
@@ -36,6 +30,9 @@ const API_BASE = "http://localhost:4000";
 
 function LandingPage() {
   const navigate = useNavigate();
+
+  // User state - now managed through UserContext
+  const { user, logout } = useUser();
 
   // ---- Featured Games state ----
   const [games, setGames] = useState([]);
@@ -83,6 +80,13 @@ function LandingPage() {
   }, [gamesUrl]);
 
   const [hoveredIndex, setHoveredIndex] = React.useState(null);
+  const [hoveredCategoryIndex, setHoveredCategoryIndex] = React.useState(null);
+
+  const handleLogout = () => {
+    logout();
+    // Add any additional logout logic here (clear tokens, etc.)
+    console.log("User logged out");
+  };
 
   const getCardStyle = (index) => ({
     backgroundColor: hoveredIndex === index ? "#00AEBB" : "#ffffff",
@@ -98,8 +102,6 @@ function LandingPage() {
     transform: hoveredIndex === index ? "translateY(-10px)" : "none",
     transition: "all 0.3s ease"
   });
-
-  const [hoveredCategoryIndex, setHoveredCategoryIndex] = React.useState(null);
 
   const getCategoryCardStyle = (index) => ({
     backgroundColor: hoveredCategoryIndex === index ? "#00AEBB" : "#ffffff",
@@ -130,16 +132,13 @@ function LandingPage() {
   });
 
   return (
-    <div style={page}>
-      {/* NAVIGATION */}
-      <nav style={navBar}>
-        <img src="/GameCraft3-1.png" alt="Game Craft Logo" style={logo} />
-        <div style={navRight}>
-          <span className="nav-item">Home</span>
-          <span className="nav-item" onClick={() => navigate("/about")}>About</span>
-          <span className="nav-item" onClick={() => navigate("/login")}>Sign Up</span>
-        </div>
-      </nav>
+    <div style={page} className="landing-page-container">
+      {/* NAVIGATION - Replace the old nav with the new NavBar component */}
+      <NavBar 
+        currentPage="home" 
+        user={user} 
+        onLogout={handleLogout}
+      />
 
       {/* HERO SECTION */}
       <section style={heroSection}>
@@ -235,45 +234,7 @@ function LandingPage() {
         </div>
       </section>
 
-      {/* FOOTER */}
-      <footer className="footer">
-      <div className="footer-container">
-
-        {/* Brand / Logo */}
-        <div className="footer-brand">
-          <img src="/GameCraft3-1.png" alt="GameCraft Logo" className="footer-logo" />
-          <p className="brand-tagline">Play. Create. Connect.</p>
-        </div>
-
-        {/* Navigation */}
-        <div className="footer-nav">
-          <a href="#home" className="footer-link">Home</a>
-          <a href="#about" className="footer-link">About</a>
-          <a href="#services" className="footer-link">Services</a>
-          <a href="#contact" className="footer-link">Contact</a>
-        </div>
-
-        {/* Social Media */}
-        <div className="footer-social">
-          <a href="https://facebook.com" target="_blank" rel="noreferrer" className="social-icon">
-            <FaFacebookF />
-          </a>
-          <a href="https://twitter.com" target="_blank" rel="noreferrer" className="social-icon">
-            <FaTwitter />
-          </a>
-          <a href="https://instagram.com" target="_blank" rel="noreferrer" className="social-icon">
-            <FaInstagram />
-          </a>
-          <a href="https://linkedin.com" target="_blank" rel="noreferrer" className="social-icon">
-            <FaLinkedinIn />
-          </a>
-        </div>
-      </div>
-
-      {/* Copyright */}
-      <div className="footer-bottom">
-        <p>KEEP PLAYING UNTIL YOU FIND YOUR STYLE</p> <p>© GameCraft {new Date().getFullYear()}</p>      </div>
-    </footer>
+      <Footer />
     </div>
   );
 }

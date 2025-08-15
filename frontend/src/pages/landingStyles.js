@@ -1,9 +1,15 @@
 export const page = {
   fontFamily: "'Inter', sans-serif",
   color: "#1E232C",
-  padding: "0",
+  padding: 0,
+  margin: 0,
   minHeight: "100vh",
-  overflowX: "hidden"
+  overflowX: "hidden",
+  width: "100vw",
+  maxWidth: "none",
+  position: "relative",
+  left: "50%",
+  transform: "translateX(-50%)"
 };
 
 export const navBar = {
@@ -15,7 +21,8 @@ export const navBar = {
   boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
   position: "sticky",
   top: 0,
-  zIndex: 100
+  zIndex: 100,
+  width: "100%"
 };
 
 export const logo = {
@@ -40,11 +47,15 @@ export const heroSection = {
   justifyContent: "center", // center horizontally
   alignItems: "center",     // center vertically
   gap: "3rem",              // add space between text and image
-  padding: "5rem 2rem",
+  padding: "5rem 0",
   paddingBottom: "5rem",
   flexWrap: "wrap",
   background: "linear-gradient(to bottom right, #f8f9fa, #ffffff)",
   height: "70vh",
+  width: "100vw",
+  position: "relative",
+  left: "50%",
+  transform: "translateX(-50%)"
 };
 
 export const heroLeft = {
@@ -103,15 +114,23 @@ export const ctaButton = {
 
 export const darkSection = {
   textAlign: "center",
-  padding: "1rem 2rem 3rem 2rem",
+  padding: "1rem 0 3rem 0",
   backgroundColor: "#1E232C",
-  color: "#ffffff"
+  color: "#ffffff",
+  width: "100vw",
+  position: "relative",
+  left: "50%",
+  transform: "translateX(-50%)"
 };
 
 export const section = {
   textAlign: "center",
-  padding: "1rem 2rem 3rem 2rem",
-  backgroundColor: "#ffffff"
+  padding: "1rem 0 3rem 0",
+  backgroundColor: "#ffffff",
+  width: "100vw",
+  position: "relative",
+  left: "50%",
+  transform: "translateX(-50%)"
 };
 
 export const sectionTitle = {
@@ -129,7 +148,8 @@ export const productGrid = {
   justifyContent: "center",
   gap: "2rem",
   flexWrap: "wrap",
-  marginTop: "2rem"
+  marginTop: "2rem",
+  width: "100%"
 };
 
 export const cardBase = {

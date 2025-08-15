@@ -5,6 +5,7 @@ export const globalReset = `
     width: 100%;
     height: 100%;
     overflow-x: hidden;
+    font-family: 'Inter', sans-serif;
   }
   
   #root {
@@ -16,15 +17,15 @@ export const globalReset = `
 `;
 
 export const containerStyle = { 
-  position: "relative", // Changed from fixed
+  position: "relative",
   minHeight: "100vh",
-  width: "100vw",
+  width: "100%",
   backgroundImage: "url('/Field.jpeg')",
   backgroundSize: "cover",
   backgroundPosition: "center",
   backgroundRepeat: "no-repeat",
   boxSizing: "border-box",
-  overflow: "auto", // Allow scrolling if needed
+  overflow: "hidden",
 };
 
 export const contentWrapper = {
@@ -35,45 +36,14 @@ export const contentWrapper = {
   padding: "2rem 0",
 };
 
-export const logo = {
-  height: "50px",
-};
 
-export const navBar = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  padding: "1.5rem 2rem",
-  backgroundColor: "#ffffff",
-  boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
-  position: "sticky",
-  top: 0,
-  zIndex: 100
-};
-
-export const navItem = {
-  cursor: "pointer",
-  fontSize: "1rem",
-  color: "#00AEBB",
-  fontWeight: "600",
-  transition: "all 0.3s ease",
-  ":hover": {
-    color: "#F7CA66",
-    transform: "translateY(-2px)"
-  }
-};
-
-export const navRight = {
-  display: "flex",
-  gap: "2rem",
-};
 
 export const backgroundImageStyle = {
-  position: "fixed",
+  position: "absolute",
   top: 0,
   left: 0,
-  width: "100vw",
-  height: "100vh",
+  width: "100%",
+  height: "100%",
   backgroundImage: "url('/Field.jpg')",
   backgroundSize: "cover",
   backgroundPosition: "center",

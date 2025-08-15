@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaExclamationCircle } from "react-icons/fa";
 import { SiGoogle, SiSteam, SiTwitch } from "react-icons/si";
+import NavBar from '../components/NavBar';
+import { useUser } from '../contexts/UserContext';
+import apiService from '../services/api';
 
 import {
     globalReset,
@@ -22,10 +25,6 @@ import {
     roundedIconRow,
     roundedIconButton,
     roundedIcon,
-    navBar,
-    navRight,
-    navItem,
-    logo,
     overlayStyle
 } from "./loginStyles";
 
@@ -34,11 +33,45 @@ function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
+    const { user, login } = useUser();
 
-    const handleLogin = (e) => {
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState("");
+    const [fieldErrors, setFieldErrors] = useState({});
+
+    const handleLogin = async (e) => {
         e.preventDefault();
-        // Login logic here
-        navigate("/about");
+        setError("");
+        setFieldErrors({});
+        
+        // Validate fields
+        const errors = {};
+        if (!email.trim()) errors.email = 'Email is required';
+        if (!password.trim()) errors.password = 'Password is required';
+        
+        if (Object.keys(errors).length > 0) {
+            setFieldErrors(errors);
+            return;
+        }
+
+        setIsLoading(true);
+
+        try {
+            const response = await apiService.login(email, password);
+            
+            if (response.success) {
+                // Login successful
+                login(response.user);
+                navigate("/");
+        } else {
+                // Login failed
+                setError(response.error || 'Login failed. Please try again.');
+            }
+        } catch (error) {
+            setError('Network error. Please check your connection and try again.');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     useEffect(() => {
@@ -56,19 +89,18 @@ function Login() {
             {/* Background overlay */}
             <div style={overlayStyle}></div>
 
-            {/* Navbar */}
-            <nav style={navBar}>
-                <img src="/GameCraft3-1.png" alt="Game Craft Logo" style={logo} />
-                <div style={navRight}>
-                    <span style={navItem} onClick={() => navigate("/")}>Home</span>
-                    <span style={navItem}>Store</span>
-                    <span style={navItem} onClick={() => navigate("/about")}>About</span>
-                </div>
-            </nav>
+            {/* Replace the existing nav with: */}
+            <NavBar currentPage="login" user={user} />
 
             {/* Content wrapper to center the card */}
             <div style={contentWrapper}>
-                <div style={{ ...cardStyle, zIndex: 1 }}>
+                <div 
+                    style={{ 
+                        ...cardStyle, 
+                        zIndex: 1,
+                        boxShadow: '0 0 30px rgba(28, 118, 148, 0.2)'
+                    }}
+                >
                     <img src="/GameCraft3-1.png" alt="Game Craft Logo" style={logoStyle} />
                     <h1 style={{ textAlign: "center", marginBottom: "1.5rem" }}>Welcome Back</h1>
 
@@ -77,25 +109,76 @@ function Login() {
                         <div style={iconContainer}>
                             <FaEnvelope style={inputIcon} />
                             <input
-                                style={{ ...inputStyle, ...inputWithIcon }}
+                                style={{ 
+                                    ...inputStyle, 
+                                    ...inputWithIcon,
+                                    transition: 'all 0.3s ease',
+                                    border: fieldErrors.email ? '2px solid #e74c3c' : '1px solid #CCC'
+                                }}
                                 type="email"
                                 placeholder="Email address"
                                 value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
+                                onChange={(e) => {
+                                    setEmail(e.target.value);
+                                    if (fieldErrors.email) {
+                                        setFieldErrors(prev => ({ ...prev, email: null }));
+                                    }
+                                }}
+                                onFocus={(e) => {
+                                    e.target.style.border = fieldErrors.email ? '2px solid #e74c3c' : '2px solid #00AEBB';
+                                    e.target.style.boxShadow = fieldErrors.email ? '0 0 0 3px rgba(231, 76, 60, 0.1)' : '0 0 0 3px rgba(0, 174, 187, 0.1)';
+                                }}
+                                onBlur={(e) => {
+                                    e.target.style.border = fieldErrors.email ? '2px solid #e74c3c' : '1px solid #CCC';
+                                    e.target.style.boxShadow = fieldErrors.email ? '0 0 0 3px rgba(231, 76, 60, 0.1)' : 'none';
+                                }}
                             />
                         </div>
+
+                        {/* Email error message */}
+                        {fieldErrors.email && (
+                            <div style={{
+                                color: "#e74c3c",
+                                fontSize: "0.8rem",
+                                marginTop: "-0.5rem",
+                                marginBottom: "0.5rem",
+                                paddingLeft: "0.5rem",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "0.25rem"
+                            }}>
+                                <FaExclamationCircle style={{ color: "#e74c3c", fontSize: "0.9rem" }} />
+                                {fieldErrors.email}
+                            </div>
+                        )}
 
                         {/* Password input */}
                         <div style={iconContainer}>
                             <FaLock style={inputIcon} />
                             <input
-                                style={{ ...inputStyle, ...inputWithIcon }}
+                                style={{ 
+                                    ...inputStyle, 
+                                    ...inputWithIcon,
+                                    transition: 'all 0.3s ease',
+                                    border: fieldErrors.password ? '2px solid #e74c3c' : '1px solid #CCC'
+                                }}
                                 type={showPassword ? "text" : "password"}
                                 placeholder="Password"
                                 value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
+                                onChange={(e) => {
+                                    setPassword(e.target.value);
+                                    if (fieldErrors.password) {
+                                        setFieldErrors(prev => ({ ...prev, password: null }));
+                                    }
+                                }}
+                                onFocus={(e) => {
+                                    e.target.style.border = fieldErrors.password ? '2px solid #e74c3c' : '2px solid #00AEBB';
+                                    e.target.style.boxShadow = fieldErrors.password ? '0 0 0 3px rgba(231, 76, 60, 0.1)' : '0 0 0 3px rgba(0, 174, 187, 0.1)';
+                                }}
+                                onBlur={(e) => {
+                                    e.target.style.border = fieldErrors.password ? '2px solid #e74c3c' : '1px solid #CCC';
+                                    e.target.style.boxShadow = fieldErrors.password ? '0 0 0 3px rgba(231, 76, 60, 0.1)' : 'none';
+                                }}
                             />
                             <button
                                 type="button"
@@ -105,6 +188,39 @@ function Login() {
                                 {showPassword ? <FaEyeSlash /> : <FaEye />}
                             </button>
                         </div>
+
+                        {/* Password error message */}
+                        {fieldErrors.password && (
+                            <div style={{
+                                color: "#e74c3c",
+                                fontSize: "0.8rem",
+                                marginTop: "-0.5rem",
+                                marginBottom: "0.5rem",
+                                paddingLeft: "0.5rem",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "0.25rem"
+                            }}>
+                                <FaExclamationCircle style={{ color: "#e74c3c", fontSize: "0.9rem" }} />
+                                {fieldErrors.password}
+                            </div>
+                        )}
+
+                        {/* Error message */}
+                        {error && (
+                            <div style={{
+                                backgroundColor: "#fee",
+                                color: "#c33",
+                                padding: "0.75rem",
+                                borderRadius: "0.5rem",
+                                marginBottom: "1rem",
+                                fontSize: "0.9rem",
+                                textAlign: "center",
+                                border: "1px solid #fcc"
+                            }}>
+                                {error}
+                            </div>
+                        )}
 
                         {/* Remember me / Forgot password */}
                         <div style={{
@@ -127,8 +243,31 @@ function Login() {
                             </span>
                         </div>
 
-                        <button style={buttonStyle} type="submit">
-                            Sign In
+                        <button 
+                            style={{
+                                ...buttonStyle,
+                                opacity: isLoading ? 0.7 : 1,
+                                cursor: isLoading ? 'not-allowed' : 'pointer',
+                                transition: 'all 0.3s ease',
+                                transform: isLoading ? 'none' : 'translateY(0)',
+                                boxShadow: isLoading ? '0 4px 14px rgba(0,0,0,0.1)' : '0 4px 14px rgba(0,0,0,0.1)'
+                            }} 
+                            type="submit"
+                            disabled={isLoading}
+                            onMouseEnter={(e) => {
+                                if (!isLoading) {
+                                    e.target.style.transform = 'translateY(-2px)';
+                                    e.target.style.boxShadow = '0 6px 16px rgba(0,0,0,0.15)';
+                                }
+                            }}
+                            onMouseLeave={(e) => {
+                                if (!isLoading) {
+                                    e.target.style.transform = 'translateY(0)';
+                                    e.target.style.boxShadow = '0 4px 14px rgba(0,0,0,0.1)';
+                                }
+                            }}
+                        >
+                            {isLoading ? 'Signing In...' : 'Sign In'}
                         </button>
                     </form>
 
@@ -141,20 +280,73 @@ function Login() {
 
                     {/* Third party sign in */}
                     <div style={roundedIconRow}>
-                        <button style={roundedIconButton} onClick={() => alert("Steam sign-in")}>
+                        <button 
+                            style={{
+                                ...roundedIconButton,
+                                transition: 'all 0.3s ease'
+                            }} 
+                            onClick={() => alert("Steam sign-in")}
+                            onMouseEnter={(e) => {
+                                e.target.style.transform = 'scale(1.1)';
+                                e.target.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.target.style.transform = 'scale(1)';
+                                e.target.style.boxShadow = 'none';
+                            }}
+                        >
                             <SiSteam style={{ ...roundedIcon, color: "#3c48ceff" }} />
                         </button>
-                        <button style={roundedIconButton} onClick={() => alert("Google sign-in")}>
+                        <button 
+                            style={{
+                                ...roundedIconButton,
+                                transition: 'all 0.3s ease'
+                            }} 
+                            onClick={() => alert("Google sign-in")}
+                            onMouseEnter={(e) => {
+                                e.target.style.transform = 'scale(1.1)';
+                                e.target.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.target.style.transform = 'scale(1)';
+                                e.target.style.boxShadow = 'none';
+                            }}
+                        >
                             <SiGoogle style={{ ...roundedIcon, color: "#f05e51ff" }} />
                         </button>
-                        <button style={roundedIconButton} onClick={() => alert("Twitch sign-in")}>
+                        <button 
+                            style={{
+                                ...roundedIconButton,
+                                transition: 'all 0.3s ease'
+                            }} 
+                            onClick={() => alert("Twitch sign-in")}
+                            onMouseEnter={(e) => {
+                                e.target.style.transform = 'scale(1.1)';
+                                e.target.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.target.style.transform = 'scale(1)';
+                                e.target.style.boxShadow = 'none';
+                            }}
+                        >
                             <SiTwitch style={{ ...roundedIcon, color: "#8118f2ff" }} />
                         </button>
                     </div>
 
                     <p
-                        style={toggleStyle}
+                        style={{
+                            ...toggleStyle,
+                            transition: 'all 0.3s ease'
+                        }}
                         onClick={() => navigate("/register")}
+                        onMouseEnter={(e) => {
+                            e.target.style.color = '#00AEBB';
+                            e.target.style.transform = 'translateY(-1px)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.target.style.color = '#1E232C';
+                            e.target.style.transform = 'translateY(0)';
+                        }}
                     >
                         Don't have an account? <span style={{ fontWeight: "600" }}>Sign up</span>
                     </p>

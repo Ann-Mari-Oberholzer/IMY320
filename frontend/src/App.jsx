@@ -4,17 +4,20 @@ import Login from "./pages/login.jsx";
 import Register from "./pages/register.jsx";
 import AboutUs from "./pages/AboutUs.jsx";
 import LandingPage from "./pages/landingPage.jsx";
+import { UserProvider } from "./contexts/UserContext";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/about" element={<AboutUs />} />
-      </Routes>
-    </BrowserRouter>
+    <UserProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/about" element={<AboutUs />} />
+        </Routes>
+      </BrowserRouter>
+    </UserProvider>
   );
 }
 

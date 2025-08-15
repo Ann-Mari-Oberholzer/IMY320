@@ -1,10 +1,207 @@
-body {
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* Universal reset */
+* {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  overflow-x: hidden !important;
+  border: none !important;
+  outline: none !important;
+}
+
+#root {
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  outline: none !important;
+}
+
+/* Ensure no borders on any elements */
+* {
+  border: none;
+  outline: none;
+}
+
+/* Force remove any potential default browser styling */
+html {
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+}
+
+/* Force full-width sections */
+section {
+  width: 100vw !important;
+  margin-left: calc(-50vw + 50%) !important;
+  margin-right: calc(-50vw + 50%) !important;
+  position: relative !important;
+  left: 50% !important;
+  right: 50% !important;
+  margin-left: -50vw !important;
+  margin-right: -50vw !important;
+}
+
+/* Ensure dark sections extend fully */
+section[style*="backgroundColor: #1E232C"] {
+  width: 100vw !important;
+  margin-left: -50vw !important;
+  margin-right: -50vw !important;
+  position: relative !important;
+  left: 50% !important;
+  right: 50% !important;
+}
+
+/* Force Footer to full width */
+.footer {
+  width: 100vw !important;
+  margin-left: -50vw !important;
+  margin-right: -50vw !important;
+  position: relative !important;
+  left: 50% !important;
+  right: 50% !important;
+}
+
+/* Additional rules to ensure no white borders */
+.about-us-container,
+.landing-page-container {
+  width: 100vw !important;
+  margin-left: -50vw !important;
+  margin-right: -50vw !important;
+  position: relative !important;
+  left: 50% !important;
+  right: 50% !important;
+}
+
+/* Ensure content sections extend fully */
+.content-section {
+  width: 100vw !important;
+  margin-left: -50vw !important;
+  margin-right: -50vw !important;
+  position: relative !important;
+  left: 50% !important;
+  right: 50% !important;
+}
+
+/* Fix asymmetric borders by ensuring perfect centering */
+.about-us-container,
+.landing-page-container,
+.content-section,
+section {
+  transform: translateX(-50%) !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  left: 50% !important;
+  right: auto !important;
+}
+
+/* Aggressive removal of any remaining borders/margins */
+html, body, #root {
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow-x: hidden !important;
+  width: 100% !important;
+}
+
+/* Force all sections to break out of any container constraints */
+.about-us-container,
+.landing-page-container,
+.content-section,
+section,
+.darkSection,
+.section,
+.heroSection {
+  max-width: none !important;
+  min-width: 100vw !important;
+  width: 100vw !important;
+  margin: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  position: relative !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  box-sizing: border-box !important;
+}
+
+/* Ensure no white space on any side */
+* {
+  box-sizing: border-box !important;
+}
+
+/* Override any potential container max-width */
+.container,
+.content-wrapper,
+.main-content {
+  max-width: none !important;
+  width: 100vw !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Nuclear option - force everything to full width */
+* {
+  max-width: none !important;
+}
+
+/* Specific targeting for the main containers */
+div[style*="fontFamily: 'Inter'"],
+div[class*="landing"],
+div[class*="about"] {
+  max-width: none !important;
+  width: 100vw !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  position: relative !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+}
+
+/* Ensure no element can create horizontal scroll or margins */
+html, body {
+  overflow-x: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100vw !important;
+  max-width: none !important;
+}
+
+/* Final override - ensure body has absolutely no margins */
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  outline: 0 !important;
+  width: 100vw !important;
+  max-width: none !important;
+  overflow-x: hidden !important;
+}
+
+/* Target any remaining white space */
+body > *,
+#root > * {
+  max-width: none !important;
+  width: 100vw !important;
+  margin: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
 }
 
 code {
