@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaSearch, FaFilter, FaStar, FaShoppingCart, FaHeart, FaGamepad } from 'react-icons/fa';
+import { FaSearch, FaFilter, FaStar, FaShoppingCart, FaHeart, FaGamepad, FaChevronLeft, FaChevronRight, FaChevronDown, FaChevronUp, FaCheck } from 'react-icons/fa';
 import NavBar from '../components/NavBar';
+import Footer from '../components/Footer';
 import { useUser } from '../contexts/UserContext';
 import {
   globalReset,
@@ -48,88 +49,21 @@ import {
   loadMoreButtonStyle
 } from './catalogue';
 
-const sampleGames = [
-  {
-    id: 1,
-    title: "Cyber Quest 2077",
-    price: 59.99,
-    originalPrice: 79.99,
-    discount: 25,
-    image: "/game1.jpg",
-    rating: 4.8,
-    reviews: 2543,
-    category: "Action",
-    tags: ["Cyberpunk", "Open World", "RPG"],
-    description: "An immersive cyberpunk adventure in a dystopian future."
-  },
-  {
-    id: 2,
-    title: "Fantasy Realms",
-    price: 39.99,
-    image: "/game2.jpg",
-    rating: 4.6,
-    reviews: 1876,
-    category: "RPG",
-    tags: ["Fantasy", "Magic", "Adventure"],
-    description: "Explore magical worlds and cast powerful spells."
-  },
-  {
-    id: 3,
-    title: "Speed Racer X",
-    price: 29.99,
-    originalPrice: 49.99,
-    discount: 40,
-    image: "/game3.jpg",
-    rating: 4.4,
-    reviews: 987,
-    category: "Racing",
-    tags: ["Racing", "Cars", "Multiplayer"],
-    description: "High-speed racing action with customizable vehicles."
-  },
-  {
-    id: 4,
-    title: "Puzzle Master",
-    price: 19.99,
-    image: "/game4.jpg",
-    rating: 4.9,
-    reviews: 3241,
-    category: "Puzzle",
-    tags: ["Puzzle", "Brain Training", "Casual"],
-    description: "Challenge your mind with hundreds of unique puzzles."
-  },
-  {
-    id: 5,
-    title: "Space Commander",
-    price: 44.99,
-    originalPrice: 54.99,
-    discount: 18,
-    image: "/game5.jpg",
-    rating: 4.7,
-    reviews: 1654,
-    category: "Strategy",
-    tags: ["Space", "Strategy", "Sci-Fi"],
-    description: "Command your fleet in epic space battles."
-  },
-  {
-    id: 6,
-    title: "Medieval Wars",
-    price: 34.99,
-    image: "/game6.jpg",
-    rating: 4.5,
-    reviews: 2198,
-    category: "Strategy",
-    tags: ["Medieval", "War", "Strategy"],
-    description: "Build your kingdom and conquer your enemies."
-  }
-];
+// API configuration - same as landing page
+const API_BASE = "http://localhost:4000";
 
-const categories = ["All", "Action", "RPG", "Racing", "Puzzle", "Strategy"];
+const categories = ["All", "Action", "Adventure", "RPG", "Racing", "Puzzle", "Strategy", "Sports", "Simulation"];
 const sortOptions = [
   { value: "popular", label: "Most Popular" },
   { value: "newest", label: "Newest" },
-  { value: "price-low", label: "Price: Low to High" },
-  { value: "price-high", label: "Price: High to Low" },
   { value: "rating", label: "Highest Rated" }
+];
+
+const gamesPerPageOptions = [
+  { value: 10, label: "10 per page" },
+  { value: 20, label: "20 per page" },
+  { value: 30, label: "30 per page" },
+  { value: 100, label: "100 per page" }
 ];
 
 function Catalogue() {
@@ -141,20 +75,142 @@ function Catalogue() {
   const [showFilters, setShowFilters] = useState(false);
   const [wishlist, setWishlist] = useState([]);
 
-  const filteredGames = sampleGames
-    .filter(game => 
-      (selectedCategory === "All" || game.category === selectedCategory) &&
-      (searchTerm === "" || game.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-       game.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())))
-    )
-    .sort((a, b) => {
-      switch (sortBy) {
-        case "price-low": return a.price - b.price;
-        case "price-high": return b.price - a.price;
-        case "rating": return b.rating - a.rating;
-        default: return b.reviews - a.reviews;
+  // Pagination state
+  const [games, setGames] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalResults, setTotalResults] = useState(0);
+  const [gamesPerPage, setGamesPerPage] = useState(20);
+
+  // Cart interaction state
+  const [addedToCart, setAddedToCart] = useState({});
+
+  // Handle add to cart
+  const handleAddToCart = (gameId) => {
+    // Set the game as added to cart
+    setAddedToCart(prev => ({ ...prev, [gameId]: true }));
+    
+    // Reset the added state after 3 seconds
+    setTimeout(() => {
+      setAddedToCart(prev => ({ ...prev, [gameId]: false }));
+    }, 3000);
+    
+    // Here you would typically call your API to add the item to cart
+    console.log(`Added game ${gameId} to cart`);
+  };
+
+  // Fetch games from API
+  const fetchGames = async (search = "", category = "All", sort = "popular", page = 1) => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const offset = (page - 1) * gamesPerPage;
+
+      // Build query parameters
+      const params = new URLSearchParams({
+        limit: gamesPerPage.toString(),
+        offset: offset.toString(),
+        field_list: "id,name,deck,image,site_detail_url,original_release_date,platforms,genres"
+      });
+
+      // Add search filter if provided
+      if (search) {
+        params.set("search", search);
       }
-    });
+
+      // Add category filter if not "All"
+      if (category !== "All") {
+        // Map our categories to GameSpot genres/platforms if needed
+        // For now, we'll use the search parameter for category filtering
+        if (category) {
+          params.set("search", category);
+        }
+      }
+
+      // Add sorting
+      switch (sort) {
+        case "newest":
+          params.set("sort", "original_release_date:desc");
+          break;
+        case "rating":
+          // GameSpot doesn't have rating sorting, so we'll use popularity
+          params.set("sort", "original_release_date:desc");
+          break;
+        default: // popular
+          params.set("sort", "original_release_date:desc");
+          break;
+      }
+
+      const response = await fetch(`${API_BASE}/api/games?${params.toString()}`);
+      
+      if (!response.ok) {
+        throw new Error(`Backend error ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      setGames(Array.isArray(data?.results) ? data.results : []);
+      
+      // Calculate total pages based on total results
+      // Note: GameSpot API might not always return total count, so we'll estimate
+      const estimatedTotal = data?.total_count || (data?.results?.length === gamesPerPage ? 1000 : data?.results?.length);
+      setTotalResults(estimatedTotal);
+      setTotalPages(Math.ceil(estimatedTotal / gamesPerPage));
+      
+    } catch (err) {
+      setError(err.message || "Failed to load games");
+      console.error("Error fetching games:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle page change
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages && newPage !== currentPage) {
+      setCurrentPage(newPage);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  // Handle games per page change
+  const handleGamesPerPageChange = (newGamesPerPage) => {
+    setGamesPerPage(newGamesPerPage);
+    setCurrentPage(1); // Reset to first page when changing games per page
+  };
+
+  // Filter and search games
+  const filteredGames = games.filter(game => {
+    const matchesSearch = searchTerm === "" || 
+      game.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      game.deck?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesCategory = selectedCategory === "All" || 
+      game.genres?.some(genre => genre.name === selectedCategory) ||
+      game.platforms?.some(platform => platform.name === selectedCategory);
+    
+    return matchesSearch && matchesCategory;
+  });
+
+  // Initial load and when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+    fetchGames(searchTerm, selectedCategory, sortBy, 1);
+  }, [searchTerm, selectedCategory, sortBy]);
+
+  // Fetch games when page changes
+  useEffect(() => {
+    fetchGames(searchTerm, selectedCategory, sortBy, currentPage);
+  }, [currentPage]);
+
+  // Fetch games when games per page changes
+  useEffect(() => {
+    setCurrentPage(1);
+    fetchGames(searchTerm, selectedCategory, sortBy, 1);
+  }, [gamesPerPage]);
 
   const toggleWishlist = (gameId) => {
     setWishlist(prev => 
@@ -174,9 +230,76 @@ function Catalogue() {
     };
   }, []);
 
+  // Generate page numbers for pagination
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxVisiblePages = 5;
+    
+    if (totalPages <= maxVisiblePages) {
+      // Show all pages if total is small
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Show pages around current page
+      let start = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+      let end = Math.min(totalPages, start + maxVisiblePages - 1);
+      
+      // Adjust start if we're near the end
+      if (end - start + 1 < maxVisiblePages) {
+        start = Math.max(1, end - maxVisiblePages + 1);
+      }
+      
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+    }
+    
+    return pages;
+  };
+
   return (
     <div style={containerStyle}>
       <NavBar currentPage="catalogue" user={user} />
+      
+      {/* Full Page Loading Overlay */}
+      {loading && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(248, 249, 250, 0.95)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 1000,
+          backdropFilter: 'blur(5px)'
+        }}>
+          <div style={{
+            display: 'flex',
+            gap: '0.5rem',
+            alignItems: 'center'
+          }}>
+            <FaGamepad style={{
+              fontSize: '3rem',
+              color: '#00AEBB',
+              animation: 'bounce 1s infinite'
+            }} />
+            <FaGamepad style={{
+              fontSize: '3rem',
+              color: '#F7CA66',
+              animation: 'bounce 1s infinite 0.2s'
+            }} />
+            <FaGamepad style={{
+              fontSize: '3rem',
+              color: '#00AEBB',
+              animation: 'bounce 1s infinite 0.4s'
+            }} />
+          </div>
+        </div>
+      )}
       
       <div style={contentStyle}>
         <div style={headerStyle}>
@@ -189,7 +312,7 @@ function Catalogue() {
             <FaSearch style={searchIconStyle} />
             <input
               type="text"
-              placeholder="Search games or accesories..."
+              placeholder="Search games or accessories..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               style={searchInputStyle}
@@ -202,6 +325,11 @@ function Catalogue() {
           >
             <FaFilter style={{ marginRight: '0.5rem' }} />
             Filters
+            {showFilters ? (
+              <FaChevronUp style={{ marginLeft: '0.5rem' }} />
+            ) : (
+              <FaChevronDown style={{ marginLeft: '0.5rem' }} />
+            )}
           </button>
         </div>
 
@@ -239,26 +367,55 @@ function Catalogue() {
                 ))}
               </select>
             </div>
+
+            <div style={filterGroupStyle}>
+              <h3 style={filterTitleStyle}>Games Per Page</h3>
+              <select
+                value={gamesPerPage}
+                onChange={(e) => handleGamesPerPageChange(Number(e.target.value))}
+                style={selectStyle}
+              >
+                {gamesPerPageOptions.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         )}
 
         <div style={resultsInfoStyle}>
-          <span>{filteredGames.length} items found</span>
+          {error ? (
+            <span style={{ color: '#e74c3c' }}>Error: {error}</span>
+          ) : (
+            <span>
+              Showing {filteredGames.length} games 
+              {totalResults > 0 && ` of ${totalResults.toLocaleString()}`}
+              {totalPages > 1 && ` (Page ${currentPage} of ${totalPages})`}
+            </span>
+          )}
         </div>
 
         <div style={gamesGridStyle}>
           {filteredGames.map(game => (
             <div key={game.id} style={gameCardStyle}>
               <div style={gameImageContainerStyle}>
+                {game.image?.original || game.image?.square_small ? (
+                  <img
+                    src={game.image.original || game.image.square_small}
+                    alt={game.name}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover'
+                    }}
+                  />
+                ) : (
                 <div style={gameImagePlaceholderStyle}>
                   <FaGamepad style={gameIconStyle} />
                 </div>
-                
-                {/* {game.discount && (
-                  <div style={discountBadgeStyle}>
-                    -{game.discount}%
-                  </div>
-                )} */}
+                )}
 
                 <button
                   onClick={() => toggleWishlist(game.id)}
@@ -272,32 +429,51 @@ function Catalogue() {
               </div>
 
               <div style={gameInfoStyle}>
-                <h3 style={gameTitleStyle}>{game.title}</h3>
-                <p style={gameDescriptionStyle}>{game.description}</p>
+                <h3 style={gameTitleStyle}>{game.name}</h3>
+                <p style={gameDescriptionStyle}>
+                  {game.deck || "No description available."}
+                </p>
 
                 <div style={gameTagsStyle}>
-                  {game.tags.slice(0, 2).map(tag => (
-                    <span key={tag} style={gameTagStyle}>{tag}</span>
-                  ))}
+                  {game.genres?.slice(0, 2).map(genre => (
+                    <span key={genre.id} style={gameTagStyle}>{genre.name}</span>
+                  )) || game.platforms?.slice(0, 2).map(platform => (
+                    <span key={platform.id} style={gameTagStyle}>{platform.abbreviation || platform.name}</span>
+                  )) || (
+                    <span style={gameTagStyle}>Game</span>
+                  )}
                 </div>
 
                 <div style={gameRatingStyle}>
                   <FaStar style={starStyle} />
-                  <span style={ratingTextStyle}>{game.rating}</span>
-                  <span style={reviewsTextStyle}>({game.reviews.toLocaleString()})</span>
+                  <span style={ratingTextStyle}>4.5</span>
+                  <span style={reviewsTextStyle}>(New)</span>
                 </div>
 
                 <div style={gamePriceRowStyle}>
                   <div style={priceContainerStyle}>
-                    {/* {game.originalPrice && (
-                      <span style={originalPriceStyle}>${game.originalPrice}</span>
-                    )} */}
-                    <span style={currentPriceStyle}>${game.price}</span>
+                    <span style={currentPriceStyle}>$59.99</span>
                   </div>
                   
-                  <button style={addToCartButtonStyle}>
+                  <button 
+                    style={{
+                      ...addToCartButtonStyle,
+                      transition: 'all 0.3s ease'
+                    }}
+                    onClick={() => handleAddToCart(game.id)}
+                    disabled={addedToCart[game.id]}
+                  >
+                    {addedToCart[game.id] ? (
+                      <>
+                        <FaCheck style={{ marginRight: '0.5rem' }} />
+                        Added to cart
+                      </>
+                    ) : (
+                      <>
                     <FaShoppingCart style={{ marginRight: '0.5rem' }} />
                     Add to Cart
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
@@ -305,12 +481,69 @@ function Catalogue() {
           ))}
         </div>
 
-        <div style={loadMoreContainerStyle}>
-          <button style={loadMoreButtonStyle}>
-            Load More Games
+        {/* Pagination Controls */}
+        {totalPages > 1 && !loading && (
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '0.5rem',
+            marginTop: '2rem',
+            marginBottom: '2rem'
+          }}>
+            {/* Previous Page Button */}
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              style={{
+                ...loadMoreButtonStyle,
+                padding: '0.5rem 1rem',
+                backgroundColor: currentPage === 1 ? '#ccc' : '#00AEBB',
+                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                opacity: currentPage === 1 ? 0.6 : 1
+              }}
+            >
+              <FaChevronLeft style={{ marginRight: '0.25rem' }} />
+              Previous
+            </button>
+
+            {/* Page Numbers */}
+            {getPageNumbers().map(pageNum => (
+              <button
+                key={pageNum}
+                onClick={() => handlePageChange(pageNum)}
+                style={{
+                  ...loadMoreButtonStyle,
+                  padding: '0.5rem 0.75rem',
+                  minWidth: '2.5rem',
+                  backgroundColor: pageNum === currentPage ? '#F7CA66' : '#00AEBB',
+                  fontWeight: pageNum === currentPage ? '700' : '500'
+                }}
+              >
+                {pageNum}
+              </button>
+            ))}
+
+            {/* Next Page Button */}
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              style={{
+                ...loadMoreButtonStyle,
+                padding: '0.5rem 1rem',
+                backgroundColor: currentPage === totalPages ? '#ccc' : '#00AEBB',
+                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                opacity: currentPage === totalPages ? 0.6 : 1
+              }}
+            >
+              Next
+              <FaChevronRight style={{ marginLeft: '0.25rem' }} />
           </button>
         </div>
+        )}
       </div>
+      
+      <Footer />
     </div>
   );
 }
