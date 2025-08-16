@@ -30,7 +30,6 @@ import {
   gameImagePlaceholderStyle,
   gameIconStyle,
   discountBadgeStyle,
-  wishlistButtonStyle,
   gameInfoStyle,
   gameTitleStyle,
   gameDescriptionStyle,
@@ -66,10 +65,36 @@ const gamesPerPageOptions = [
   { value: 100, label: "100 per page" }
 ];
 
+// New styles for the repositioned wishlist button - same size as add to cart
+const wishlistButtonNewStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  padding: '0.5rem 1rem',
+  backgroundColor: '#fff',
+  color: '#666',
+  border: '2px solid #ddd',
+  borderRadius: '0.5rem',
+  fontSize: '0.9rem',
+  fontWeight: '500',
+  cursor: 'pointer',
+  transition: 'all 0.3s ease',
+  marginBottom: '0.5rem',
+  width: '160px',
+};
+
+const buttonColumnStyle = {
+  display: 'flex',
+  flexDirection: 'column',
+  marginTop: '-2rem',
+  alignItems: 'flex-end',
+};
+
 function Catalogue() {
   const navigate = useNavigate();
   const { user } = useUser();
   const [searchTerm, setSearchTerm] = useState("");
+  const [activeSearchTerm, setActiveSearchTerm] = useState(""); // The search term used for API calls
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortBy, setSortBy] = useState("popular");
   const [showFilters, setShowFilters] = useState(false);
@@ -86,6 +111,14 @@ function Catalogue() {
 
   // Cart interaction state
   const [addedToCart, setAddedToCart] = useState({});
+
+  // Handle search on Enter key press
+  const handleSearchKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      setActiveSearchTerm(searchTerm);
+      setCurrentPage(1);
+    }
+  };
 
   // Handle add to cart
   const handleAddToCart = (gameId) => {
@@ -182,11 +215,11 @@ function Catalogue() {
     setCurrentPage(1); // Reset to first page when changing games per page
   };
 
-  // Filter and search games
+  // Filter and search games (now only filters by activeSearchTerm, not searchTerm)
   const filteredGames = games.filter(game => {
-    const matchesSearch = searchTerm === "" || 
-      game.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      game.deck?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = activeSearchTerm === "" || 
+      game.name?.toLowerCase().includes(activeSearchTerm.toLowerCase()) ||
+      game.deck?.toLowerCase().includes(activeSearchTerm.toLowerCase());
     
     const matchesCategory = selectedCategory === "All" || 
       game.genres?.some(genre => genre.name === selectedCategory) ||
@@ -195,21 +228,21 @@ function Catalogue() {
     return matchesSearch && matchesCategory;
   });
 
-  // Initial load and when filters change
+  // Initial load and when filters change (now uses activeSearchTerm)
   useEffect(() => {
     setCurrentPage(1);
-    fetchGames(searchTerm, selectedCategory, sortBy, 1);
-  }, [searchTerm, selectedCategory, sortBy]);
+    fetchGames(activeSearchTerm, selectedCategory, sortBy, 1);
+  }, [activeSearchTerm, selectedCategory, sortBy]);
 
   // Fetch games when page changes
   useEffect(() => {
-    fetchGames(searchTerm, selectedCategory, sortBy, currentPage);
+    fetchGames(activeSearchTerm, selectedCategory, sortBy, currentPage);
   }, [currentPage]);
 
   // Fetch games when games per page changes
   useEffect(() => {
     setCurrentPage(1);
-    fetchGames(searchTerm, selectedCategory, sortBy, 1);
+    fetchGames(activeSearchTerm, selectedCategory, sortBy, 1);
   }, [gamesPerPage]);
 
   const toggleWishlist = (gameId) => {
@@ -315,6 +348,7 @@ function Catalogue() {
               placeholder="Search games or accessories..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyPress={handleSearchKeyPress}
               style={searchInputStyle}
             />
           </div>
@@ -393,6 +427,7 @@ function Catalogue() {
               Showing {filteredGames.length} games 
               {totalResults > 0 && ` of ${totalResults.toLocaleString()}`}
               {totalPages > 1 && ` (Page ${currentPage} of ${totalPages})`}
+              {activeSearchTerm && <span style={{ fontStyle: 'italic' }}> for "{activeSearchTerm}"</span>}
             </span>
           )}
         </div>
@@ -408,7 +443,6 @@ function Catalogue() {
                     style={{
                       width: '100%',
                       height: '100%',
-                      objectFit: 'cover'
                     }}
                   />
                 ) : (
@@ -416,16 +450,6 @@ function Catalogue() {
                   <FaGamepad style={gameIconStyle} />
                 </div>
                 )}
-
-                <button
-                  onClick={() => toggleWishlist(game.id)}
-                  style={{
-                    ...wishlistButtonStyle,
-                    color: wishlist.includes(game.id) ? '#e74c3c' : '#fff'
-                  }}
-                >
-                  <FaHeart />
-                </button>
               </div>
 
               <div style={gameInfoStyle}>
@@ -447,18 +471,33 @@ function Catalogue() {
                 <div style={gameRatingStyle}>
                   <FaStar style={starStyle} />
                   <span style={ratingTextStyle}>4.5</span>
-                  <span style={reviewsTextStyle}>(New)</span>
                 </div>
 
                 <div style={gamePriceRowStyle}>
                   <div style={priceContainerStyle}>
                     <span style={currentPriceStyle}>$59.99</span>
                   </div>
-                  
+                </div>
+
+                <div style={buttonColumnStyle}>
+                  <button
+                    onClick={() => toggleWishlist(game.id)}
+                    style={{
+                      ...wishlistButtonNewStyle,
+                      backgroundColor: wishlist.includes(game.id) ? '#e74c3c' : '#fff',
+                      borderColor: wishlist.includes(game.id) ? '#e74c3c' : '#ddd',
+                      color: wishlist.includes(game.id) ? '#fff' : '#666',
+                    }}
+                    title={wishlist.includes(game.id) ? "Remove from wishlist" : "Add to wishlist"}
+                  >
+                    <FaHeart style={{ marginRight: '0.5rem' }} />
+                    {wishlist.includes(game.id) ? 'In Wishlist' : 'Add to Wishlist'}
+                  </button>
                   <button 
                     style={{
                       ...addToCartButtonStyle,
-                      transition: 'all 0.3s ease'
+                      backgroundColor: addedToCart[game.id] ? '#27ae60' : '#F7CA66',
+                      transition: 'all 0.3s ease',
                     }}
                     onClick={() => handleAddToCart(game.id)}
                     disabled={addedToCart[game.id]}
@@ -470,8 +509,8 @@ function Catalogue() {
                       </>
                     ) : (
                       <>
-                    <FaShoppingCart style={{ marginRight: '0.5rem' }} />
-                    Add to Cart
+                        <FaShoppingCart style={{ marginRight: '0.5rem' }} />
+                        Add to Cart
                       </>
                     )}
                   </button>

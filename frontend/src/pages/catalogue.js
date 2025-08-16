@@ -75,7 +75,7 @@ export const filterToggleStyle = {
   fontSize: '1rem',
   fontWeight: '500',
   cursor: 'pointer',
-  transition: 'background-color 0.3s ease',
+  transition: 'all 0.3s ease',
 };
 
 export const filtersStyle = {
@@ -141,7 +141,8 @@ export const resultsInfoStyle = {
 };
 
 export const gamesGridStyle = {
-  display: 'grid',
+  display: 'flex',
+  flexDirection: 'column',
   gap: '1.5rem',
   marginBottom: '3rem',
 };
@@ -153,12 +154,16 @@ export const gameCardStyle = {
   boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
   transition: 'transform 0.3s ease, box-shadow 0.3s ease',
   cursor: 'pointer',
+  display: 'flex',
+  minHeight: '200px',
 };
 
 export const gameImageContainerStyle = {
   position: 'relative',
-  height: '200px',
+  width: '250px',
+  height: '300px',
   backgroundColor: '#f0f0f0',
+  flexShrink: 0,
 };
 
 export const gameImagePlaceholderStyle = {
@@ -205,6 +210,10 @@ export const wishlistButtonStyle = {
 
 export const gameInfoStyle = {
   padding: '1.5rem',
+  flex: '1',
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'space-between',
 };
 
 export const gameTitleStyle = {
@@ -219,12 +228,17 @@ export const gameDescriptionStyle = {
   fontSize: '0.9rem',
   margin: '0 0 1rem 0',
   lineHeight: '1.4',
+  display: '-webkit-box',
+  WebkitLineClamp: 3,
+  WebkitBoxOrient: 'vertical',
+  overflow: 'hidden',
 };
 
 export const gameTagsStyle = {
   display: 'flex',
   gap: '0.5rem',
   marginBottom: '1rem',
+  flexWrap: 'wrap',
 };
 
 export const gameTagStyle = {
@@ -261,6 +275,7 @@ export const gamePriceRowStyle = {
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
+  marginTop: 'auto',
 };
 
 export const priceContainerStyle = {
@@ -284,6 +299,7 @@ export const currentPriceStyle = {
 export const addToCartButtonStyle = {
   display: 'flex',
   alignItems: 'center',
+  justifyContent: 'center',
   padding: '0.5rem 1rem',
   backgroundColor: '#F7CA66',
   color: '#fff',
@@ -292,7 +308,9 @@ export const addToCartButtonStyle = {
   fontSize: '0.9rem',
   fontWeight: '500',
   cursor: 'pointer',
-  transition: 'background-color 0.3s ease',
+  transition: 'all 0.3s ease',
+  whiteSpace: 'nowrap',
+  width: '160px',
 };
 
 export const loadMoreContainerStyle = {
@@ -308,7 +326,7 @@ export const loadMoreButtonStyle = {
   fontSize: '1rem',
   fontWeight: '500',
   cursor: 'pointer',
-  transition: 'background-color 0.3s ease',
+  transition: 'all 0.3s ease',
 };
 
 export const globalReset = `
@@ -338,6 +356,42 @@ export const globalReset = `
     }
     60% {
       transform: translateY(-5px);
+    }
+  }
+
+  /* Hover effects for filter toggle button */
+  button[style*="background-color: rgb(0, 174, 187)"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 174, 187, 0.3);
+  }
+
+  /* Hover effects for add to cart button */
+  button[style*="background-color: rgb(247, 202, 102)"]:hover:not([disabled]) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(247, 202, 102, 0.3);
+  }
+
+  /* Hover effects for pagination buttons (excluding disabled ones) */
+  button[style*="background-color: rgb(0, 174, 187)"]:not([disabled]):hover {
+    background-color: #F7CA66 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(247, 202, 102, 0.3);
+  }
+
+  /* Current page button hover effect */
+  button[style*="background-color: rgb(247, 202, 102)"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(247, 202, 102, 0.3);
+  }
+
+  @media (max-width: 768px) {
+    .game-card {
+      flex-direction: column !important;
+    }
+    
+    .game-image-container {
+      width: 100% !important;
+      min-width: 100% !important;
     }
   }
 `;
