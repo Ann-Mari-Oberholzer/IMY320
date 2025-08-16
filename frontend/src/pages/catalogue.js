@@ -313,6 +313,9 @@ export const addToCartButtonStyle = {
   width: '160px',
 };
 
+// stylin for the buttons 
+
+
 export const loadMoreContainerStyle = {
   textAlign: 'center',
 };
