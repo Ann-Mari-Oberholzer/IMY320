@@ -101,7 +101,7 @@ function Login() {
                         boxShadow: '0 0 30px rgba(28, 118, 148, 0.2)'
                     }}
                 >
-                    <img src="/GameCraft3-1.png" alt="Game Craft Logo" style={logoStyle} />
+                    <img src="/GameCraft4-1.png" alt="Game Craft Logo" style={logoStyle} />
                     <h1 style={{ textAlign: "center", marginBottom: "1.5rem" }}>Welcome Back</h1>
 
                     <form onSubmit={handleLogin}>

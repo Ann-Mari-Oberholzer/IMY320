@@ -26,7 +26,7 @@ const Navbar = ({ currentPage = 'home', user = null, onLogout }) => {
   return (
     <nav className="navbar">
       <img 
-        src="/GameCraft3-1.png" 
+        src="/GameCraft4-1.png" 
         alt="Game Craft Logo" 
         className="navbar-logo"
         onClick={() => handleNavigation('/')}
