@@ -1,5 +1,23 @@
 # IMY320
 
+## How to run the system
+
+### 1.1 cd backend
+### 1.2 npm install
+### 1.3 npm run dev
+
+On another terminal:
+
+### 1.3 cd frontend
+### 1.4 npm install
+### 1.5 npm start
+
+### Test user details
+- Email: test@example.com
+- Password: password123
+
+---
+
 Here is a short tutorial overview and some guidance for anyone who migth be a bit lost or stuck at any point with how React works 
 
 ```markdown
