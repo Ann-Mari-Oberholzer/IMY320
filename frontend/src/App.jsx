@@ -5,6 +5,7 @@ import Register from "./pages/register.jsx";
 import AboutUs from "./pages/AboutUs.jsx";
 import LandingPage from "./pages/landingPage.jsx";
 import Catalogue from "./pages/catalogue.jsx";
+import Product from "./pages/productPage.jsx";
 import { UserProvider } from "./contexts/UserContext";
 
 function App() {
@@ -17,6 +18,8 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/about" element={<AboutUs />} />
           <Route path="/catalogue" element={<Catalogue />} />
+          <Route path="/product" element={<Product />} />
+
         </Routes>
       </BrowserRouter>
     </UserProvider>
