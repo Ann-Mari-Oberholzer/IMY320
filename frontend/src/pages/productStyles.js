@@ -2,6 +2,8 @@ export const big = {
   minHeight: "100vh",
   fontFamily: "'Inter', sans-serif",
   backgroundColor: "#f8f9fa",
+  width: "100%",
+  overflowX: "hidden",
 };
 
 export const container = {
@@ -13,6 +15,8 @@ export const container = {
   minHeight: "auto",
   width: "100%",
   maxWidth: "1200px",
+  margin: "0 auto",
+  boxSizing: "border-box",
 };
 
 export const card = {
@@ -27,6 +31,7 @@ export const card = {
   position: "relative",
   margin: "0 auto",
   minHeight: "400px",
+  boxSizing: "border-box",
 };
 
 export const imageSection = {
@@ -40,6 +45,7 @@ export const imageSection = {
   backgroundColor: "#f1f3f5",
   padding: "20px",
   position: "relative",
+  boxSizing: "border-box",
 };
 
 export const bigImage = {
@@ -75,6 +81,7 @@ export const details = {
   gap: "8px",
   minWidth: "300px",
   position: "relative",
+  boxSizing: "border-box",
 };
 
 export const title = {
@@ -105,6 +112,7 @@ export const specs = {
   borderRadius: "12px",
   fontSize: "15px",
   color: "#444",
+  boxSizing: "border-box",
 };
 
 export const ratingContainer = {
@@ -131,7 +139,7 @@ export const categories = {
   flexWrap: 'wrap',
 };
 
-export const category ={
+export const category = {
   backgroundColor: '#f8f9fa',
   color: '#666',
   padding: '0.25rem 0.5rem',
@@ -150,21 +158,11 @@ export const button = {
   borderRadius: "8px",
   cursor: "pointer",
   transition: "background 0.3s ease",
-  
-  /*display: 'flex',
+  display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  padding: '0.5rem 1rem',
-  backgroundColor: '#F7CA66',
-  color: '#fff',
-  border: 'none',
-  borderRadius: '0.5rem',
-  fontSize: '0.9rem',
-  fontWeight: '500',
-  cursor: 'pointer',
-  transition: 'all 0.3s ease',
-  whiteSpace: 'nowrap',
-  width: '160px',*/
+  boxSizing: "border-box",
+  minWidth: 0, // Allow flex shrinking
 };
 
 export const wishlistButton = {
@@ -179,6 +177,8 @@ export const wishlistButton = {
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
+  boxSizing: "border-box",
+  minWidth: 0, // Allow flex shrinking
 };
 
 export const buttonHover = {
@@ -205,5 +205,68 @@ export const spinAnimation = `
   @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+  }
+`;
+
+// Media queries for responsive design
+export const mediaQueries = `
+  @media (max-width: 768px) {
+    .product-card {
+      flex-direction: column !important;
+      max-width: 100% !important;
+    }
+    .product-image-section {
+      min-width: 100% !important;
+      max-width: 100% !important;
+      height: 300px !important;
+    }
+    .product-details {
+      min-width: 100% !important;
+      padding: 16px !important;
+    }
+    .similar-card {
+      flex-direction: column !important;
+      min-height: auto !important;
+    }
+    .similar-card-image {
+      width: 100% !important;
+      height: 200px !important;
+    }
+    .similar-card-buttons {
+      flex-direction: row !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      gap: 1rem !important;
+    }
+    .similar-card-button {
+      width: 48% !important;
+    }
+  }
+  @media (max-width: 480px) {
+    .product-container {
+      padding: 10px !important;
+    }
+    .back-button {
+      padding: 0.5rem 1rem !important;
+      font-size: 0.9rem !important;
+    }
+    .similar-section {
+      padding: 1rem !important;
+    }
+    .product-details {
+      padding: 12px !important;
+    }
+    .button-row {
+      flex-direction: column !important;
+      gap: 0.5rem !important;
+    }
+    .main-button {
+      flex: none !important;
+      width: 100% !important;
+    }
+    .wishlist-button {
+      flex: none !important;
+      width: 100% !important;
+    }
   }
 `;

@@ -10,8 +10,6 @@ import {
   card,
   imageSection,
   bigImage,
-  thumbnailRow,
-  thumbnail,
   details,
   title,
   price,
@@ -35,7 +33,6 @@ function ProductPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useUser();
-  const [selectedImage, setSelectedImage] = useState(0);
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -76,11 +73,6 @@ function ProductPage() {
         // Generate price and rating only once when product is loaded
         setPriceInfo(generateRandomPrice(data.id));
         setRating(generateRandomRating(data.id));
-        
-        // Set first image as selected
-        if (data.image?.original || data.image?.square_small) {
-          setSelectedImage(0);
-        }
         
       } catch (err) {
         setError(err.message || "Failed to load product");
@@ -143,10 +135,55 @@ function ProductPage() {
     fetchSimilarProducts();
   }, [product, id]);
 
-  // Inject CSS animations
+  // Inject CSS animations and responsive styles
   useEffect(() => {
     const styleElement = document.createElement("style");
-    styleElement.textContent = bounceAnimation + spinAnimation;
+    styleElement.textContent = bounceAnimation + spinAnimation + `
+      @media (max-width: 768px) {
+        .product-card {
+          flex-direction: column !important;
+          max-width: 100% !important;
+        }
+        .product-image-section {
+          min-width: 100% !important;
+          max-width: 100% !important;
+          height: 300px !important;
+        }
+        .product-details {
+          min-width: 100% !important;
+          padding: 16px !important;
+        }
+        .similar-card {
+          flex-direction: column !important;
+          min-height: auto !important;
+        }
+        .similar-card-image {
+          width: 100% !important;
+          height: 200px !important;
+        }
+        .similar-card-buttons {
+          flex-direction: row !important;
+          align-items: center !important;
+          justify-content: space-between !important;
+          gap: 1rem !important;
+        }
+        .similar-card-button {
+          width: 48% !important;
+        }
+      }
+      @media (max-width: 480px) {
+        .product-container {
+          padding: 10px !important;
+        }
+        .back-button {
+          padding: 0.5rem 1rem !important;
+          font-size: 0.9rem !important;
+        }
+        .similar-section {
+          padding: 1rem !important;
+        }
+      }
+    `;
     document.head.appendChild(styleElement);
     
     return () => {
@@ -183,16 +220,15 @@ function ProductPage() {
     );
   };
 
-  const getProductImages = () => {
-    if (!product) return [];
+  // Get the main product image - prioritize original, then fallback to others
+  const getMainProductImage = () => {
+    if (!product) return "/controllers.jpg";
     
-    const images = [];
-    if (product.image?.original) images.push(product.image.original);
-    if (product.image?.square_small) images.push(product.image.square_small);
-    if (product.image?.square_tiny) images.push(product.image.square_tiny);
+    if (product.image?.original) return product.image.original;
+    // if (product.image?.square_small) return product.image.square_small;
+    // if (product.image?.square_tiny) return product.image.square_tiny;
     
-    // If no images found, use fallback
-    return images.length > 0 ? images : ["/controllers.jpg"];
+    return "/controllers.jpg";
   };
 
   // Similar Products Component - Catalogue style
@@ -201,6 +237,7 @@ function ProductPage() {
     
     return (
       <div
+        className="similar-card"
         style={{
           backgroundColor: '#fff',
           borderRadius: '1rem',
@@ -210,7 +247,9 @@ function ProductPage() {
           cursor: 'pointer',
           display: 'flex',
           minHeight: '200px',
-          border: '1px solid #e5e7eb'
+          border: '1px solid #e5e7eb',
+          width: '100%',
+          boxSizing: 'border-box'
         }}
         onClick={() => navigate(`/product/${game.id}`)}
         onMouseEnter={(e) => {
@@ -223,13 +262,16 @@ function ProductPage() {
         }}
       >
         {/* Image Section */}
-        <div style={{
-          position: 'relative',
-          width: '200px',
-          height: '240px',
-          backgroundColor: '#f0f0f0',
-          flexShrink: 0
-        }}>
+        <div 
+          className="similar-card-image"
+          style={{
+            position: 'relative',
+            width: '230px',
+            height: '270px',
+            backgroundColor: '#f0f0f0',
+            flexShrink: 0
+          }}
+        >
           {game.image?.original || game.image?.square_small ? (
             <img
               src={game.image.original || game.image.square_small}
@@ -237,7 +279,7 @@ function ProductPage() {
               style={{
                 width: '100%',
                 height: '100%',
-                objectFit: 'cover'
+                // objectFit: 'cover'
               }}
             />
           ) : (
@@ -395,17 +437,21 @@ function ProductPage() {
             </div>
 
             {/* Buttons */}
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '0.5rem',
-              alignItems: 'flex-end'
-            }}>
+            <div 
+              className="similar-card-buttons"
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.5rem',
+                alignItems: 'flex-end'
+              }}
+            >
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   toggleSimilarWishlist(game.id);
                 }}
+                className="similar-card-button"
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -419,7 +465,8 @@ function ProductPage() {
                   fontWeight: '500',
                   cursor: 'pointer',
                   transition: 'all 0.3s ease',
-                  width: '160px'
+                  width: '160px',
+                  boxSizing: 'border-box'
                 }}
                 title={similarWishlist.includes(game.id) ? "Remove from wishlist" : "Add to wishlist"}
               >
@@ -432,6 +479,7 @@ function ProductPage() {
                   e.stopPropagation();
                   handleSimilarAddToCart(game.id);
                 }}
+                className="similar-card-button"
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -445,7 +493,8 @@ function ProductPage() {
                   fontWeight: '500',
                   cursor: 'pointer',
                   transition: 'all 0.3s ease',
-                  width: '160px'
+                  width: '160px',
+                  boxSizing: 'border-box'
                 }}
                 disabled={similarAddedToCart[game.id]}
                 onMouseEnter={(e) => {
@@ -479,10 +528,6 @@ function ProductPage() {
       </div>
     );
   };
-
-  // Ensure selectedImage is within bounds
-  const productImages = getProductImages();
-  const safeSelectedImage = Math.min(selectedImage, productImages.length - 1);
 
   if (loading) {
     return (
@@ -543,6 +588,7 @@ function ProductPage() {
         {/* Back button */}
         <button
           onClick={() => navigate('/catalogue')}
+          className="back-button"
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -555,7 +601,9 @@ function ProductPage() {
             cursor: 'pointer',
             fontSize: '1rem',
             marginBottom: '1rem',
-            transition: 'all 0.3s ease'
+            transition: 'all 0.3s ease',
+            width: 'fit-content',
+            boxSizing: 'border-box'
           }}
           onMouseEnter={(e) => {
             e.target.style.backgroundColor = '#00AEBB';
@@ -572,34 +620,18 @@ function ProductPage() {
           Back to Catalogue
         </button>
 
-        <div style={card}>
-          {/* Left: Image Section */}
-          <div style={imageSection}>
+        <div style={{...card}} className="product-card">
+          {/* Left: Image Section - Now shows only one image */}
+          <div style={{...imageSection}} className="product-image-section">
             <img
-              src={productImages[safeSelectedImage]}
+              src={getMainProductImage()}
               alt={product.name}
               style={bigImage}
             />
-            {productImages.length > 1 && (
-              <div style={thumbnailRow}>
-                {productImages.map((img, index) => (
-                  <img
-                    key={index}
-                    src={img}
-                    alt={`Thumbnail ${index}`}
-                    style={{
-                      ...thumbnail,
-                      border: index === safeSelectedImage ? "2px solid #00AEBB" : "none",
-                    }}
-                    onClick={() => setSelectedImage(index)}
-                  />
-                ))}
-              </div>
-            )}
           </div>
 
           {/* Right: Product Details */}
-          <div style={details}>
+          <div style={{...details}} className="product-details">
             <h3 style={title}>{product.name}</h3>
             <p style={description}>
               {product.deck || "No description available."}
@@ -668,13 +700,17 @@ function ProductPage() {
             </div>
 
             {/* Buttons */}
-            <div style={{ display: "flex", gap: "10px" }}>
+            <div 
+              className="button-row"
+              style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}
+            >
               <button
                 onClick={() => {
                   setAddedToCart(true);
                   setTimeout(() => setAddedToCart(false), 3000);
                   console.log(`Added ${product.name} to cart`);
                 }}
+                className="main-button"
                 style={{ 
                   ...button, 
                   flex: 7,
@@ -703,6 +739,7 @@ function ProductPage() {
                   );
                   console.log(`Toggled wishlist for ${product.name}`);
                 }}
+                className="wishlist-button"
                 style={{ 
                   ...wishlistButton, 
                   flex: 3,
@@ -719,12 +756,17 @@ function ProductPage() {
 
         {/* Similar Products Section */}
         {similarProducts.length > 0 && (
-          <div style={{
-            marginTop: '3rem',
-            backgroundColor: '#f8f9fa',
-            borderRadius: '1rem',
-            padding: '2rem'
-          }}>
+          <div 
+            className="similar-section"
+            style={{
+              marginTop: '3rem',
+              backgroundColor: '#f8f9fa',
+              borderRadius: '1rem',
+              padding: '2rem',
+              width: '100%',
+              boxSizing: 'border-box'
+            }}
+          >
             <h3 style={{
               fontSize: '1.8rem',
               fontWeight: '700',
