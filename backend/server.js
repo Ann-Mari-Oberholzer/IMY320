@@ -185,6 +185,57 @@ app.get('/api/games', async (req, res) => {
   }, res);
 });
 
+// Get individual game by ID
+app.get('/api/games/:id', async (req, res) => {
+  const { id } = req.params;
+  const { field_list = 'id,name,deck,image,site_detail_url,original_release_date,platforms,genres' } = req.query;
+
+  try {
+    const url = buildUrl('games', {
+      filter: `id:${id}`,
+      field_list
+    });
+    
+    const cached = getCache(url);
+    if (cached) {
+      // If cached data has results array, return first item
+      if (cached.results && Array.isArray(cached.results) && cached.results.length > 0) {
+        return res.json(cached.results[0]);
+      }
+      return res.json(cached);
+    }
+
+    const upstreamRes = await fetch(url, {
+      headers: {
+        'User-Agent': UA,
+        'Accept': 'application/json'
+      }
+    });
+
+    if (!upstreamRes.ok) {
+      const text = await upstreamRes.text().catch(() => '');
+      return res.status(upstreamRes.status).json({
+        error: 'Upstream error',
+        status: upstreamRes.status,
+        details: text.substring(0, 500)
+      });
+    }
+
+    const data = await upstreamRes.json();
+    setCache(url, data);
+    
+    // If data has results array, return first item
+    if (data.results && Array.isArray(data.results) && data.results.length > 0) {
+      return res.json(data.results[0]);
+    }
+    
+    return res.json(data);
+  } catch (error) {
+    console.error('Error fetching individual game:', error);
+    return res.status(500).json({ error: 'Failed to fetch game' });
+  }
+});
+
 app.get('/api/reviews', async (req, res) => {
   const { limit = '10', offset = '0', sort = 'publish_date:desc', field_list, filter } = req.query;
   return proxy('reviews', { limit, offset, sort, field_list, ...(filter ? { filter } : {}) }, res);
