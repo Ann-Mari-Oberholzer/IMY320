@@ -419,9 +419,6 @@ function Catalogue() {
                   transform: `translateY(-50%) ${selectOpen ? 'rotate(180deg)' : ''}`
                 }} />
               </div>
-            </div>
-
-            <div style={filterGroupStyle}>
               <h3 style={filterTitleStyle}>Games Per Page</h3>
               <div style={enhancedSelectStyles.container}>
                 <select
