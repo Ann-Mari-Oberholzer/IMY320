@@ -4,6 +4,7 @@ import { FaSearch, FaFilter, FaStar, FaShoppingCart, FaHeart, FaGamepad, FaChevr
 import NavBar from '../components/NavBar';
 import Footer from '../components/Footer';
 import { useUser } from '../contexts/UserContext';
+import { generateRandomPrice, generateRandomRating } from '../utils/gameDataGenerators';
 import {
   globalReset,
   containerStyle,
@@ -45,8 +46,10 @@ import {
   currentPriceStyle,
   addToCartButtonStyle,
   loadMoreContainerStyle,
-  loadMoreButtonStyle
-} from './catalogue';
+  loadMoreButtonStyle,
+  wishlistButtonNewStyle,
+  buttonColumnStyle
+} from './catalogue.js';
 
 // API configuration
 const API_BASE = "http://localhost:4000";
@@ -114,46 +117,7 @@ const enhancedSelectStyles = {
   },
 };
 
-// Wishlist button style
-const wishlistButtonNewStyle = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  padding: '0.5rem 1rem',
-  backgroundColor: '#fff',
-  color: '#666',
-  border: '2px solid #ddd',
-  borderRadius: '0.5rem',
-  fontSize: '0.9rem',
-  fontWeight: '500',
-  cursor: 'pointer',
-  transition: 'all 0.3s ease',
-  marginBottom: '0.5rem',
-  width: '160px',
-};
 
-const buttonColumnStyle = {
-  display: 'flex',
-  flexDirection: 'column',
-  marginTop: '-2rem',
-  alignItems: 'flex-end',
-};
-
-// Price and rating generators
-const generateRandomPrice = () => {
-  const basePrice = Math.floor(Math.random() * 60) + 10;
-  const discount = Math.random() > 0.7 ? Math.floor(Math.random() * 30) + 10 : 0;
-  return {
-    originalPrice: basePrice + (basePrice * discount / 100),
-    currentPrice: basePrice,
-    hasDiscount: discount > 0
-  };
-};
-
-const generateRandomRating = () => {
-  const baseRating = (Math.random() * 2) + 3;
-  return Math.round(baseRating * 10) / 10;
-};
 
 function Catalogue() {
   const navigate = useNavigate();
@@ -178,6 +142,9 @@ function Catalogue() {
   // Cart interaction state
   const [addedToCart, setAddedToCart] = useState({});
 
+  // Cache for generated prices and ratings
+  const [gameDataCache, setGameDataCache] = useState({});
+
   const handleSearchKeyPress = (e) => {
     if (e.key === 'Enter') {
       setActiveSearchTerm(searchTerm);
@@ -191,6 +158,19 @@ function Catalogue() {
       setAddedToCart(prev => ({ ...prev, [gameId]: false }));
     }, 3000);
     console.log(`Added game ${gameId} to cart`);
+  };
+
+  // Generate and cache data for a game if not already cached
+  const getGameData = (gameId) => {
+    if (!gameDataCache[gameId]) {
+      const newData = {
+        rating: generateRandomRating(gameId),
+        priceInfo: generateRandomPrice(gameId)
+      };
+      setGameDataCache(prev => ({ ...prev, [gameId]: newData }));
+      return newData;
+    }
+    return gameDataCache[gameId];
   };
 
   const fetchGames = async (search = "", category = "All", sort = "popular", page = 1) => {
@@ -462,11 +442,16 @@ function Catalogue() {
 
         <div style={gamesGridStyle}>
           {filteredGames.map(game => {
-            const rating = generateRandomRating();
-            const priceInfo = generateRandomPrice();
+            const { rating, priceInfo } = getGameData(game.id);
             
             return (
-              <div key={game.id} style={gameCardStyle}>
+              <div 
+                key={game.id} 
+                style={gameCardStyle}
+                className="game-card"
+                onClick={() => navigate(`/product/${game.id}`)}
+                title="Click to view product details"
+              >
                 <div style={gameImageContainerStyle}>
                   {game.image?.original || game.image?.square_small ? (
                     <img
@@ -482,7 +467,18 @@ function Catalogue() {
                 </div>
 
                 <div style={gameInfoStyle}>
-                  <h3 style={gameTitleStyle}>{game.name}</h3>
+                  <h3 
+                    className="game-title"
+                    style={{
+                      ...gameTitleStyle,
+                      cursor: 'pointer',
+                      transition: 'color 0.3s ease'
+                    }}
+                    onMouseEnter={(e) => e.target.style.color = '#00AEBB'}
+                    onMouseLeave={(e) => e.target.style.color = '#1E232C'}
+                  >
+                    {game.name}
+                  </h3>
                   <p style={gameDescriptionStyle}>
                     {game.deck || "No description available."}
                   </p>
@@ -513,7 +509,10 @@ function Catalogue() {
 
                   <div style={buttonColumnStyle}>
                     <button
-                      onClick={() => toggleWishlist(game.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleWishlist(game.id);
+                      }}
                       style={{
                         ...wishlistButtonNewStyle,
                         backgroundColor: wishlist.includes(game.id) ? '#e74c3c' : '#fff',
@@ -526,12 +525,15 @@ function Catalogue() {
                       {wishlist.includes(game.id) ? 'In Wishlist' : 'Add to Wishlist'}
                     </button>
                     <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAddToCart(game.id);
+                      }}
                       style={{
                         ...addToCartButtonStyle,
                         backgroundColor: addedToCart[game.id] ? '#27ae60' : '#F7CA66',
                         transition: 'all 0.3s ease',
                       }}
-                      onClick={() => handleAddToCart(game.id)}
                       disabled={addedToCart[game.id]}
                     >
                       {addedToCart[game.id] ? (

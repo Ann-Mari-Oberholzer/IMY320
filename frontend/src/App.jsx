@@ -18,8 +18,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/about" element={<AboutUs />} />
           <Route path="/catalogue" element={<Catalogue />} />
-          <Route path="/product" element={<Product />} />
-
+          <Route path="/product/:id" element={<Product />} />
         </Routes>
       </BrowserRouter>
     </UserProvider>

@@ -221,6 +221,7 @@ export const gameTitleStyle = {
   fontWeight: '600',
   color: '#1E232C',
   margin: '0 0 0.5rem 0',
+  transition: 'color 0.3s ease',
 };
 
 export const gameDescriptionStyle = {
@@ -313,6 +314,31 @@ export const addToCartButtonStyle = {
   width: '160px',
 };
 
+// Wishlist button style
+export const wishlistButtonNewStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  padding: '0.5rem 1rem',
+  backgroundColor: '#fff',
+  color: '#666',
+  border: '2px solid #ddd',
+  borderRadius: '0.5rem',
+  fontSize: '0.9rem',
+  fontWeight: '500',
+  cursor: 'pointer',
+  transition: 'all 0.3s ease',
+  marginBottom: '0.5rem',
+  width: '160px',
+};
+
+export const buttonColumnStyle = {
+  display: 'flex',
+  flexDirection: 'column',
+  marginTop: '-2rem',
+  alignItems: 'flex-end',
+};
+
 // stylin for the buttons 
 
 
@@ -385,6 +411,17 @@ export const globalReset = `
   button[style*="background-color: rgb(247, 202, 102)"]:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 12px rgba(247, 202, 102, 0.3);
+  }
+
+  /* Game card hover effects */
+  .game-card:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+  }
+
+  /* Game title hover effect */
+  .game-title:hover {
+    color: #00AEBB !important;
   }
 
   @media (max-width: 768px) {

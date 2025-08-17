@@ -10,7 +10,9 @@ export const container = {
   flexDirection: "column",
   alignItems: "center",
   padding: "20px",
-  height: "100vh",
+  minHeight: "auto",
+  width: "100%",
+  maxWidth: "1200px",
 };
 
 export const card = {
@@ -21,18 +23,23 @@ export const card = {
   boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
   maxWidth: "1000px",
   width: "100%",
-  overflow: "hidden",
+  overflow: "visible",
+  position: "relative",
+  margin: "0 auto",
+  minHeight: "400px",
 };
 
 export const imageSection = {
   flex: "1",
-  minWidth: "350px",
+  minWidth: "300px",
+  maxWidth: "400px",
   display: "flex",
   flexDirection: "column",
   justifyContent: "center",
   alignItems: "center",
   backgroundColor: "#f1f3f5",
   padding: "20px",
+  position: "relative",
 };
 
 export const bigImage = {
@@ -66,6 +73,8 @@ export const details = {
   display: "flex",
   flexDirection: "column",
   gap: "8px",
+  minWidth: "300px",
+  position: "relative",
 };
 
 export const title = {
@@ -175,3 +184,26 @@ export const wishlistButton = {
 export const buttonHover = {
   backgroundColor: "#00AEBB",
 };
+
+// Add bounce animation for loading state
+export const bounceAnimation = `
+  @keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+      transform: translateY(0);
+    }
+    40% {
+      transform: translateY(-10px);
+    }
+    60% {
+      transform: translateY(-5px);
+    }
+  }
+`;
+
+// Add spin animation for loading spinner
+export const spinAnimation = `
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`;
