@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { FaStar, FaHeart, FaShoppingCart, FaArrowLeft, FaGamepad, FaCheck } from "react-icons/fa";
 import NavBar from "../components/NavBar";
 import { useUser } from "../contexts/UserContext";
-import { generateRandomPrice, generateRandomRating, generateRandomReviewsCount } from "../utils/gameDataGenerators";
+import { generateRandomPrice, generateRandomRating } from "../utils/gameDataGenerators";
 import {
   container,
   big,
@@ -17,11 +17,9 @@ import {
   price,
   description,
   specs,
-  rating,
   categories,
   button,
   wishlistButton,
-  buttonHover,
   category,
   ratingContainer,
   starStyle,
@@ -43,11 +41,8 @@ function ProductPage() {
   const [error, setError] = useState("");
   const [wishlist, setWishlist] = useState([]);
   const [addedToCart, setAddedToCart] = useState(false);
-  const [isAddingToCart, setIsAddingToCart] = useState(false);
-  const [isTogglingWishlist, setIsTogglingWishlist] = useState(false);
   const [priceInfo, setPriceInfo] = useState(null);
   const [rating, setRating] = useState(null);
-  const [reviewsCount, setReviewsCount] = useState(0);
   
   // Similar products state
   const [similarProducts, setSimilarProducts] = useState([]);
@@ -81,7 +76,6 @@ function ProductPage() {
         // Generate price and rating only once when product is loaded
         setPriceInfo(generateRandomPrice(data.id));
         setRating(generateRandomRating(data.id));
-        setReviewsCount(generateRandomReviewsCount(data.id));
         
         // Set first image as selected
         if (data.image?.original || data.image?.square_small) {
@@ -165,8 +159,7 @@ function ProductPage() {
     if (!similarGameDataCache[gameId]) {
       const newData = {
         rating: generateRandomRating(gameId),
-        priceInfo: generateRandomPrice(gameId),
-        reviewsCount: generateRandomReviewsCount(gameId)
+        priceInfo: generateRandomPrice(gameId)
       };
       setSimilarGameDataCache(prev => ({ ...prev, [gameId]: newData }));
       return newData;
@@ -204,7 +197,7 @@ function ProductPage() {
 
   // Similar Products Component - Catalogue style
   const SimilarProductCard = ({ game }) => {
-    const { rating, priceInfo, reviewsCount } = getSimilarGameData(game.id);
+    const { rating, priceInfo } = getSimilarGameData(game.id);
     
     return (
       <div
@@ -365,7 +358,7 @@ function ProductPage() {
               <FaStar style={{ color: '#F7CA66', fontSize: '1rem' }} />
               <span style={{ fontWeight: '600', color: '#1E232C' }}>{rating}</span>
               <span style={{ color: '#666', fontSize: '0.9rem' }}>
-                ({reviewsCount} reviews)
+                (150 reviews)
               </span>
             </div>
           </div>

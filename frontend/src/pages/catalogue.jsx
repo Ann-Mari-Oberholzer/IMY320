@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaSearch, FaFilter, FaStar, FaShoppingCart, FaHeart, FaGamepad, FaChevronLeft, FaChevronRight, FaChevronDown, FaChevronUp, FaCheck } from 'react-icons/fa';
 import NavBar from '../components/NavBar';
@@ -30,7 +30,6 @@ import {
   gameImageContainerStyle,
   gameImagePlaceholderStyle,
   gameIconStyle,
-  discountBadgeStyle,
   gameInfoStyle,
   gameTitleStyle,
   gameDescriptionStyle,
@@ -39,13 +38,11 @@ import {
   gameRatingStyle,
   starStyle,
   ratingTextStyle,
-  reviewsTextStyle,
   gamePriceRowStyle,
   priceContainerStyle,
   originalPriceStyle,
   currentPriceStyle,
   addToCartButtonStyle,
-  loadMoreContainerStyle,
   loadMoreButtonStyle,
   wishlistButtonNewStyle,
   buttonColumnStyle
@@ -173,7 +170,7 @@ function Catalogue() {
     return gameDataCache[gameId];
   };
 
-  const fetchGames = async (search = "", category = "All", sort = "popular", page = 1) => {
+  const fetchGames = useCallback(async (search = "", category = "All", sort = "popular", page = 1) => {
     try {
       setLoading(true);
       setError("");
@@ -217,7 +214,7 @@ function Catalogue() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [gamesPerPage]);
 
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages && newPage !== currentPage) {
@@ -274,16 +271,16 @@ function Catalogue() {
   useEffect(() => {
     setCurrentPage(1);
     fetchGames(activeSearchTerm, selectedCategory, sortBy, 1);
-  }, [activeSearchTerm, selectedCategory, sortBy]);
+  }, [activeSearchTerm, selectedCategory, sortBy, fetchGames]);
 
   useEffect(() => {
     fetchGames(activeSearchTerm, selectedCategory, sortBy, currentPage);
-  }, [currentPage]);
+  }, [currentPage, activeSearchTerm, selectedCategory, sortBy, fetchGames]);
 
   useEffect(() => {
     setCurrentPage(1);
     fetchGames(activeSearchTerm, selectedCategory, sortBy, 1);
-  }, [gamesPerPage]);
+  }, [gamesPerPage, activeSearchTerm, selectedCategory, sortBy, fetchGames]);
 
   useEffect(() => {
     const styleElement = document.createElement("style");

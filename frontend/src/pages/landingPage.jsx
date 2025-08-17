@@ -34,7 +34,6 @@ function LandingPage() {
   const { user, logout } = useUser();
 
   // ---- Featured Games state ----
-  const [games, setGames] = useState([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
   
@@ -89,7 +88,6 @@ function LandingPage() {
           .sort((a, b) => parseFloat(b.rating) - parseFloat(a.rating)) // Sort by highest rating
           .slice(0, 3); // Take top 3
         
-        setGames(rawGames);
         setFeaturedGames(processedGames);
       } catch (e) {
         setErr(e.message || "Failed to load games");
