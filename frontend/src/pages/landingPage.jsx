@@ -294,7 +294,7 @@ function LandingPage() {
                       gap: "0.5rem",
                       alignItems: "stretch"
                     }}>
-                      <button
+                      {/* <button
                         onClick={(e) => {
                           e.stopPropagation();
                           toggleWishlist(g.id);
@@ -372,7 +372,7 @@ function LandingPage() {
                             🛒 Add to Cart
                           </>
                         )}
-                      </button>
+                      </button> */}
                     </div>
                   </div>
                 </div>
