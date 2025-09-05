@@ -156,6 +156,7 @@ export const gameCardStyle = {
   cursor: 'pointer',
   display: 'flex',
   minHeight: '200px',
+  position: 'relative',
 };
 
 export const gameImageContainerStyle = {
@@ -214,6 +215,7 @@ export const gameInfoStyle = {
   display: 'flex',
   flexDirection: 'column',
   justifyContent: 'space-between',
+  position: 'relative',
 };
 
 export const gameTitleStyle = {
@@ -275,14 +277,19 @@ export const reviewsTextStyle = {
 export const gamePriceRowStyle = {
   display: 'flex',
   justifyContent: 'space-between',
-  alignItems: 'center',
-  marginTop: 'auto',
+  alignItems: 'flex-start',
+  marginTop: 0,
+  position: 'relative',
 };
 
 export const priceContainerStyle = {
+  position: 'absolute', // pin it relative to card
+  top: '1rem',          // distance from top
+  right: '1rem',        // distance from right
   display: 'flex',
-  alignItems: 'center',
-  gap: '0.5rem',
+  flexDirection: 'column', // stack original and current prices
+  alignItems: 'flex-end',  // right-align the text
+  gap: '0.25rem',
 };
 
 export const originalPriceStyle = {
@@ -312,6 +319,7 @@ export const addToCartButtonStyle = {
   transition: 'all 0.3s ease',
   whiteSpace: 'nowrap',
   width: '160px',
+  marginTop: 'auto',
 };
 
 // Wishlist button style

@@ -8,7 +8,7 @@ const Footer = () => {
       <div className="footer-container">
         {/* Brand / Logo */}
         <div className="footer-brand">
-          <img src="/GameCraft4-1.png" alt="GameCraft Logo" className="footer-logo" />
+          <img src="/GameCraftLight.png" alt="GameCraft Logo" className="footer-logo" />
           <p className="brand-tagline">Play. Create. Connect.</p>
         </div>
 
