@@ -388,18 +388,18 @@ function LandingPage() {
           {[
             {
               icon: (index) => <SiPlaystation style={getPastelIconStyle(index)} />,
-              title: "Consoles",
-              text: "From PS5 to Nintendo—find your power system."
+              title: "New Releases",
+              text: "Stay ahead with the hottest new titles across genres."
             },
             {
               icon: (index) => <FaXbox style={getPastelIconStyle(index)} />,
-              title: "Accessories",
-              text: "High-performance gear built for serious play."
+              title: "Top Rated Games",
+              text: "Discover community favorites and critically acclaimed hits."
             },
             {
               icon: (index) => <SiHeadphonezone style={getPastelIconStyle(index)} />,
-              title: "Tech Reviews",
-              text: "Honest, in-depth looks at what's worth your coins."
+              title: "Game Reviews",
+              text: "Honest insights to help you pick your next adventure."
             }
           ].map((item, index) => (
             <div

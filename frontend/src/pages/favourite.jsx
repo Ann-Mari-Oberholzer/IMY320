@@ -4,76 +4,17 @@ import Footer from "../components/Footer";
 import { useUser } from "../contexts/UserContext";
 import { FaTrash } from "react-icons/fa";
 
-const containerStyle = {
-  display: "flex",
-  flexDirection: "column",
-  minHeight: "100vh",
-};
-
-const contentStyle = {
-  flex: 1,
-  padding: "1rem",
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-};
-
-const productGridStyle = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-  gap: "1.5rem",
-  justifyContent: "center",
-  alignItems: "center",
-  textAlign: "center",
-  maxWidth: "1000px",
-  width: "100%",
-  margin: "0 auto",
-};
-
-const productCardStyle = {
-  border: "1px solid #ccc",
-  borderRadius: "8px",
-  padding: "1rem",
-  textAlign: "center",
-  transition: "transform 0.2s, box-shadow 0.2s",
-  cursor: "pointer",
-};
-
-const productImageStyle = {
-  width: "100%",
-  height: "150px",
-  objectFit: "cover",
-  borderRadius: "6px",
-};
-
-const productNameStyle = {
-  fontWeight: "bold",
-  margin: "0.5rem 0",
-};
-
-const removeButtonStyle = {
-  marginTop: "0.5rem",
-  padding: "0.3rem 0.6rem",
-  backgroundColor: "#e74c3c",
-  color: "#fff",
-  border: "none",
-  borderRadius: "4px",
-  cursor: "pointer",
-};
-
-const headerStyle = {
-  textAlign: "center",
-};
-
-const titleStyle = {
-  fontSize: "3.5rem",
-  fontWeight: "800",
-  background: "linear-gradient(90deg, #00AEBB, #F7CA66)",
-  WebkitBackgroundClip: "text",
-  WebkitTextFillColor: "transparent",
-  marginBottom: "1.5rem",
-  lineHeight: "1.2",
-};
+import {
+  containerStyle,
+  contentStyle,
+  productGridStyle,
+  productCardStyle,
+  productImageStyle,
+  productNameStyle,
+  removeButtonStyle,
+  headerStyle,
+  titleStyle,
+} from "./favourite.js"
 
 function Favourites() {
   const { user } = useUser();
