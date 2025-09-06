@@ -36,6 +36,7 @@ export const searchFilterStyle = {
   marginBottom: '1.5rem',
   flexWrap: 'wrap',
   alignItems: 'center',
+  marginLeft: '5rem',
 };
 
 export const searchContainerStyle = {
@@ -76,6 +77,7 @@ export const filterToggleStyle = {
   fontWeight: '500',
   cursor: 'pointer',
   transition: 'all 0.3s ease',
+  marginRight: '5rem',
 };
 
 export const filtersStyle = {
@@ -138,6 +140,7 @@ export const resultsInfoStyle = {
   marginBottom: '1.5rem',
   color: '#666',
   fontSize: '1rem',
+  marginLeft: '5rem',
 };
 
 export const gamesGridStyle = {
@@ -148,15 +151,17 @@ export const gamesGridStyle = {
 };
 
 export const gameCardStyle = {
+  display: 'flex',
+  minHeight: '200px',
   backgroundColor: '#fff',
   borderRadius: '1rem',
   overflow: 'hidden',
   boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
   transition: 'transform 0.3s ease, box-shadow 0.3s ease',
   cursor: 'pointer',
-  display: 'flex',
-  minHeight: '200px',
   position: 'relative',
+  marginLeft: '5rem',
+  marginRight: '5rem',
 };
 
 export const gameImageContainerStyle = {
@@ -275,21 +280,22 @@ export const reviewsTextStyle = {
 };
 
 export const gamePriceRowStyle = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'flex-start',
-  marginTop: 0,
+  display: 'block',
   position: 'relative',
 };
 
 export const priceContainerStyle = {
-  position: 'absolute', // pin it relative to card
-  top: '1rem',          // distance from top
-  right: '1rem',        // distance from right
+  position: 'absolute',
+  top: '1rem',
+  right: '1rem',
+  zIndex: 50,
   display: 'flex',
-  flexDirection: 'column', // stack original and current prices
-  alignItems: 'flex-end',  // right-align the text
-  gap: '0.25rem',
+  flexDirection: 'row',
+  alignItems: 'flex-end',
+  gap: '0.5rem',
+  background: 'rgba(255,255,255,0.9)',
+  borderRadius: '0.5rem',
+  padding: '0.5rem 0.75rem',
 };
 
 export const originalPriceStyle = {
@@ -300,7 +306,7 @@ export const originalPriceStyle = {
 
 export const currentPriceStyle = {
   fontSize: '1.2rem',
-  fontWeight: '700',
+  fontWeight: '500',
   color: '#00AEBB',
 };
 
@@ -366,7 +372,7 @@ export const loadMoreButtonStyle = {
   transition: 'all 0.3s ease',
 };
 
-export const globalReset = `
+export const globalResetUpdated = `
   html, body {
     margin: 0;
     padding: 0;
@@ -432,6 +438,14 @@ export const globalReset = `
     color: #00AEBB !important;
   }
 
+  /* Ensure price container is always visible */
+  .price-container {
+    position: absolute !important;
+    top: 1rem !important;
+    right: 1rem !important;
+    z-index: 10 !important;
+  }
+
   @media (max-width: 768px) {
     .game-card {
       flex-direction: column !important;
@@ -440,6 +454,13 @@ export const globalReset = `
     .game-image-container {
       width: 100% !important;
       min-width: 100% !important;
+    }
+    
+    /* Ensure price is visible on mobile */
+    .price-container {
+      top: 0.5rem !important;
+      right: 0.5rem !important;
+      z-index: 20 !important;
     }
   }
 `;

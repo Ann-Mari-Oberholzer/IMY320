@@ -6,7 +6,7 @@ import Footer from '../components/Footer';
 import { useUser } from '../contexts/UserContext';
 import { generateRandomPrice, generateRandomRating } from '../utils/gameDataGenerators';
 import {
-  globalReset,
+  globalResetUpdated as globalReset,
   containerStyle,
   contentStyle,
   headerStyle,
@@ -449,6 +449,13 @@ function Catalogue() {
                 onClick={() => navigate(`/product/${game.id}`)}
                 title="Click to view product details"
               >
+                <div style={priceContainerStyle} className="price-container">
+                  {priceInfo.hasDiscount && (
+                    <span style={originalPriceStyle}>${priceInfo.originalPrice.toFixed(2)}</span>
+                  )}
+                  <span style={currentPriceStyle}>${priceInfo.currentPrice.toFixed(2)}</span>
+                </div>
+
                 <div style={gameImageContainerStyle}>
                   {game.image?.original || game.image?.square_small ? (
                     <img
@@ -493,15 +500,6 @@ function Catalogue() {
                   <div style={gameRatingStyle}>
                     <FaStar style={starStyle} />
                     <span style={ratingTextStyle}>{rating}</span>
-                  </div>
-
-                  <div style={gamePriceRowStyle}>
-                    <div style={priceContainerStyle}>
-                      {priceInfo.hasDiscount && (
-                        <span style={originalPriceStyle}>${priceInfo.originalPrice.toFixed(2)}</span>
-                      )}
-                      <span style={currentPriceStyle}>${priceInfo.currentPrice.toFixed(2)}</span>
-                    </div>
                   </div>
 
                   <div style={buttonColumnStyle}>
