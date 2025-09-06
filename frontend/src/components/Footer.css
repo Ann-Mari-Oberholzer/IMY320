@@ -6,7 +6,7 @@ html, body {
 
 .footer {
   background: #1E232C;
-  color: rgb(255, 255, 255);
+  color: white;
   padding: 3rem 1rem 1rem 1rem;
   font-family: 'Inter', sans-serif;
 }
@@ -32,7 +32,11 @@ html, body {
 
 .brand-tagline {
   font-size: 0.95rem;
-  color: #ccc;
+  font-weight: 600;
+  background: linear-gradient(40deg, #00AEBB, #F7CA66);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   margin-top: 0.2rem;
 }
 
@@ -40,12 +44,12 @@ html, body {
   flex: 1 1 200px;
   display: flex;
   flex-direction: row;
-  gap: 1.5rem;
+  gap: 2rem;
   margin-top: 20px;
 }
 
 .footer-link {
-  color: #ccc;
+  color: white;
   text-decoration: none;
   margin-bottom: 0.5rem;
   transition: color 0.3s ease;
@@ -58,14 +62,14 @@ html, body {
 .footer-social {
   flex: 1 1 150px;
   display: flex;
-  gap: 0.8rem;
+  gap: 1rem;
 }
 
 .social-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #ccc;
+  background: white;
   border-radius: 50%;
   width: 40px;
   height: 40px;
