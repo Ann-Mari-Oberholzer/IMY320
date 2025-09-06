@@ -278,17 +278,15 @@ export const gamePriceRowStyle = {
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'flex-start',
-  marginTop: 0,
+  marginTop: 'auto',
+  marginBottom: '1rem',
   position: 'relative',
 };
 
 export const priceContainerStyle = {
-  position: 'absolute', // pin it relative to card
-  top: '1rem',          // distance from top
-  right: '1rem',        // distance from right
   display: 'flex',
   flexDirection: 'column', // stack original and current prices
-  alignItems: 'flex-end',  // right-align the text
+  alignItems: 'flex-start',  // left-align the text
   gap: '0.25rem',
 };
 
@@ -343,8 +341,8 @@ export const wishlistButtonNewStyle = {
 export const buttonColumnStyle = {
   display: 'flex',
   flexDirection: 'column',
-  marginTop: '-2rem',
   alignItems: 'flex-end',
+  gap: '0.5rem',
 };
 
 // stylin for the buttons 

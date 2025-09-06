@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { FaStar, FaHeart, FaShoppingCart, FaArrowLeft, FaGamepad, FaCheck } from "react-icons/fa";
 import NavBar from "../components/NavBar";
 import { useUser } from "../contexts/UserContext";
+import { useCart } from "../contexts/CartContext";
 import { generateRandomPrice, generateRandomRating } from "../utils/gameDataGenerators";
 import {
   container,
@@ -33,6 +34,7 @@ function ProductPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useUser();
+  const { addToCart, isInCart } = useCart();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -40,6 +42,7 @@ function ProductPage() {
   const [addedToCart, setAddedToCart] = useState(false);
   const [priceInfo, setPriceInfo] = useState(null);
   const [rating, setRating] = useState(null);
+  const [quantity, setQuantity] = useState(1);
   
   // Similar products state
   const [similarProducts, setSimilarProducts] = useState([]);
@@ -47,6 +50,7 @@ function ProductPage() {
   const [similarWishlist, setSimilarWishlist] = useState([]);
   const [similarAddedToCart, setSimilarAddedToCart] = useState({});
   const [similarGameDataCache, setSimilarGameDataCache] = useState({});
+  const [similarQuantities, setSimilarQuantities] = useState({});
 
   // Fetch product data
   useEffect(() => {
@@ -204,12 +208,32 @@ function ProductPage() {
     return similarGameDataCache[gameId];
   };
 
-  const handleSimilarAddToCart = (gameId) => {
-    setSimilarAddedToCart(prev => ({ ...prev, [gameId]: true }));
-    setTimeout(() => {
-      setSimilarAddedToCart(prev => ({ ...prev, [gameId]: false }));
-    }, 3000);
-    console.log(`Added similar game ${gameId} to cart`);
+  const handleSimilarAddToCart = async (game) => {
+    if (!user) {
+      alert('Please log in to add items to cart');
+      return;
+    }
+
+    const gameData = getSimilarGameData(game.id);
+    const productData = {
+      id: game.id,
+      name: game.name,
+      description: game.deck || 'No description available',
+      image: game.image?.original_url || game.image?.small_url || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=300&h=300&fit=crop',
+      price: parseFloat(gameData.priceInfo.currentPrice),
+      originalPrice: gameData.priceInfo.originalPrice ? parseFloat(gameData.priceInfo.originalPrice) : null,
+      tags: game.genres?.map(g => g.name) || [],
+      hasDiscount: gameData.priceInfo.hasDiscount
+    };
+
+    const quantity = similarQuantities[game.id] || 1;
+    const success = await addToCart(productData, quantity);
+    if (success) {
+      setSimilarAddedToCart(prev => ({ ...prev, [game.id]: true }));
+      setTimeout(() => {
+        setSimilarAddedToCart(prev => ({ ...prev, [game.id]: false }));
+      }, 3000);
+    }
   };
 
   const toggleSimilarWishlist = (gameId) => {
@@ -436,6 +460,96 @@ function ProductPage() {
               </span>
             </div>
 
+            {/* Quantity Selector */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              marginBottom: '1rem',
+              justifyContent: 'flex-end'
+            }}>
+              <label style={{
+                fontSize: '0.9rem',
+                fontWeight: '600',
+                color: '#333'
+              }}>
+                Qty:
+              </label>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                border: '1px solid #ddd',
+                borderRadius: '0.25rem',
+                overflow: 'hidden'
+              }}>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSimilarQuantities(prev => ({
+                      ...prev,
+                      [game.id]: Math.max(1, (prev[game.id] || 1) - 1)
+                    }));
+                  }}
+                  style={{
+                    padding: '0.25rem 0.5rem',
+                    backgroundColor: '#f8f9fa',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: '0.9rem',
+                    fontWeight: '600',
+                    color: '#666',
+                    transition: 'all 0.3s ease'
+                  }}
+                >
+                  -
+                </button>
+                <input
+                  type="number"
+                  min="1"
+                  max="99"
+                  value={similarQuantities[game.id] || 1}
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value) || 1;
+                    setSimilarQuantities(prev => ({
+                      ...prev,
+                      [game.id]: Math.max(1, Math.min(99, value))
+                    }));
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                  style={{
+                    width: '40px',
+                    padding: '0.25rem',
+                    textAlign: 'center',
+                    border: 'none',
+                    fontSize: '0.9rem',
+                    fontWeight: '600',
+                    outline: 'none'
+                  }}
+                />
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSimilarQuantities(prev => ({
+                      ...prev,
+                      [game.id]: Math.min(99, (prev[game.id] || 1) + 1)
+                    }));
+                  }}
+                  style={{
+                    padding: '0.25rem 0.5rem',
+                    backgroundColor: '#f8f9fa',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: '0.9rem',
+                    fontWeight: '600',
+                    color: '#666',
+                    transition: 'all 0.3s ease'
+                  }}
+                >
+                  +
+                </button>
+              </div>
+            </div>
+
             {/* Buttons */}
             <div 
               className="similar-card-buttons"
@@ -477,7 +591,7 @@ function ProductPage() {
               <button 
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleSimilarAddToCart(game.id);
+                  handleSimilarAddToCart(game);
                 }}
                 className="similar-card-button"
                 style={{
@@ -671,6 +785,95 @@ function ProductPage() {
               ${priceInfo?.currentPrice.toFixed(2)}
             </p>
 
+            {/* Quantity Selector */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem',
+              marginBottom: '1.5rem'
+            }}>
+              <label style={{
+                fontSize: '1rem',
+                fontWeight: '600',
+                color: '#333'
+              }}>
+                Quantity:
+              </label>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                border: '2px solid #ddd',
+                borderRadius: '0.5rem',
+                overflow: 'hidden'
+              }}>
+                <button
+                  onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
+                  style={{
+                    padding: '0.5rem 0.75rem',
+                    backgroundColor: '#f8f9fa',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: '1.2rem',
+                    fontWeight: '600',
+                    color: '#666',
+                    transition: 'all 0.3s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = '#00AEBB';
+                    e.target.style.color = '#fff';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = '#f8f9fa';
+                    e.target.style.color = '#666';
+                  }}
+                >
+                  -
+                </button>
+                <input
+                  type="number"
+                  min="1"
+                  max="99"
+                  value={quantity}
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value) || 1;
+                    setQuantity(Math.max(1, Math.min(99, value)));
+                  }}
+                  style={{
+                    width: '60px',
+                    padding: '0.5rem',
+                    textAlign: 'center',
+                    border: 'none',
+                    fontSize: '1rem',
+                    fontWeight: '600',
+                    outline: 'none'
+                  }}
+                />
+                <button
+                  onClick={() => setQuantity(prev => Math.min(99, prev + 1))}
+                  style={{
+                    padding: '0.5rem 0.75rem',
+                    backgroundColor: '#f8f9fa',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: '1.2rem',
+                    fontWeight: '600',
+                    color: '#666',
+                    transition: 'all 0.3s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = '#00AEBB';
+                    e.target.style.color = '#fff';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = '#f8f9fa';
+                    e.target.style.color = '#666';
+                  }}
+                >
+                  +
+                </button>
+              </div>
+            </div>
+
             {/* Specifications */}
             <div style={specs}>
               <h3>Game Details:</h3>
@@ -705,10 +908,28 @@ function ProductPage() {
               style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}
             >
               <button
-                onClick={() => {
-                  setAddedToCart(true);
-                  setTimeout(() => setAddedToCart(false), 3000);
-                  console.log(`Added ${product.name} to cart`);
+                onClick={async () => {
+                  if (!user) {
+                    alert('Please log in to add items to cart');
+                    return;
+                  }
+
+                  const productData = {
+                    id: product.id,
+                    name: product.name,
+                    description: product.deck || 'No description available',
+                    image: product.image?.original_url || product.image?.small_url || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=300&h=300&fit=crop',
+                    price: parseFloat(priceInfo?.currentPrice || 0),
+                    originalPrice: priceInfo?.originalPrice ? parseFloat(priceInfo.originalPrice) : null,
+                    tags: product.genres?.map(g => g.name) || [],
+                    hasDiscount: priceInfo?.hasDiscount || false
+                  };
+
+                  const success = await addToCart(productData, quantity);
+                  if (success) {
+                    setAddedToCart(true);
+                    setTimeout(() => setAddedToCart(false), 3000);
+                  }
                 }}
                 className="main-button"
                 style={{ 
