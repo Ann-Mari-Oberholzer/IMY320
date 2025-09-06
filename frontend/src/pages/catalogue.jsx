@@ -4,7 +4,6 @@ import { FaSearch, FaFilter, FaStar, FaShoppingCart, FaHeart, FaGamepad, FaChevr
 import NavBar from '../components/NavBar';
 import Footer from '../components/Footer';
 import { useUser } from '../contexts/UserContext';
-import { useCart } from '../contexts/CartContext';
 import { generateRandomPrice, generateRandomRating } from '../utils/gameDataGenerators';
 import {
   globalResetUpdated as globalReset,
@@ -120,7 +119,6 @@ const enhancedSelectStyles = {
 function Catalogue() {
   const navigate = useNavigate();
   const { user } = useUser();
-  const { addToCart, isInCart } = useCart();
   const [searchTerm, setSearchTerm] = useState("");
   const [activeSearchTerm, setActiveSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -151,32 +149,12 @@ function Catalogue() {
     }
   };
 
-  const handleAddToCart = async (game) => {
-    const { rating, priceInfo } = getGameData(game.id);
-    
-    // Create product object that matches CartContext expectations
-    const product = {
-      id: game.id,
-      name: game.name,
-      description: game.deck || "No description available.",
-      price: priceInfo.currentPrice,
-      originalPrice: priceInfo.hasDiscount ? priceInfo.originalPrice : null,
-      image: game.image?.original || game.image?.square_small || "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=300&h=300&fit=crop",
-      tags: game.genres?.map(genre => genre.name) || game.platforms?.map(platform => platform.abbreviation || platform.name) || ["Game"],
-      rating: rating
-    };
-
-    setAddedToCart(prev => ({ ...prev, [game.id]: true }));
-    
-    const success = await addToCart(product, 1);
-    
-    if (success) {
-      setTimeout(() => {
-        setAddedToCart(prev => ({ ...prev, [game.id]: false }));
-      }, 3000);
-    } else {
-      setAddedToCart(prev => ({ ...prev, [game.id]: false }));
-    }
+  const handleAddToCart = (gameId) => {
+    setAddedToCart(prev => ({ ...prev, [gameId]: true }));
+    setTimeout(() => {
+      setAddedToCart(prev => ({ ...prev, [gameId]: false }));
+    }, 3000);
+    console.log(`Added game ${gameId} to cart`);
   };
 
   // Generate and cache data for a game if not already cached
@@ -544,11 +522,11 @@ function Catalogue() {
                     <button 
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleAddToCart(game);
+                        handleAddToCart(game.id);
                       }}
                       style={{
                         ...addToCartButtonStyle,
-                        backgroundColor: addedToCart[game.id] ? '#27ae60' : (isInCart(game.id) ? '#00AEBB' : '#F7CA66'),
+                        backgroundColor: addedToCart[game.id] ? '#27ae60' : '#F7CA66',
                         transition: 'all 0.3s ease',
                       }}
                       disabled={addedToCart[game.id]}
@@ -558,11 +536,6 @@ function Catalogue() {
                           <FaCheck style={{ marginRight: '0.5rem' }} />
                           Added to cart
                         </>
-                      ) : isInCart(game.id) ? (
-                        <>
-                          <FaShoppingCart style={{ marginRight: '0.5rem' }} />
-                          In Cart
-                        </>
                       ) : (
                         <>
                           <FaShoppingCart style={{ marginRight: '0.5rem' }} />
@@ -570,7 +543,6 @@ function Catalogue() {
                         </>
                       )}
                     </button>
-                    </div>
                   </div>
                 </div>
               </div>
