@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../NavBar.css';
+import { FaHeart } from 'react-icons/fa';
 
 const Navbar = ({ currentPage = 'home', user = null, onLogout }) => {
   const navigate = useNavigate();
@@ -52,6 +53,20 @@ const Navbar = ({ currentPage = 'home', user = null, onLogout }) => {
           onClick={() => handleNavigation('/about')}
         >
           About
+        </span>
+
+        <span 
+          className={`nav-item ${currentPage === 'addProduct' ? 'active' : ''}`}
+          onClick={() => handleNavigation('/addProduct')}
+        >
+          Add Product
+        </span>
+
+        <span 
+          className={`nav-item ${currentPage === 'favourites' ? 'active' : ''}`}
+          onClick={() => handleNavigation('/favourites')}
+        >
+          <FaHeart />
         </span>
 
         {!user ? (
