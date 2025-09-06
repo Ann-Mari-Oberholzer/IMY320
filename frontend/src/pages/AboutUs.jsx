@@ -3,7 +3,7 @@ import React from 'react';
 import {
   FaShoppingCart,
   FaUsers,
-  FaTruck
+  FaStar
 } from 'react-icons/fa';
 import '../AboutUs.css';
 import NavBar from '../components/NavBar';
@@ -18,18 +18,18 @@ const AboutUs = () => {
   const features = [
     {
       icon: FaShoppingCart,
-      title: 'Curated Gaming Collection',
-      description: 'Handpicked board games, card games, miniatures, and accessories from top publishers worldwide'
-    },
-    {
-      icon: FaTruck,
-      title: 'Fast & Secure Shipping',
-      description: 'Quick delivery with tracking, secure packaging, and insurance on all valuable items'
+      title: 'Massive Game Library',
+      description: 'Explore a wide range of video games — from action and RPGs to indies and multiplayer hits.'
     },
     {
       icon: FaUsers,
-      title: 'Gaming Community Hub',
-      description: 'Connect with fellow gamers, share reviews, and discover your next favorite game'
+      title: 'Multiplayer & Community',
+      description: 'Join friends, compare achievements, and find new teammates for your favorite games.'
+    },
+    {
+      icon: FaStar,
+      title: 'Reviews & Recommendations',
+      description: 'Read trusted reviews, ratings, and get personalized suggestions for your next play.'
     }
   ];
 
