@@ -13,8 +13,8 @@ const UA = process.env.UPSTREAM_USER_AGENT || 'Pou-GamesHub/1.0';
 const CACHE_TTL = Number(process.env.CACHE_TTL_SECONDS || 300); // 5 minutes
 
 if (!API_KEY) {
-  console.error('Missing GAMESPOT_API_KEY in .env');
-  process.exit(1);
+  console.warn('Missing GAMESPOT_API_KEY in .env - GameSpot API features will be disabled');
+  // Don't exit, just disable GameSpot API features
 }
 
 // Middleware
@@ -155,6 +155,14 @@ app.post('/auth/register', (req, res) => {
 
 // GameSpot API routes
 app.get('/api/games', async (req, res) => {
+  if (!API_KEY) {
+    return res.json({
+      results: [],
+      total_count: 0,
+      error: 'GameSpot API key not configured'
+    });
+  }
+
   const {
     search,
     platforms,       
@@ -187,6 +195,12 @@ app.get('/api/games', async (req, res) => {
 
 // Get individual game by ID
 app.get('/api/games/:id', async (req, res) => {
+  if (!API_KEY) {
+    return res.status(404).json({
+      error: 'GameSpot API key not configured'
+    });
+  }
+
   const { id } = req.params;
   const { field_list = 'id,name,deck,image,site_detail_url,original_release_date,platforms,genres' } = req.query;
 
@@ -254,6 +268,60 @@ app.get('/api/videos', async (req, res) => {
 app.get('/api/platforms', async (req, res) => {
   const { limit = '100', offset = '0', sort = 'name:asc', field_list = 'id,name,abbreviation' } = req.query;
   return proxy('platforms', { limit, offset, sort, field_list }, res);
+});
+
+// Cart routes
+app.get('/api/cart', (req, res) => {
+  const { userId } = req.query;
+  const router = jsonServer.router('db.json');
+  const carts = router.db.get('cart').filter({ userId: parseInt(userId) }).value();
+  res.json(carts);
+});
+
+app.post('/api/cart', (req, res) => {
+  const router = jsonServer.router('db.json');
+  const newCart = {
+    id: Date.now(),
+    userId: req.body.userId,
+    products: req.body.products || []
+  };
+  const createdCart = router.db.get('cart').push(newCart).write();
+  res.json(createdCart[createdCart.length - 1]);
+});
+
+app.put('/api/cart/:id', (req, res) => {
+  const { id } = req.params;
+  const router = jsonServer.router('db.json');
+  const cart = router.db.get('cart').find({ id: parseInt(id) }).assign(req.body).write();
+  res.json(cart);
+});
+
+// Product routes
+app.get('/api/products', (req, res) => {
+  const router = jsonServer.router('db.json');
+  const products = router.db.get('products').value();
+  res.json(products);
+});
+
+app.get('/api/products/:id', (req, res) => {
+  const { id } = req.params;
+  const router = jsonServer.router('db.json');
+  const product = router.db.get('products').find({ id: parseInt(id) }).value();
+  if (product) {
+    res.json(product);
+  } else {
+    res.status(404).json({ error: 'Product not found' });
+  }
+});
+
+app.post('/api/products', (req, res) => {
+  const router = jsonServer.router('db.json');
+  const newProduct = {
+    id: Date.now(),
+    ...req.body
+  };
+  const createdProduct = router.db.get('products').push(newProduct).write();
+  res.json(createdProduct[createdProduct.length - 1]);
 });
 
 // Health check

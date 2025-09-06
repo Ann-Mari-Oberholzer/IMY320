@@ -349,8 +349,8 @@ export const wishlistButtonNewStyle = {
 export const buttonColumnStyle = {
   display: 'flex',
   flexDirection: 'column',
-  marginTop: '-2rem',
   alignItems: 'flex-end',
+  gap: '0.5rem',
 };
 
 // stylin for the buttons 

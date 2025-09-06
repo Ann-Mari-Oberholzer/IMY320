@@ -5,6 +5,7 @@ import { FaXbox } from 'react-icons/fa';
 import NavBar from '../components/NavBar'; // Import the new NavBar component
 import Footer from '../components/Footer';
 import { useUser } from '../contexts/UserContext';
+import { useCart } from '../contexts/CartContext';
 import {
   page,
   section,
@@ -32,6 +33,7 @@ function LandingPage() {
 
   // User state - now managed through UserContext
   const { user, logout } = useUser();
+  const { addToCart } = useCart();
 
   // ---- Featured Games state ----
   const [loading, setLoading] = useState(true);
@@ -118,12 +120,30 @@ function LandingPage() {
     );
   };
 
-  const handleAddToCart = (gameId) => {
-    setAddedToCart(prev => ({ ...prev, [gameId]: true }));
-    setTimeout(() => {
-      setAddedToCart(prev => ({ ...prev, [gameId]: false }));
-    }, 3000);
-    console.log(`Added game ${gameId} to cart`);
+  const handleAddToCart = async (game) => {
+    if (!user) {
+      alert('Please log in to add items to cart');
+      return;
+    }
+
+    const productData = {
+      id: game.id,
+      name: game.name,
+      description: game.deck || 'No description available',
+      image: game.image?.original_url || game.image?.small_url || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=300&h=300&fit=crop',
+      price: parseFloat(game.currentPrice),
+      originalPrice: game.originalPrice ? parseFloat(game.originalPrice) : null,
+      tags: game.genres?.map(g => g.name) || [],
+      hasDiscount: game.hasDiscount
+    };
+
+    const success = await addToCart(productData, 1);
+    if (success) {
+      setAddedToCart(prev => ({ ...prev, [game.id]: true }));
+      setTimeout(() => {
+        setAddedToCart(prev => ({ ...prev, [game.id]: false }));
+      }, 3000);
+    }
   };
 
   const getCardStyle = (index) => ({
@@ -332,7 +352,7 @@ function LandingPage() {
                       <button 
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleAddToCart(g.id);
+                          handleAddToCart(g);
                         }}
                         style={{
                           display: "flex",

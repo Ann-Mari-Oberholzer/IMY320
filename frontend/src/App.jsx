@@ -8,12 +8,20 @@ import Catalogue from "./pages/catalogue.jsx";
 import Product from "./pages/productPage.jsx";
 import AddProduct from "./pages/addProduct.jsx";
 import Favourites from "./pages/favourite.jsx";
-import { UserProvider } from "./contexts/UserContext";
+import ShoppingCartPage from "./pages/shoppingCartPage.jsx";
+import CheckoutProcess from "./pages/checkoutProcess.jsx";
+import AddAddressPage from "./pages/AddAddressPage.jsx";
+import EditAddressPage from "./pages/EditAddressPage.jsx";
+import OrdersPage from "./pages/ordersPage.jsx";
+import { UserProvider, useUser } from "./contexts/UserContext";
+import { CartProvider } from "./contexts/CartContext";
 
-function App() {
+function AppContent() {
+  const { user } = useUser();
+  
   return (
-    <UserProvider>
-      <BrowserRouter>
+    <BrowserRouter>
+      <CartProvider user={user}>
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
@@ -23,8 +31,21 @@ function App() {
           <Route path="/addProduct" element={<AddProduct />} />
           <Route path="/favourites" element={<Favourites />} />
           <Route path="/product/:id" element={<Product />} />
+          <Route path="/cart" element={<ShoppingCartPage />} />
+          <Route path="/checkout" element={<CheckoutProcess />} />
+          <Route path="/checkout/add-address" element={<AddAddressPage />} />
+          <Route path="/checkout/edit-address/:addressId" element={<EditAddressPage />} />
+          <Route path="/orders" element={<OrdersPage />} />
         </Routes>
-      </BrowserRouter>
+      </CartProvider>
+    </BrowserRouter>
+  );
+}
+
+function App() {
+  return (
+    <UserProvider>
+      <AppContent />
     </UserProvider>
   );
 }
