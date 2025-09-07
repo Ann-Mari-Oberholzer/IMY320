@@ -3,6 +3,8 @@ import { FaChevronLeft, FaChevronRight, FaCheck, FaShoppingCart, FaCreditCard, F
 import { useCart } from '../contexts/CartContext';
 import { useUser } from '../contexts/UserContext';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import NavBar from '../components/NavBar';
+import Footer from '../components/Footer';
 import LoadingScreen from '../components/LoadingScreen';
 
 const globalReset = `
@@ -1394,10 +1396,11 @@ const CheckoutProcess = () => {
     <div style={{ 
       minHeight: '100vh', 
       backgroundColor: '#f8f9fa',
-      padding: '2rem 0'
+      // padding: '2rem 0'
     }}>
-      <style>{globalReset}</style>    
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 1rem' }}>
+      <style>{globalReset}</style>
+      <NavBar currentPage="checkout" user={user} />    
+      <div style={{ maxWidth: '1200px', margin: '2rem auto 2rem auto', padding: '0 1rem' }}>
         <StepIndicator />
         
         <CheckoutLayout showSummary={currentStep !== 4}>
@@ -1405,6 +1408,7 @@ const CheckoutProcess = () => {
           {renderNavigation()}
         </CheckoutLayout>
       </div>
+      <Footer />
       <ProcessingOverlay />
       <OrderCompleteModal />
     </div>

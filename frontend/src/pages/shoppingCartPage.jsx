@@ -103,9 +103,9 @@ flex-direction: column !important;
 const containerStyle = {
 flex: 1,
 backgroundColor: '#f8f9fa',
-padding: '2rem 0',
 display: 'flex',
 flexDirection: 'column',
+marginBottom: '2rem',
 };
 
 const contentStyle = {
@@ -115,7 +115,7 @@ padding: '0 1rem',
 };
 
 const headerStyle = {
-textAlign: 'left',
+textAlign: 'center',
 marginBottom: '3rem',
 };
 
@@ -212,6 +212,7 @@ justifyContent: 'space-between',
 alignItems: 'center',
 gap: '1rem',
 marginTop: 'auto',
+paddingBottom: "0.5rem",
 };
 
 const itemActionsStyle = {
@@ -320,7 +321,6 @@ borderRadius: '1rem',
 padding: '2rem',
 boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
 height: 'fit-content',
-position: 'sticky',
 top: '2rem',
 };
 
@@ -405,6 +405,7 @@ borderRadius: '1rem',
 boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
 margin: '0 auto',
 maxWidth: '400px',
+marginBottom: '2rem',
 };
 
 const emptyCartIconStyle = {
@@ -806,46 +807,6 @@ return (
               </div>
             );
           })}
-        </div>
-
-        {/* Browse More Games Button */}
-        <div style={{
-          textAlign: 'center',
-          marginTop: '2rem'
-        }}>
-          <button
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.75rem',
-              padding: '1rem 2rem',
-              backgroundColor: '#00AEBB',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '0.75rem',
-              fontSize: '1.1rem',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              margin: '0 auto'
-            }}
-            onClick={() => navigate('/catalogue')}
-            onMouseEnter={(e) => {
-              if (e.target && e.target.style) {
-                e.target.style.transform = 'translateY(-2px)';
-                e.target.style.boxShadow = '0 8px 20px rgba(0, 174, 187, 0.4)';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (e.target && e.target.style) {
-                e.target.style.transform = 'translateY(0)';
-                e.target.style.boxShadow = 'none';
-              }
-            }}
-          >
-            <FaGamepad />
-            Browse Games
-          </button>
         </div>
         </div>
 
