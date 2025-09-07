@@ -338,15 +338,9 @@ function Catalogue() {
      const styleElement = document.createElement("style");
      styleElement.textContent = globalReset + `
        @keyframes bounce {
-         0%, 20%, 50%, 80%, 100% {
-           transform: translateY(0);
-         }
-         40% {
-           transform: translateY(-20px);
-         }
-         60% {
-           transform: translateY(-10px);
-         }
+         0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+         40% { transform: translateY(-10px); }
+         60% { transform: translateY(-5px); }
        }
        
        @keyframes loadingProgress {
@@ -390,37 +384,18 @@ function Catalogue() {
            left: 0,
            right: 0,
            bottom: 0,
-           backgroundColor: 'rgba(248, 249, 250, 0.98)',
+           backgroundColor: 'rgba(248, 249, 250, 0.95)',
            display: 'flex',
-           flexDirection: 'column',
            justifyContent: 'center',
            alignItems: 'center',
            zIndex: 1000,
-           backdropFilter: 'blur(8px)'
+           backdropFilter: 'blur(5px)'
          }}>
-           {/* Animated Game Icons */}
-           <div style={{ 
-             display: 'flex', 
-             gap: '1rem', 
-             alignItems: 'center',
-             marginBottom: '2rem'
-           }}>
-             <FaGamepad style={{ 
-               fontSize: '4rem', 
-               color: '#00AEBB', 
-               animation: 'bounce 1.2s infinite ease-in-out' 
-             }} />
-             <FaGamepad style={{ 
-               fontSize: '4rem', 
-               color: '#F7CA66', 
-               animation: 'bounce 1.2s infinite ease-in-out 0.3s' 
-             }} />
-             <FaGamepad style={{ 
-               fontSize: '4rem', 
-               color: '#00AEBB', 
-               animation: 'bounce 1.2s infinite ease-in-out 0.6s' 
-             }} />
-           </div> 
+           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+             <FaGamepad style={{ fontSize: '3rem', color: '#00AEBB', animation: 'bounce 1s infinite' }} />
+             <FaGamepad style={{ fontSize: '3rem', color: '#F7CA66', animation: 'bounce 1s infinite 0.2s' }} />
+             <FaGamepad style={{ fontSize: '3rem', color: '#00AEBB', animation: 'bounce 1s infinite 0.4s' }} />
+           </div>
          </div>
        )}
       
@@ -671,8 +646,37 @@ function Catalogue() {
                         backgroundColor: wishlist.includes(game.id) ? '#e74c3c' : '#fff',
                         borderColor: wishlist.includes(game.id) ? '#e74c3c' : '#ddd',
                         color: wishlist.includes(game.id) ? '#fff' : '#666',
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                        transform: 'translateY(0)',
+                        boxShadow: wishlist.includes(game.id) ? '0 4px 12px rgba(231, 76, 60, 0.3)' : '0 2px 8px rgba(0,0,0,0.1)',
                       }}
                       title={wishlist.includes(game.id) ? "Remove from wishlist" : "Add to wishlist"}
+                      onMouseEnter={(e) => {
+                        if (wishlist.includes(game.id)) {
+                          e.target.style.transform = 'translateY(-2px) scale(1.02)';
+                          e.target.style.boxShadow = '0 8px 20px rgba(231, 76, 60, 0.4)';
+                          e.target.style.backgroundColor = '#c0392b';
+                        } else {
+                          e.target.style.transform = 'translateY(-2px) scale(1.02)';
+                          e.target.style.boxShadow = '0 8px 20px rgba(231, 76, 60, 0.3)';
+                          e.target.style.backgroundColor = '#e74c3c';
+                          e.target.style.borderColor = '#e74c3c';
+                          e.target.style.color = '#fff';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (wishlist.includes(game.id)) {
+                          e.target.style.transform = 'translateY(0) scale(1)';
+                          e.target.style.boxShadow = '0 4px 12px rgba(231, 76, 60, 0.3)';
+                          e.target.style.backgroundColor = '#e74c3c';
+                        } else {
+                          e.target.style.transform = 'translateY(0) scale(1)';
+                          e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                          e.target.style.backgroundColor = '#fff';
+                          e.target.style.borderColor = '#ddd';
+                          e.target.style.color = '#666';
+                        }
+                      }}
                     >
                       <FaHeart style={{ marginRight: '0.5rem' }} />
                       {wishlist.includes(game.id) ? 'In Wishlist' : 'Add to Wishlist'}

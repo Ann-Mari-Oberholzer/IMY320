@@ -8,6 +8,7 @@ import { useUser } from '../contexts/UserContext';
 // Import styles from catalogue to maintain consistency
 import {
   globalResetUpdated,
+  globalResetUpdated as globalReset,
   containerStyle,
   contentStyle,
   headerStyle,

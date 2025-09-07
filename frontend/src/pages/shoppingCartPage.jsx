@@ -673,9 +673,28 @@ return (
                   <div style={itemControlsStyle} className="item-controls">
                     <div style={itemActionsStyle} className="item-actions">
                       <button
-                        style={wishlistButtonStyle}
+                        style={{
+                          ...wishlistButtonStyle,
+                          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                          transform: 'translateY(0)',
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                        }}
                         className="wishlist-button"
                         onClick={() => moveToWishlist(item.productId)}
+                        onMouseEnter={(e) => {
+                          e.target.style.transform = 'translateY(-2px) scale(1.02)';
+                          e.target.style.boxShadow = '0 8px 20px rgba(231, 76, 60, 0.3)';
+                          e.target.style.backgroundColor = '#e74c3c';
+                          e.target.style.borderColor = '#e74c3c';
+                          e.target.style.color = '#fff';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.transform = 'translateY(0) scale(1)';
+                          e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                          e.target.style.backgroundColor = '#fff';
+                          e.target.style.borderColor = '#e9ecef';
+                          e.target.style.color = '#666';
+                        }}
                       >
                         <FaHeart style={{ fontSize: '0.8rem' }} />
                         Wishlist
@@ -711,10 +730,27 @@ return (
                       </div>
 
                       <button
-                        style={removeButtonStyle}
+                        style={{
+                          ...removeButtonStyle,
+                          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                          transform: 'translateY(0)',
+                          boxShadow: '0 2px 8px rgba(220, 53, 69, 0.1)',
+                        }}
                         className="remove-button"
                         onClick={() => handleRemoveItem(item.productId)}
                         title="Remove from cart"
+                        onMouseEnter={(e) => {
+                          e.target.style.transform = 'translateY(-2px) scale(1.02)';
+                          e.target.style.boxShadow = '0 8px 20px rgba(220, 53, 69, 0.3)';
+                          e.target.style.backgroundColor = '#c82333';
+                          e.target.style.borderColor = '#c82333';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.transform = 'translateY(0) scale(1)';
+                          e.target.style.boxShadow = '0 2px 8px rgba(220, 53, 69, 0.1)';
+                          e.target.style.backgroundColor = '#fff';
+                          e.target.style.borderColor = '#dc3545';
+                        }}
                       >
                         <FaTrash style={{ fontSize: '0.8rem' }} />
                         Remove

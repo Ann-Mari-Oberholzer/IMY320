@@ -684,6 +684,32 @@ function ProductPage() {
                 minWidth: "50px",
                 boxShadow: similarWishlist.includes(game.id) ? "0 4px 12px rgba(231, 76, 60, 0.3)" : "0 2px 8px rgba(0,0,0,0.1)",
               }}
+              onMouseEnter={(e) => {
+                if (similarWishlist.includes(game.id)) {
+                  e.target.style.transform = 'translateY(-2px) scale(1.05)';
+                  e.target.style.boxShadow = '0 8px 20px rgba(231, 76, 60, 0.4)';
+                  e.target.style.backgroundColor = '#c0392b';
+                } else {
+                  e.target.style.transform = 'translateY(-2px) scale(1.05)';
+                  e.target.style.boxShadow = '0 8px 20px rgba(231, 76, 60, 0.3)';
+                  e.target.style.backgroundColor = '#e74c3c';
+                  e.target.style.borderColor = '#e74c3c';
+                  e.target.style.color = '#fff';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (similarWishlist.includes(game.id)) {
+                  e.target.style.transform = 'translateY(0) scale(1)';
+                  e.target.style.boxShadow = '0 4px 12px rgba(231, 76, 60, 0.3)';
+                  e.target.style.backgroundColor = '#e74c3c';
+                } else {
+                  e.target.style.transform = 'translateY(0) scale(1)';
+                  e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                  e.target.style.backgroundColor = '#fff';
+                  e.target.style.borderColor = 'rgba(0, 0, 0, 0.2)';
+                  e.target.style.color = 'rgba(0, 0, 0, 0.5)';
+                }
+              }}
             >
               <FaHeart />
             </button>
@@ -828,7 +854,8 @@ function ProductPage() {
                   borderRadius: '0.5rem',
                   objectFit: 'cover',
                   backgroundColor: '#f0f0f0',
-                  flexShrink: 0
+                  flexShrink: 0,
+                  marginTop: '4rem'
                 }}
               />
               
@@ -987,98 +1014,254 @@ function ProductPage() {
                   </div>
                 </div>
 
-                {/* Action Buttons - Moved to Game Info Section */}
-                <div style={{ 
-                  display: 'flex', 
-                  gap: '0.75rem', 
-                  marginTop: '1.5rem',
-                  justifyContent: 'flex-start'
-                }}>
-                  <button
-                    onClick={async () => {
-                      if (!user) {
-                        alert('Please log in to add items to cart');
-                        return;
-                      }
-
-                      const productData = {
-                        id: product.id,
-                        name: product.name,
-                        description: product.deck || 'Immerse yourself in an exciting gaming adventure that combines engaging gameplay mechanics with stunning visuals and immersive storytelling. This game delivers hours of entertainment with its carefully crafted world, challenging objectives, and rewarding progression system. Whether you\'re a casual gamer or a hardcore enthusiast, this title offers something for everyone with its diverse gameplay elements and polished presentation.',
-                        image: product.image?.original || product.image?.square_small || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=300&h=300&fit=crop',
-                        price: parseFloat(priceInfo?.currentPrice || 0),
-                        originalPrice: priceInfo?.originalPrice ? parseFloat(priceInfo.originalPrice) : null,
-                        tags: product.genres?.map(g => g.name) || [],
-                        hasDiscount: priceInfo?.hasDiscount || false
-                      };
-
-                      const success = await addToCart(productData, quantity);
-                      if (success) {
-                        setAddedToCart(true);
-                        setTimeout(() => setAddedToCart(false), 3000);
-                      }
-                    }}
-                    style={{
-                      padding: '0.75rem 1.5rem',
-                      backgroundColor: addedToCart ? '#27ae60' : '#F7CA66',
-                      color: '#fff',
-                      border: 'none',
-                      borderRadius: '0.5rem',
-                      fontSize: '1rem',
-                      fontWeight: '600',
-                      cursor: addedToCart ? 'default' : 'pointer',
-                      transition: 'all 0.3s ease',
+                {/* Quantity Selector and Action Buttons - Left Side */}
+                <div style={{ marginTop: '1.5rem' }}>
+                  <label style={{
+                    display: 'block',
+                    fontSize: '0.9rem',
+                    fontWeight: '600',
+                    color: '#333',
+                    marginBottom: '0.5rem'
+                  }}>
+                    Quantity:
+                  </label>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '1rem',
+                    marginBottom: '1rem'
+                  }}>
+                    {/* Smaller Quantity Controls */}
+                    <div style={{
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '0.5rem',
-                      minWidth: '140px'
-                    }}
-                    disabled={addedToCart}
-                  >
-                    {addedToCart ? (
-                      <>
-                        <FaCheck />
-                        Added to Cart
-                      </>
-                    ) : (
-                      <>
-                        <FaShoppingCart />
-                        Add to Cart
-                      </>
-                    )}
-                  </button>
-                  
-                  <button 
-                    onClick={() => {
-                      setWishlist(prev => 
-                        prev.includes(product.id) 
-                          ? prev.filter(id => id !== product.id)
-                          : [...prev, product.id]
-                      );
-                      console.log(`Toggled wishlist for ${product.name}`);
-                    }}
-                    style={{
-                      padding: '0.75rem 1.25rem',
-                      backgroundColor: wishlist.includes(product.id) ? '#e74c3c' : '#fff',
-                      color: wishlist.includes(product.id) ? '#fff' : '#666',
-                      border: `2px solid ${wishlist.includes(product.id) ? '#e74c3c' : '#e9ecef'}`,
-                      borderRadius: '0.5rem',
-                      fontSize: '0.9rem',
-                      fontWeight: '500',
-                      cursor: 'pointer',
-                      transition: 'all 0.3s ease',
+                      border: '1px solid #e9ecef',
+                      borderRadius: '0.4rem',
+                      overflow: 'hidden',
+                      backgroundColor: '#fff'
+                    }}>
+                      <button
+                        onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
+                        style={{
+                          padding: '0.25rem 0.5rem',
+                          backgroundColor: '#f8f9fa',
+                          border: 'none',
+                          cursor: 'pointer',
+                          fontSize: '0.8rem',
+                          fontWeight: '600',
+                          color: '#666',
+                          transition: 'all 0.3s ease',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          minWidth: '28px',
+                          height: '32px'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.backgroundColor = '#00AEBB';
+                          e.target.style.color = '#fff';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.backgroundColor = '#f8f9fa';
+                          e.target.style.color = '#666';
+                        }}
+                      >
+                        -
+                      </button>
+                      <input
+                        type="number"
+                        min="1"
+                        max="99"
+                        value={quantity}
+                        onChange={(e) => {
+                          const value = parseInt(e.target.value) || 1;
+                          setQuantity(Math.max(1, Math.min(99, value)));
+                        }}
+                        style={{
+                          width: '40px',
+                          padding: '0.25rem 0.1rem',
+                          textAlign: 'center',
+                          border: 'none',
+                          fontSize: '0.8rem',
+                          fontWeight: '600',
+                          outline: 'none',
+                          backgroundColor: '#fff',
+                          height: '32px'
+                        }}
+                      />
+                      <button
+                        onClick={() => setQuantity(prev => Math.min(99, prev + 1))}
+                        style={{
+                          padding: '0.25rem 0.5rem',
+                          backgroundColor: '#f8f9fa',
+                          border: 'none',
+                          cursor: 'pointer',
+                          fontSize: '0.8rem',
+                          fontWeight: '600',
+                          color: '#666',
+                          transition: 'all 0.3s ease',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          minWidth: '28px',
+                          height: '32px'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.backgroundColor = '#00AEBB';
+                          e.target.style.color = '#fff';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.backgroundColor = '#f8f9fa';
+                          e.target.style.color = '#666';
+                        }}
+                      >
+                        +
+                      </button>
+                    </div>
+
+                    {/* Action Buttons - Side by Side */}
+                    <div style={{
                       display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '0.5rem',
-                      minWidth: '140px'
-                    }}
-                  >
-                    <FaHeart />
-                    {wishlist.includes(product.id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
-                  </button>
+                      gap: '0.75rem'
+                    }}>
+                      <button
+                        onClick={async () => {
+                          if (!user) {
+                            alert('Please log in to add items to cart');
+                            return;
+                          }
+
+                          const productData = {
+                            id: product.id,
+                            name: product.name,
+                            description: product.deck || 'Immerse yourself in an exciting gaming adventure that combines engaging gameplay mechanics with stunning visuals and immersive storytelling. This game delivers hours of entertainment with its carefully crafted world, challenging objectives, and rewarding progression system. Whether you\'re a casual gamer or a hardcore enthusiast, this title offers something for everyone with its diverse gameplay elements and polished presentation.',
+                            image: product.image?.original || product.image?.square_small || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=300&h=300&fit=crop',
+                            price: parseFloat(priceInfo?.currentPrice || 0),
+                            originalPrice: priceInfo?.originalPrice ? parseFloat(priceInfo.originalPrice) : null,
+                            tags: product.genres?.map(g => g.name) || [],
+                            hasDiscount: priceInfo?.hasDiscount || false
+                          };
+
+                          const success = await addToCart(productData, quantity);
+                          if (success) {
+                            setAddedToCart(true);
+                            setTimeout(() => setAddedToCart(false), 3000);
+                          }
+                        }}
+                        style={{
+                          padding: '0.75rem 1.5rem',
+                          backgroundColor: addedToCart ? '#27ae60' : '#F7CA66',
+                          color: '#fff',
+                          border: 'none',
+                          borderRadius: '0.5rem',
+                          fontSize: '0.9rem',
+                          fontWeight: '600',
+                          cursor: addedToCart ? 'default' : 'pointer',
+                          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '0.5rem',
+                          whiteSpace: 'nowrap',
+                          height: '44px',
+                          boxShadow: addedToCart ? '0 4px 12px rgba(39, 174, 96, 0.3)' : '0 4px 12px rgba(247, 202, 102, 0.3)',
+                          transform: 'translateY(0)',
+                          position: 'relative',
+                          overflow: 'hidden'
+                        }}
+                        disabled={addedToCart}
+                        onMouseEnter={(e) => {
+                          if (!addedToCart) {
+                            e.target.style.transform = 'translateY(-2px) scale(1.02)';
+                            e.target.style.boxShadow = '0 8px 20px rgba(247, 202, 102, 0.4)';
+                            e.target.style.backgroundColor = '#f4d03f';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!addedToCart) {
+                            e.target.style.transform = 'translateY(0) scale(1)';
+                            e.target.style.boxShadow = '0 4px 12px rgba(247, 202, 102, 0.3)';
+                            e.target.style.backgroundColor = '#F7CA66';
+                          }
+                        }}
+                      >
+                        {addedToCart ? (
+                          <>
+                            <FaCheck />
+                            Added to Cart
+                          </>
+                        ) : (
+                          <>
+                            <FaShoppingCart />
+                            Add to Cart
+                          </>
+                        )}
+                      </button>
+                      
+                      <button 
+                        onClick={() => {
+                          setWishlist(prev => 
+                            prev.includes(product.id) 
+                              ? prev.filter(id => id !== product.id)
+                              : [...prev, product.id]
+                          );
+                          console.log(`Toggled wishlist for ${product.name}`);
+                        }}
+                        style={{
+                          padding: '0.75rem 1.25rem',
+                          backgroundColor: wishlist.includes(product.id) ? '#e74c3c' : '#fff',
+                          color: wishlist.includes(product.id) ? '#fff' : '#666',
+                          border: `2px solid ${wishlist.includes(product.id) ? '#e74c3c' : '#e9ecef'}`,
+                          borderRadius: '0.5rem',
+                          fontSize: '0.9rem',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '0.5rem',
+                          whiteSpace: 'nowrap',
+                          height: '44px',
+                          boxShadow: wishlist.includes(product.id) ? '0 4px 12px rgba(231, 76, 60, 0.3)' : '0 4px 12px rgba(0, 0, 0, 0.1)',
+                          transform: 'translateY(0)',
+                          position: 'relative',
+                          overflow: 'hidden'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (wishlist.includes(product.id)) {
+                            e.target.style.transform = 'translateY(-2px) scale(1.02)';
+                            e.target.style.boxShadow = '0 8px 20px rgba(231, 76, 60, 0.4)';
+                            e.target.style.backgroundColor = '#c0392b';
+                          } else {
+                            e.target.style.transform = 'translateY(-2px) scale(1.02)';
+                            e.target.style.boxShadow = '0 8px 20px rgba(231, 76, 60, 0.3)';
+                            e.target.style.backgroundColor = '#e74c3c';
+                            e.target.style.borderColor = '#e74c3c';
+                            e.target.style.color = '#fff';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (wishlist.includes(product.id)) {
+                            e.target.style.transform = 'translateY(0) scale(1)';
+                            e.target.style.boxShadow = '0 4px 12px rgba(231, 76, 60, 0.3)';
+                            e.target.style.backgroundColor = '#e74c3c';
+                          } else {
+                            e.target.style.transform = 'translateY(0) scale(1)';
+                            e.target.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
+                            e.target.style.backgroundColor = '#fff';
+                            e.target.style.borderColor = '#e9ecef';
+                            e.target.style.color = '#666';
+                          }
+                        }}
+                      >
+                        <FaHeart />
+                        {wishlist.includes(product.id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                      </button>
+                    </div>
+                  </div>
                 </div>
+
               </div>
             </div>
           </div>
@@ -1093,7 +1276,8 @@ function ProductPage() {
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
             height: 'fit-content',
             position: 'sticky',
-            top: '2rem'
+            top: '2rem',
+            marginTop: '4rem'
           }}>
 
             {/* Price Display - Compact */}
@@ -1134,105 +1318,6 @@ function ProductPage() {
               )}
             </div>
 
-            {/* Quantity Selector - Ultra Compact */}
-            <div style={{ marginBottom: '1rem' }}>
-              <label style={{
-                display: 'block',
-                fontSize: '0.8rem',
-                fontWeight: '600',
-                color: '#333',
-                marginBottom: '0.4rem'
-              }}>
-                Quantity:
-              </label>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                border: '1px solid #e9ecef',
-                borderRadius: '0.4rem',
-                overflow: 'hidden',
-                backgroundColor: '#fff',
-                width: 'fit-content'
-              }}>
-                <button
-                  onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
-                  style={{
-                    padding: '0.2rem 0.4rem',
-                    backgroundColor: '#f8f9fa',
-                    border: 'none',
-                    cursor: 'pointer',
-                    fontSize: '0.75rem',
-                    fontWeight: '600',
-                    color: '#666',
-                    transition: 'all 0.3s ease',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    minWidth: '24px',
-                    height: '28px'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.backgroundColor = '#00AEBB';
-                    e.target.style.color = '#fff';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.backgroundColor = '#f8f9fa';
-                    e.target.style.color = '#666';
-                  }}
-                >
-                  -
-                </button>
-                <input
-                  type="number"
-                  min="1"
-                  max="99"
-                  value={quantity}
-                  onChange={(e) => {
-                    const value = parseInt(e.target.value) || 1;
-                    setQuantity(Math.max(1, Math.min(99, value)));
-                  }}
-                  style={{
-                    width: '30px',
-                    padding: '0.2rem 0.1rem',
-                    textAlign: 'center',
-                    border: 'none',
-                    fontSize: '0.75rem',
-                    fontWeight: '600',
-                    outline: 'none',
-                    backgroundColor: '#fff',
-                    height: '28px'
-                  }}
-                />
-                <button
-                  onClick={() => setQuantity(prev => Math.min(99, prev + 1))}
-                  style={{
-                    padding: '0.2rem 0.4rem',
-                    backgroundColor: '#f8f9fa',
-                    border: 'none',
-                    cursor: 'pointer',
-                    fontSize: '0.75rem',
-                    fontWeight: '600',
-                    color: '#666',
-                    transition: 'all 0.3s ease',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    minWidth: '24px',
-                    height: '28px'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.backgroundColor = '#00AEBB';
-                    e.target.style.color = '#fff';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.backgroundColor = '#f8f9fa';
-                    e.target.style.color = '#666';
-                  }}
-                >
-                  +
-                </button>
-              </div>
-            </div>
 
             {/* Total Price - Compact */}
             <div style={{

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { SiHeadphonezone, SiPlaystation} from "react-icons/si"; 
-import { FaXbox } from 'react-icons/fa';
+import { FaXbox, FaGamepad } from 'react-icons/fa';
 import NavBar from '../components/NavBar'; // Import the new NavBar component
 import Footer from '../components/Footer';
 import { useUser } from '../contexts/UserContext';
@@ -195,8 +195,34 @@ function LandingPage() {
     color: hoveredCategoryIndex === index ? "#000000" : (isHeading ? pastelHeading.color : pastelText.color)
   });
 
+  // Loading screen component for featured games - exact same as shopping cart checkout
+  const LoadingScreen = () => (
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(248, 249, 250, 0.95)',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: 1000,
+      backdropFilter: 'blur(5px)'
+    }}>
+      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+        <FaGamepad style={{ fontSize: '3rem', color: '#00AEBB', animation: 'bounce 1s infinite' }} />
+        <FaGamepad style={{ fontSize: '3rem', color: '#F7CA66', animation: 'bounce 1s infinite 0.2s' }} />
+        <FaGamepad style={{ fontSize: '3rem', color: '#00AEBB', animation: 'bounce 1s infinite 0.4s' }} />
+      </div>
+    </div>
+  );
+
   return (
     <div style={page} className="landing-page-container">
+      {/* LOADING SCREEN */}
+      {loading && <LoadingScreen />}
+      
       {/* NAVIGATION - Replace the old nav with the new NavBar component */}
       <NavBar 
         currentPage="home" 
@@ -221,10 +247,6 @@ function LandingPage() {
       {/* FEATURED GAMES (live from backend) */}
       <section style={darkSection}>
         <h2 style={sectionTitle}>Featured Games</h2>
-
-        {loading && (
-          <div style={{ marginTop: "1rem", opacity: 0.9 }}>Loading…</div>
-        )}
 
         {err && (
           <div style={{ marginTop: "1rem", color: "#ffb3b3" }}>

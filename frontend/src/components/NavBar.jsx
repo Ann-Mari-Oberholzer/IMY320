@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
 import '../NavBar.css';
-import { FaHeart } from 'react-icons/fa';
+import { FaHeart, FaShoppingCart } from 'react-icons/fa';
 
 const Navbar = ({ currentPage = 'home', user = null, onLogout }) => {
   const navigate = useNavigate();

@@ -223,6 +223,44 @@ class ApiService {
     const response = await fetch(`${API_BASE}/api/orders?userId=${userId}`);
     return response.json();
   }
+
+  async getFavorites(userId) {
+    try {
+      const response = await fetch(`${API_BASE}/api/favorites?userId=${userId}`);
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching favorites:', error);
+      // Return empty array if endpoint doesn't exist
+      return [];
+    }
+  }
+
+  async addToFavorites(userId, productId) {
+    try {
+      const response = await fetch(`${API_BASE}/api/favorites`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, productId })
+      });
+      return await response.json();
+    } catch (error) {
+      console.error('Error adding to favorites:', error);
+      return { success: false, error: 'Failed to add to favorites' };
+    }
+  }
+
+  async removeFromFavorites(userId, productId) {
+    try {
+      const response = await fetch(`${API_BASE}/api/favorites/${userId}/${productId}`, {
+        method: 'DELETE'
+      });
+      return await response.json();
+    } catch (error) {
+      console.error('Error removing from favorites:', error);
+      return { success: false, error: 'Failed to remove from favorites' };
+    }
+  }
 }
 
-export default new ApiService();
+const apiServiceInstance = new ApiService();
+export default apiServiceInstance;
