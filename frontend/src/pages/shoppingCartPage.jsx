@@ -5,6 +5,7 @@ import NavBar from '../components/NavBar';
 import Footer from '../components/Footer';
 import { useUser } from '../contexts/UserContext';
 import { useCart } from '../contexts/CartContext';
+import favoritesService from '../services/FavouritesService';
 
 
 // Styles following the design system
@@ -509,8 +510,37 @@ return newSet;
 };
 
 const moveToWishlist = (productId) => {
-console.log(`Moving item ${productId} to wishlist`);
-handleRemoveItem(productId);
+  if (!user?.id) {
+    alert('Please log in to add items to your wishlist');
+    return;
+  }
+
+  // Find the product in cart items
+  const cartItem = cartItems.find(item => item.productId === productId);
+  if (!cartItem || !cartItem.product) {
+    console.error('Product not found in cart');
+    return;
+  }
+
+  const product = cartItem.product;
+  const productData = {
+    id: product.id,
+    name: product.name,
+    description: product.description || 'No description available',
+    image: product.image || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=300&h=300&fit=crop',
+    price: parseFloat(product.price || 0),
+    originalPrice: product.originalPrice ? parseFloat(product.originalPrice) : null,
+    tags: product.tags || [],
+    hasDiscount: product.hasDiscount || false
+  };
+
+  // Add to favorites
+  favoritesService.addToFavorites(user.id, productData);
+  
+  // Remove from cart
+  handleRemoveItem(productId);
+  
+  console.log(`Moved item ${productId} to wishlist`);
 };
 
 const calculateSubtotal = () => {

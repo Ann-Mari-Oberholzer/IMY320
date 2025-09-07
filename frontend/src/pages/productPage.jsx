@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { FaStar, FaHeart, FaShoppingCart, FaArrowLeft, FaGamepad, FaCheck, FaChevronLeft, FaChevronRight, FaTruck } from "react-icons/fa";
+import favoritesService from '../services/FavouritesService';
 import NavBar from "../components/NavBar";
 import Footer from "../components/Footer";
 import { useUser } from "../contexts/UserContext";
@@ -78,7 +79,6 @@ function ProductPage() {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [wishlist, setWishlist] = useState([]);
   const [addedToCart, setAddedToCart] = useState(false);
   const [priceInfo, setPriceInfo] = useState(null);
   const [rating, setRating] = useState(null);
@@ -87,7 +87,6 @@ function ProductPage() {
   // Similar products state
   const [similarProducts, setSimilarProducts] = useState([]);
   const [loadingSimilar, setLoadingSimilar] = useState(false);
-  const [similarWishlist, setSimilarWishlist] = useState([]);
   const [similarAddedToCart, setSimilarAddedToCart] = useState({});
   const [similarGameDataCache, setSimilarGameDataCache] = useState({});
   const [similarQuantities, setSimilarQuantities] = useState({});
@@ -359,12 +358,28 @@ function ProductPage() {
     }
   };
 
-  const toggleSimilarWishlist = (gameId) => {
-    setSimilarWishlist(prev => 
-      prev.includes(gameId) 
-        ? prev.filter(id => id !== gameId)
-        : [...prev, gameId]
-    );
+  const toggleSimilarWishlist = (game) => {
+    if (!user?.id) {
+      alert('Please log in to add items to your wishlist');
+      return;
+    }
+
+    const productData = {
+      id: game.id,
+      name: game.name,
+      description: game.deck || 'No description available',
+      image: game.image?.original || game.image?.square_small || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=300&h=300&fit=crop',
+      price: parseFloat(game.currentPrice || 0),
+      originalPrice: game.originalPrice ? parseFloat(game.originalPrice) : null,
+      tags: game.genres?.map(g => g.name) || [],
+      hasDiscount: game.hasDiscount || false
+    };
+
+    if (favoritesService.isFavorite(user.id, game.id)) {
+      favoritesService.removeFromFavorites(user.id, game.id);
+    } else {
+      favoritesService.addToFavorites(user.id, productData);
+    }
   };
 
   // Carousel navigation functions for 3-card display
@@ -667,14 +682,14 @@ function ProductPage() {
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                toggleSimilarWishlist(game.id);
+                toggleSimilarWishlist(game);
               }}
               style={{
                 padding: "12px 16px",
-                backgroundColor: similarWishlist.includes(game.id) ? '#e74c3c' : '#fff',
-                color: similarWishlist.includes(game.id) ? '#fff' : 'rgba(0, 0, 0, 0.5)',
+                backgroundColor: favoritesService.isFavorite(user?.id, game.id) ? '#e74c3c' : '#fff',
+                color: favoritesService.isFavorite(user?.id, game.id) ? '#fff' : 'rgba(0, 0, 0, 0.5)',
                 fontSize: "0.9rem",
-                border: `2px solid ${similarWishlist.includes(game.id) ? '#e74c3c' : 'rgba(0, 0, 0, 0.2)'}`,
+                border: `2px solid ${favoritesService.isFavorite(user?.id, game.id) ? '#e74c3c' : 'rgba(0, 0, 0, 0.2)'}`,
                 borderRadius: "12px",
                 cursor: "pointer",
                 display: "flex",
@@ -682,10 +697,10 @@ function ProductPage() {
                 alignItems: "center",
                 transition: "all 0.3s ease",
                 minWidth: "50px",
-                boxShadow: similarWishlist.includes(game.id) ? "0 4px 12px rgba(231, 76, 60, 0.3)" : "0 2px 8px rgba(0,0,0,0.1)",
+                boxShadow: favoritesService.isFavorite(user?.id, game.id) ? "0 4px 12px rgba(231, 76, 60, 0.3)" : "0 2px 8px rgba(0,0,0,0.1)",
               }}
               onMouseEnter={(e) => {
-                if (similarWishlist.includes(game.id)) {
+                if (favoritesService.isFavorite(user?.id, game.id)) {
                   e.target.style.transform = 'translateY(-2px) scale(1.05)';
                   e.target.style.boxShadow = '0 8px 20px rgba(231, 76, 60, 0.4)';
                   e.target.style.backgroundColor = '#c0392b';
@@ -698,7 +713,7 @@ function ProductPage() {
                 }
               }}
               onMouseLeave={(e) => {
-                if (similarWishlist.includes(game.id)) {
+                if (favoritesService.isFavorite(user?.id, game.id)) {
                   e.target.style.transform = 'translateY(0) scale(1)';
                   e.target.style.boxShadow = '0 4px 12px rgba(231, 76, 60, 0.3)';
                   e.target.style.backgroundColor = '#e74c3c';
@@ -1200,18 +1215,34 @@ function ProductPage() {
                       
                       <button 
                         onClick={() => {
-                          setWishlist(prev => 
-                            prev.includes(product.id) 
-                              ? prev.filter(id => id !== product.id)
-                              : [...prev, product.id]
-                          );
+                          if (!user?.id) {
+                            alert('Please log in to add items to your wishlist');
+                            return;
+                          }
+
+                          const productData = {
+                            id: product.id,
+                            name: product.name,
+                            description: product.deck || 'No description available',
+                            image: product.image?.original || product.image?.square_small || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=300&h=300&fit=crop',
+                            price: parseFloat(priceInfo?.currentPrice || 0),
+                            originalPrice: priceInfo?.originalPrice ? parseFloat(priceInfo.originalPrice) : null,
+                            tags: product.genres?.map(g => g.name) || [],
+                            hasDiscount: priceInfo?.hasDiscount || false
+                          };
+
+                          if (favoritesService.isFavorite(user.id, product.id)) {
+                            favoritesService.removeFromFavorites(user.id, product.id);
+                          } else {
+                            favoritesService.addToFavorites(user.id, productData);
+                          }
                           console.log(`Toggled wishlist for ${product.name}`);
                         }}
                         style={{
                           padding: '0.75rem 1.25rem',
-                          backgroundColor: wishlist.includes(product.id) ? '#e74c3c' : '#fff',
-                          color: wishlist.includes(product.id) ? '#fff' : '#666',
-                          border: `2px solid ${wishlist.includes(product.id) ? '#e74c3c' : '#e9ecef'}`,
+                          backgroundColor: favoritesService.isFavorite(user?.id, product.id) ? '#e74c3c' : '#fff',
+                          color: favoritesService.isFavorite(user?.id, product.id) ? '#fff' : '#666',
+                          border: `2px solid ${favoritesService.isFavorite(user?.id, product.id) ? '#e74c3c' : '#e9ecef'}`,
                           borderRadius: '0.5rem',
                           fontSize: '0.9rem',
                           fontWeight: '600',
@@ -1223,13 +1254,13 @@ function ProductPage() {
                           gap: '0.5rem',
                           whiteSpace: 'nowrap',
                           height: '44px',
-                          boxShadow: wishlist.includes(product.id) ? '0 4px 12px rgba(231, 76, 60, 0.3)' : '0 4px 12px rgba(0, 0, 0, 0.1)',
+                          boxShadow: favoritesService.isFavorite(user?.id, product.id) ? '0 4px 12px rgba(231, 76, 60, 0.3)' : '0 4px 12px rgba(0, 0, 0, 0.1)',
                           transform: 'translateY(0)',
                           position: 'relative',
                           overflow: 'hidden'
                         }}
                         onMouseEnter={(e) => {
-                          if (wishlist.includes(product.id)) {
+                          if (favoritesService.isFavorite(user?.id, product.id)) {
                             e.target.style.transform = 'translateY(-2px) scale(1.02)';
                             e.target.style.boxShadow = '0 8px 20px rgba(231, 76, 60, 0.4)';
                             e.target.style.backgroundColor = '#c0392b';
@@ -1242,7 +1273,7 @@ function ProductPage() {
                           }
                         }}
                         onMouseLeave={(e) => {
-                          if (wishlist.includes(product.id)) {
+                          if (favoritesService.isFavorite(user?.id, product.id)) {
                             e.target.style.transform = 'translateY(0) scale(1)';
                             e.target.style.boxShadow = '0 4px 12px rgba(231, 76, 60, 0.3)';
                             e.target.style.backgroundColor = '#e74c3c';
@@ -1256,7 +1287,7 @@ function ProductPage() {
                         }}
                       >
                         <FaHeart />
-                        {wishlist.includes(product.id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                        {favoritesService.isFavorite(user?.id, product.id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
                       </button>
                     </div>
                   </div>

@@ -100,6 +100,7 @@ function Favourites() {
 
   const formatPrice = (price) => {
     if (typeof price === 'string') return price;
+    if (price === null || price === undefined || isNaN(price)) return 'Price not available';
     return `$${price.toFixed(2)}`;
   };
 
@@ -151,7 +152,7 @@ function Favourites() {
           </div>
         ) : (
           <div style={productGridStyle}>
-            {favourites.map((product) => (
+            {favourites.filter(product => product && product.id).map((product) => (
               <div
                 key={product.id}
                 style={productCardStyle}
@@ -167,13 +168,13 @@ function Favourites() {
               >
                 <img
                   src={product.image || '/images/placeholder.jpg'}
-                  alt={product.name}
+                  alt={product.name || 'Product'}
                   style={productImageStyle}
                   onError={(e) => {
                     e.target.src = '/images/placeholder.jpg';
                   }}
                 />
-                <div style={productNameStyle}>{product.name}</div>
+                <div style={productNameStyle}>{product.name || 'Unnamed Product'}</div>
                 <div style={priceStyle}>{formatPrice(product.price)}</div>
 
                 {/* Buttons */}

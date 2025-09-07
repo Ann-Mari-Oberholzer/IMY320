@@ -5,6 +5,7 @@ import NavBar from '../components/NavBar';
 import Footer from '../components/Footer';
 import { useUser } from '../contexts/UserContext';
 import { useCart } from '../contexts/CartContext';
+import favoritesService from '../services/FavouritesService';
 import { generateRandomPrice, generateRandomRating } from '../utils/gameDataGenerators';
 import {
   globalResetUpdated as globalReset,
@@ -127,7 +128,6 @@ function Catalogue() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortBy, setSortBy] = useState("popular");
   const [showFilters, setShowFilters] = useState(false);
-  const [wishlist, setWishlist] = useState([]);
   const [selectOpen, setSelectOpen] = useState(false);
 
   // Pagination state
@@ -292,12 +292,28 @@ function Catalogue() {
     return matchesSearch && matchesCategory;
   });
 
-  const toggleWishlist = (gameId) => {
-    setWishlist(prev => 
-      prev.includes(gameId) 
-        ? prev.filter(id => id !== gameId)
-        : [...prev, gameId]
-    );
+  const toggleWishlist = (game) => {
+    if (!user?.id) {
+      alert('Please log in to add items to your wishlist');
+      return;
+    }
+
+    const productData = {
+      id: game.id,
+      name: game.name,
+      description: game.deck || 'No description available',
+      image: game.image?.original || game.image?.square_small || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=300&h=300&fit=crop',
+      price: parseFloat(game.currentPrice || 0),
+      originalPrice: game.originalPrice ? parseFloat(game.originalPrice) : null,
+      tags: game.genres?.map(g => g.name) || [],
+      hasDiscount: game.hasDiscount
+    };
+
+    if (favoritesService.isFavorite(user.id, game.id)) {
+      favoritesService.removeFromFavorites(user.id, game.id);
+    } else {
+      favoritesService.addToFavorites(user.id, productData);
+    }
   };
 
   const getPageNumbers = () => {
@@ -639,20 +655,20 @@ function Catalogue() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        toggleWishlist(game.id);
+                        toggleWishlist(game);
                       }}
                       style={{
                         ...wishlistButtonNewStyle,
-                        backgroundColor: wishlist.includes(game.id) ? '#e74c3c' : '#fff',
-                        borderColor: wishlist.includes(game.id) ? '#e74c3c' : '#ddd',
-                        color: wishlist.includes(game.id) ? '#fff' : '#666',
+                        backgroundColor: favoritesService.isFavorite(user?.id, game.id) ? '#e74c3c' : '#fff',
+                        borderColor: favoritesService.isFavorite(user?.id, game.id) ? '#e74c3c' : '#ddd',
+                        color: favoritesService.isFavorite(user?.id, game.id) ? '#fff' : '#666',
                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                         transform: 'translateY(0)',
-                        boxShadow: wishlist.includes(game.id) ? '0 4px 12px rgba(231, 76, 60, 0.3)' : '0 2px 8px rgba(0,0,0,0.1)',
+                        boxShadow: favoritesService.isFavorite(user?.id, game.id) ? '0 4px 12px rgba(231, 76, 60, 0.3)' : '0 2px 8px rgba(0,0,0,0.1)',
                       }}
-                      title={wishlist.includes(game.id) ? "Remove from wishlist" : "Add to wishlist"}
+                      title={favoritesService.isFavorite(user?.id, game.id) ? "Remove from wishlist" : "Add to wishlist"}
                       onMouseEnter={(e) => {
-                        if (wishlist.includes(game.id)) {
+                        if (favoritesService.isFavorite(user?.id, game.id)) {
                           e.target.style.transform = 'translateY(-2px) scale(1.02)';
                           e.target.style.boxShadow = '0 8px 20px rgba(231, 76, 60, 0.4)';
                           e.target.style.backgroundColor = '#c0392b';
@@ -665,7 +681,7 @@ function Catalogue() {
                         }
                       }}
                       onMouseLeave={(e) => {
-                        if (wishlist.includes(game.id)) {
+                        if (favoritesService.isFavorite(user?.id, game.id)) {
                           e.target.style.transform = 'translateY(0) scale(1)';
                           e.target.style.boxShadow = '0 4px 12px rgba(231, 76, 60, 0.3)';
                           e.target.style.backgroundColor = '#e74c3c';
@@ -679,7 +695,7 @@ function Catalogue() {
                       }}
                     >
                       <FaHeart style={{ marginRight: '0.5rem' }} />
-                      {wishlist.includes(game.id) ? 'In Wishlist' : 'Add to Wishlist'}
+                      {favoritesService.isFavorite(user?.id, game.id) ? 'In Wishlist' : 'Add to Wishlist'}
                     </button>
                     <button 
                       onClick={(e) => {
