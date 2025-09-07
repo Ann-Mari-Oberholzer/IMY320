@@ -522,8 +522,7 @@ return sum + (product.price || 0) * item.quantity;
 
 const subtotal = calculateSubtotal();
 const shipping = subtotal > 50 ? 0 : 5.99;
-const tax = subtotal * 0.08;
-const total = subtotal + shipping + tax;
+const total = subtotal + shipping;
 
 const handleCheckout = () => {
 setCheckoutStarted(true);
@@ -799,11 +798,6 @@ return (
             <span style={summaryValueStyle}>
               {shipping === 0 ? 'FREE' : `$${shipping.toFixed(2)}`}
             </span>
-          </div>
-
-          <div style={summaryRowStyle}>
-            <span style={summaryLabelStyle}>Tax</span>
-            <span style={summaryValueStyle}>${tax.toFixed(2)}</span>
           </div>
 
           <div style={totalRowStyle}>

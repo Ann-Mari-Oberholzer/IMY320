@@ -7,7 +7,7 @@ import { useUser } from '../contexts/UserContext';
 
 // Import styles from catalogue to maintain consistency
 import {
-  globalReset,
+  globalResetUpdated,
   containerStyle,
   contentStyle,
   headerStyle,
@@ -287,7 +287,7 @@ const OrdersPage = () => {
     // Simulate API call
     const loadOrders = async () => {
       setLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 3000));
       setOrders(sampleOrders);
       setLoading(false);
     };
@@ -299,7 +299,7 @@ const OrdersPage = () => {
 
   useEffect(() => {
     const styleElement = document.createElement("style");
-    styleElement.textContent = globalReset + `
+    styleElement.textContent = globalResetUpdated + `
       /* Order card hover effects */
       .order-card:hover {
         transform: translateY(-4px) !important;

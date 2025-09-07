@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { FaStar, FaHeart, FaShoppingCart, FaArrowLeft, FaGamepad, FaCheck } from "react-icons/fa";
+import { FaStar, FaHeart, FaShoppingCart, FaArrowLeft, FaGamepad, FaCheck, FaChevronLeft, FaChevronRight, FaTruck } from "react-icons/fa";
 import NavBar from "../components/NavBar";
+import Footer from "../components/Footer";
 import { useUser } from "../contexts/UserContext";
 import { useCart } from "../contexts/CartContext";
 import { generateRandomPrice, generateRandomRating } from "../utils/gameDataGenerators";
@@ -24,7 +25,46 @@ import {
   starStyle,
   ratingStyle,
   bounceAnimation,
-  spinAnimation
+  spinAnimation,
+  similarSection,
+  similarSectionTitle,
+  similarSectionSubtitle,
+  similarGridContainer,
+  similarCardItem,
+  similarItemImage,
+  similarItemContent,
+  similarItemTitle,
+  similarItemDescription,
+  similarItemMeta,
+  similarItemRating,
+  similarItemPrice,
+  similarItemActions,
+  similarItemButton,
+  similarItemAddButton,
+  similarItemWishlistButton,
+  carouselContainer,
+  carouselTrack,
+  carouselSlide,
+  carouselNavigation,
+  carouselButton,
+  carouselButtonLeft,
+  carouselButtonRight,
+  carouselButtonDisabled,
+  carouselDots,
+  carouselDot,
+  carouselDotActive,
+  productInfoSection,
+  productInfoTitle,
+  productInfoGrid,
+  productInfoCard,
+  productInfoCardTitle,
+  productInfoList,
+  productInfoListItem,
+  productInfoLabel,
+  productInfoValue,
+  productDescription,
+  productDescriptionTitle,
+  productDescriptionText
 } from "./productStyles";
 
 // API configuration
@@ -51,6 +91,9 @@ function ProductPage() {
   const [similarAddedToCart, setSimilarAddedToCart] = useState({});
   const [similarGameDataCache, setSimilarGameDataCache] = useState({});
   const [similarQuantities, setSimilarQuantities] = useState({});
+  
+  // Carousel state
+  const [currentSlide, setCurrentSlide] = useState(0);
 
   // Fetch product data
   useEffect(() => {
@@ -78,9 +121,14 @@ function ProductPage() {
         setPriceInfo(generateRandomPrice(data.id));
         setRating(generateRandomRating(data.id));
         
+        // Ensure loading screen shows for at least 3 seconds
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        
       } catch (err) {
         setError(err.message || "Failed to load product");
         console.error("Error fetching product:", err);
+        // Still wait 3 seconds even on error for consistent UX
+        await new Promise(resolve => setTimeout(resolve, 3000));
       } finally {
         setLoading(false);
       }
@@ -112,25 +160,31 @@ function ProductPage() {
         }
 
         if (searchFilter) {
-          const response = await fetch(
-            `${API_BASE}/api/games?${
-              product.genres && product.genres.length > 0 
-                ? `search=${encodeURIComponent(searchFilter)}`
-                : `filter=${encodeURIComponent(searchFilter)}`
-            }&limit=6&field_list=id,name,image,deck,genres,platforms,original_release_date`
-          );
-          
-          if (response.ok) {
-            const data = await response.json();
-            // Filter out the current product and limit to 6 items
-            const filtered = (data.results || [])
-              .filter(game => game.id !== parseInt(id))
-              .slice(0, 6);
-            setSimilarProducts(filtered);
-          }
+            const response = await fetch(
+              `${API_BASE}/api/games?${
+                product.genres && product.genres.length > 0 
+                  ? `search=${encodeURIComponent(searchFilter)}`
+                  : `filter=${encodeURIComponent(searchFilter)}`
+              }&limit=3&field_list=id,name,image,deck,genres,platforms,original_release_date`
+            );
+            
+            if (response.ok) {
+              const data = await response.json();
+              // Filter out the current product and limit to 3 items for carousel
+              const filtered = (data.results || [])
+                .filter(game => game.id !== parseInt(id))
+                .slice(0, 3);
+              setSimilarProducts(filtered);
+            }
         }
+        
+        // Ensure loading screen shows for at least 3 seconds
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        
       } catch (error) {
         console.error('Error fetching similar products:', error);
+        // Still wait 3 seconds even on error for consistent UX
+        await new Promise(resolve => setTimeout(resolve, 3000));
       } finally {
         setLoadingSimilar(false);
       }
@@ -143,48 +197,117 @@ function ProductPage() {
   useEffect(() => {
     const styleElement = document.createElement("style");
     styleElement.textContent = bounceAnimation + spinAnimation + `
-      @media (max-width: 768px) {
-        .product-card {
+      @media (max-width: 1024px) {
+        .product-layout {
           flex-direction: column !important;
-          max-width: 100% !important;
         }
-        .product-image-section {
+        .product-layout > div:first-child {
+          flex: none !important;
           min-width: 100% !important;
-          max-width: 100% !important;
-          height: 300px !important;
         }
-        .product-details {
-          min-width: 100% !important;
+        .product-layout > div:last-child {
+          flex: none !important;
+          max-width: 100% !important;
+          position: static !important;
+        }
+        .carousel-container {
+          max-width: 100% !important;
+          gap: 12px !important;
+          padding: 0 50px !important;
+          overflow: visible !important;
+        }
+        .carousel-track {
+          gap: 1rem !important;
+          overflow: visible !important;
+          justify-content: flex-start !important;
+          padding-left: 0px !important;
+          margin-left: -15px !important;
+        }
+        .carousel-slide {
+          width: 280px !important;
+          flex: 0 0 280px !important;
+          justify-content: center !important;
+        }
+        .carousel-button {
+          width: 45px !important;
+          height: 45px !important;
+          font-size: 1.1rem !important;
+        }
+      }
+      @media (max-width: 768px) {
+        .product-container {
           padding: 16px !important;
         }
-        .similar-card {
+        .product-layout > div:first-child > div:first-child {
           flex-direction: column !important;
-          min-height: auto !important;
+          text-align: center !important;
         }
-        .similar-card-image {
+        .product-layout > div:first-child > div:first-child img {
           width: 100% !important;
-          height: 200px !important;
+          max-width: 300px !important;
+          height: 300px !important;
+          margin: 0 auto !important;
         }
-        .similar-card-buttons {
-          flex-direction: row !important;
-          align-items: center !important;
-          justify-content: space-between !important;
-          gap: 1rem !important;
+        .carousel-container {
+          max-width: 100% !important;
+          gap: 8px !important;
+          padding: 0 40px !important;
+          overflow: visible !important;
         }
-        .similar-card-button {
-          width: 48% !important;
+        .carousel-track {
+          gap: 0.75rem !important;
+          overflow: visible !important;
+          justify-content: flex-start !important;
+          padding-left: 0px !important;
+          margin-left: -10px !important;
+        }
+        .carousel-slide {
+          width: 240px !important;
+          flex: 0 0 240px !important;
+          justify-content: center !important;
+        }
+        .carousel-button {
+          width: 40px !important;
+          height: 40px !important;
+          font-size: 1rem !important;
         }
       }
       @media (max-width: 480px) {
         .product-container {
-          padding: 10px !important;
+          padding: 12px !important;
         }
         .back-button {
           padding: 0.5rem 1rem !important;
           font-size: 0.9rem !important;
         }
         .similar-section {
-          padding: 1rem !important;
+          padding: 20px !important;
+        }
+        .product-layout > div:first-child > div:first-child img {
+          height: 250px !important;
+        }
+        .carousel-container {
+          max-width: 100% !important;
+          gap: 4px !important;
+          padding: 0 30px !important;
+          overflow: visible !important;
+        }
+        .carousel-track {
+          gap: 0.5rem !important;
+          overflow: visible !important;
+          justify-content: flex-start !important;
+          padding-left: 0px !important;
+          margin-left: -8px !important;
+        }
+        .carousel-slide {
+          width: 200px !important;
+          flex: 0 0 200px !important;
+          justify-content: center !important;
+        }
+        .carousel-button {
+          width: 35px !important;
+          height: 35px !important;
+          font-size: 0.9rem !important;
         }
       }
     `;
@@ -218,8 +341,8 @@ function ProductPage() {
     const productData = {
       id: game.id,
       name: game.name,
-      description: game.deck || 'No description available',
-      image: game.image?.original_url || game.image?.small_url || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=300&h=300&fit=crop',
+      description: game.deck || 'Immerse yourself in an exciting gaming adventure that combines engaging gameplay mechanics with stunning visuals and immersive storytelling. This game delivers hours of entertainment with its carefully crafted world, challenging objectives, and rewarding progression system. Whether you\'re a casual gamer or a hardcore enthusiast, this title offers something for everyone with its diverse gameplay elements and polished presentation.',
+      image: game.image?.original || game.image?.square_small || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=300&h=300&fit=crop',
       price: parseFloat(gameData.priceInfo.currentPrice),
       originalPrice: gameData.priceInfo.originalPrice ? parseFloat(gameData.priceInfo.originalPrice) : null,
       tags: game.genres?.map(g => g.name) || [],
@@ -244,399 +367,326 @@ function ProductPage() {
     );
   };
 
+  // Carousel navigation functions for 3-card display
+  const nextSlide = () => {
+    if (similarProducts.length <= 3) return;
+    setCurrentSlide((prev) => Math.min(prev + 1, similarProducts.length - 3));
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => Math.max(prev - 1, 0));
+  };
+
+  const goToSlide = (index) => {
+    setCurrentSlide(index);
+  };
+
+  // Get the 3 products to display
+  const getVisibleProducts = () => {
+    if (similarProducts.length <= 3) {
+      return similarProducts;
+    }
+    return similarProducts.slice(currentSlide, currentSlide + 3);
+  };
+
   // Get the main product image - prioritize original, then fallback to others
   const getMainProductImage = () => {
     if (!product) return "/controllers.jpg";
     
     if (product.image?.original) return product.image.original;
-    // if (product.image?.square_small) return product.image.square_small;
-    // if (product.image?.square_tiny) return product.image.square_tiny;
     
     return "/controllers.jpg";
   };
 
-  // Similar Products Component - Catalogue style
+  // Handle tag click - navigate to catalogue with filter
+  const handleTagClick = (tagName, event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    navigate(`/catalogue?search=${encodeURIComponent(tagName)}`);
+  };
+
+  // Similar Products Component - Image-focused carousel card
   const SimilarProductCard = ({ game }) => {
     const { rating, priceInfo } = getSimilarGameData(game.id);
     
     return (
       <div
-        className="similar-card"
+        className="similar-card-item"
         style={{
-          backgroundColor: '#fff',
-          borderRadius: '1rem',
-          overflow: 'hidden',
-          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-          transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-          cursor: 'pointer',
-          display: 'flex',
-          minHeight: '200px',
-          border: '1px solid #e5e7eb',
-          width: '100%',
-          boxSizing: 'border-box'
+          backgroundColor: "#ffffff",
+          borderRadius: "20px",
+          padding: "0",
+          width: "300px",
+          cursor: "pointer",
+          boxShadow: "0 8px 25px rgba(0, 0, 0, 0.12)",
+          transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+          display: "flex",
+          flexDirection: "column",
+          height: "100%",
+          border: "1px solid #f0f0f0",
+          overflow: "hidden",
+          position: "relative",
         }}
         onClick={() => navigate(`/product/${game.id}`)}
         onMouseEnter={(e) => {
-          e.currentTarget.style.transform = 'translateY(-4px)';
-          e.currentTarget.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.15)';
+          e.currentTarget.style.transform = 'translateY(-15px) scale(1.02)';
+          e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.15)';
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.transform = 'translateY(0)';
-          e.currentTarget.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+          e.currentTarget.style.transform = 'translateY(0) scale(1)';
+          e.currentTarget.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.12)';
         }}
       >
-        {/* Image Section */}
-        <div 
-          className="similar-card-image"
-          style={{
-            position: 'relative',
-            width: '230px',
-            height: '270px',
-            backgroundColor: '#f0f0f0',
-            flexShrink: 0
-          }}
-        >
-          {game.image?.original || game.image?.square_small ? (
-            <img
-              src={game.image.original || game.image.square_small}
-              alt={game.name}
-              style={{
-                width: '100%',
-                height: '100%',
-                // objectFit: 'cover'
-              }}
-            />
-          ) : (
-            <div style={{
+        {/* Image Container with Overlay */}
+        <div style={{
+          position: "relative",
+          width: "100%",
+          height: "200px",
+          overflow: "hidden",
+          borderRadius: "20px 20px 0 0",
+        }}>
+          <img
+            src={game.image?.original || game.image?.square_small || "/controllers.jpg"}
+            alt={game.name}
+            style={{
               width: '100%',
               height: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: '#e9ecef'
-            }}>
-              <FaGamepad style={{ fontSize: '3rem', color: '#adb5bd' }} />
-            </div>
-          )}
-          
-          {/* Discount badge */}
-          {priceInfo.hasDiscount && (
-            <div style={{
-              position: 'absolute',
-              top: '1rem',
-              left: '1rem',
-              backgroundColor: '#e74c3c',
-              color: '#fff',
-              padding: '0.25rem 0.5rem',
-              borderRadius: '0.25rem',
-              fontSize: '0.8rem',
-              fontWeight: '600'
-            }}>
-              -{Math.round(((priceInfo.originalPrice - priceInfo.currentPrice) / priceInfo.originalPrice) * 100)}%
-            </div>
-          )}
-        </div>
-
-        {/* Info Section */}
-        <div style={{
-          padding: '1.5rem',
-          flex: '1',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between'
-        }}>
-          {/* Title and Description */}
-          <div>
-            <h3 style={{
-              fontSize: '1.3rem',
-              fontWeight: '600',
-              color: '#1E232C',
-              margin: '0 0 0.5rem 0',
-              transition: 'color 0.3s ease',
-              cursor: 'pointer'
+              objectFit: 'cover',
+              transition: 'transform 0.4s ease',
             }}
-            onMouseEnter={(e) => e.target.style.color = '#00AEBB'}
-            onMouseLeave={(e) => e.target.style.color = '#1E232C'}
-            >
-              {game.name}
-            </h3>
-            
-            <p style={{
-              color: '#666',
-              fontSize: '0.9rem',
-              margin: '0 0 1rem 0',
-              lineHeight: '1.4',
-              display: '-webkit-box',
-              WebkitLineClamp: 3,
-              WebkitBoxOrient: 'vertical',
-              overflow: 'hidden'
-            }}>
-              {game.deck || "No description available."}
-            </p>
-
-            {/* Tags */}
+            onMouseEnter={(e) => {
+              e.target.style.transform = 'scale(1.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.transform = 'scale(1)';
+            }}
+          />
+          
+          {/* Gradient Overlay */}
+          <div style={{
+            position: "absolute",
+            bottom: "0",
+            left: "0",
+            right: "0",
+            height: "60px",
+            background: "linear-gradient(transparent, rgba(0,0,0,0.7))",
+            display: "flex",
+            alignItems: "flex-end",
+            padding: "12px",
+          }}>
+            {/* Rating Badge */}
             <div style={{
-              display: 'flex',
-              gap: '0.5rem',
-              marginBottom: '1rem',
-              flexWrap: 'wrap'
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+              backgroundColor: "rgba(255,255,255,0.9)",
+              padding: "4px 8px",
+              borderRadius: "12px",
+              fontSize: "0.8rem",
+              fontWeight: "600",
+              color: "#1E232C",
             }}>
-              {game.genres?.slice(0, 2).map(genre => (
-                <span key={genre.id} style={{
-                  backgroundColor: '#f8f9fa',
-                  color: '#666',
-                  padding: '0.25rem 0.5rem',
-                  borderRadius: '0.25rem',
-                  fontSize: '0.8rem'
-                }}>
-                  {genre.name}
-                </span>
-              )) || game.platforms?.slice(0, 2).map(platform => (
-                <span key={platform.id} style={{
-                  backgroundColor: '#f8f9fa',
-                  color: '#666',
-                  padding: '0.25rem 0.5rem',
-                  borderRadius: '0.25rem',
-                  fontSize: '0.8rem'
-                }}>
-                  {platform.abbreviation || platform.name}
-                </span>
-              )) || (
-                <span style={{
-                  backgroundColor: '#f8f9fa',
-                  color: '#666',
-                  padding: '0.25rem 0.5rem',
-                  borderRadius: '0.25rem',
-                  fontSize: '0.8rem'
-                }}>
-                  Game
-                </span>
-              )}
-            </div>
-
-            {/* Rating */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              marginBottom: '1rem'
-            }}>
-              <FaStar style={{ color: '#F7CA66', fontSize: '1rem' }} />
-              <span style={{ fontWeight: '600', color: '#1E232C' }}>{rating}</span>
-              <span style={{ color: '#666', fontSize: '0.9rem' }}>
-                (150 reviews)
-              </span>
+              <FaStar style={{ color: '#F7CA66', fontSize: '0.7rem' }} />
+              {rating}
             </div>
           </div>
+        </div>
+        
+        {/* Content */}
+        <div style={{
+          padding: "20px",
+          display: "flex",
+          flexDirection: "column",
+          gap: "12px",
+          flex: "1"
+        }}>
+          <h3 style={{
+            fontSize: "1.1rem",
+            fontWeight: "700",
+            color: "#1E232C",
+            margin: "0",
+            lineHeight: "1.3",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap"
+          }}>
+            {game.name}
+          </h3>
 
-          {/* Price and Buttons Row */}
+          {/* Tags */}
           <div style={{
             display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-end',
-            marginTop: 'auto'
+            gap: '0.25rem',
+            flexWrap: 'wrap',
+            marginBottom: '0.5rem'
           }}>
-            {/* Price */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem'
-            }}>
-              {priceInfo.hasDiscount && (
-                <span style={{
-                  textDecoration: 'line-through',
-                  color: '#999',
-                  fontSize: '0.9rem'
-                }}>
-                  ${priceInfo.originalPrice.toFixed(2)}
-                </span>
-              )}
-              <span style={{
-                fontSize: '1.2rem',
-                fontWeight: '700',
-                color: '#00AEBB'
-              }}>
-                ${priceInfo.currentPrice.toFixed(2)}
-              </span>
-            </div>
-
-            {/* Quantity Selector */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              marginBottom: '1rem',
-              justifyContent: 'flex-end'
-            }}>
-              <label style={{
-                fontSize: '0.9rem',
-                fontWeight: '600',
-                color: '#333'
-              }}>
-                Qty:
-              </label>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                border: '1px solid #ddd',
-                borderRadius: '0.25rem',
-                overflow: 'hidden'
-              }}>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSimilarQuantities(prev => ({
-                      ...prev,
-                      [game.id]: Math.max(1, (prev[game.id] || 1) - 1)
-                    }));
-                  }}
-                  style={{
-                    padding: '0.25rem 0.5rem',
-                    backgroundColor: '#f8f9fa',
-                    border: 'none',
-                    cursor: 'pointer',
-                    fontSize: '0.9rem',
-                    fontWeight: '600',
-                    color: '#666',
-                    transition: 'all 0.3s ease'
-                  }}
-                >
-                  -
-                </button>
-                <input
-                  type="number"
-                  min="1"
-                  max="99"
-                  value={similarQuantities[game.id] || 1}
-                  onChange={(e) => {
-                    const value = parseInt(e.target.value) || 1;
-                    setSimilarQuantities(prev => ({
-                      ...prev,
-                      [game.id]: Math.max(1, Math.min(99, value))
-                    }));
-                  }}
-                  onClick={(e) => e.stopPropagation()}
-                  style={{
-                    width: '40px',
-                    padding: '0.25rem',
-                    textAlign: 'center',
-                    border: 'none',
-                    fontSize: '0.9rem',
-                    fontWeight: '600',
-                    outline: 'none'
-                  }}
-                />
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSimilarQuantities(prev => ({
-                      ...prev,
-                      [game.id]: Math.min(99, (prev[game.id] || 1) + 1)
-                    }));
-                  }}
-                  style={{
-                    padding: '0.25rem 0.5rem',
-                    backgroundColor: '#f8f9fa',
-                    border: 'none',
-                    cursor: 'pointer',
-                    fontSize: '0.9rem',
-                    fontWeight: '600',
-                    color: '#666',
-                    transition: 'all 0.3s ease'
-                  }}
-                >
-                  +
-                </button>
-              </div>
-            </div>
-
-            {/* Buttons */}
-            <div 
-              className="similar-card-buttons"
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '0.5rem',
-                alignItems: 'flex-end'
-              }}
-            >
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  toggleSimilarWishlist(game.id);
-                }}
-                className="similar-card-button"
+            {game.genres?.slice(0, 2).map(genre => (
+              <span 
+                key={genre.id} 
+                onClick={(e) => handleTagClick(genre.name, e)}
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  padding: '0.5rem 1rem',
-                  backgroundColor: similarWishlist.includes(game.id) ? '#e74c3c' : '#fff',
-                  color: similarWishlist.includes(game.id) ? '#fff' : '#666',
-                  border: `2px solid ${similarWishlist.includes(game.id) ? '#e74c3c' : '#ddd'}`,
+                  backgroundColor: '#f0f7ff',
+                  color: '#00AEBB',
+                  padding: '0.2rem 0.5rem',
                   borderRadius: '0.5rem',
-                  fontSize: '0.9rem',
+                  fontSize: '0.7rem',
                   fontWeight: '500',
                   cursor: 'pointer',
                   transition: 'all 0.3s ease',
-                  width: '160px',
-                  boxSizing: 'border-box'
+                  border: '1px solid transparent'
                 }}
-                title={similarWishlist.includes(game.id) ? "Remove from wishlist" : "Add to wishlist"}
-              >
-                <FaHeart style={{ marginRight: '0.5rem' }} />
-                {similarWishlist.includes(game.id) ? 'In Wishlist' : 'Add to Wishlist'}
-              </button>
-              
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleSimilarAddToCart(game);
-                }}
-                className="similar-card-button"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  padding: '0.5rem 1rem',
-                  backgroundColor: similarAddedToCart[game.id] ? '#27ae60' : '#F7CA66',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '0.5rem',
-                  fontSize: '0.9rem',
-                  fontWeight: '500',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  width: '160px',
-                  boxSizing: 'border-box'
-                }}
-                disabled={similarAddedToCart[game.id]}
                 onMouseEnter={(e) => {
-                  if (!similarAddedToCart[game.id]) {
-                    e.target.style.transform = 'translateY(-2px)';
-                    e.target.style.boxShadow = '0 6px 12px rgba(247, 202, 102, 0.3)';
-                  }
+                  e.target.style.backgroundColor = '#00AEBB';
+                  e.target.style.color = '#fff';
+                  e.target.style.borderColor = '#00AEBB';
+                  e.target.style.transform = 'translateY(-1px)';
                 }}
                 onMouseLeave={(e) => {
-                  if (!similarAddedToCart[game.id]) {
-                    e.target.style.transform = 'translateY(0)';
-                    e.target.style.boxShadow = 'none';
-                  }
+                  e.target.style.backgroundColor = '#f0f7ff';
+                  e.target.style.color = '#00AEBB';
+                  e.target.style.borderColor = 'transparent';
+                  e.target.style.transform = 'translateY(0)';
                 }}
               >
-                {similarAddedToCart[game.id] ? (
-                  <>
-                    <FaCheck style={{ marginRight: '0.5rem' }} />
-                    Added to cart
-                  </>
-                ) : (
-                  <>
-                    <FaShoppingCart style={{ marginRight: '0.5rem' }} />
-                    Add to Cart
-                  </>
-                )}
-              </button>
-            </div>
+                {genre.name}
+              </span>
+            )) || game.platforms?.slice(0, 2).map(platform => (
+              <span 
+                key={platform.id} 
+                onClick={(e) => handleTagClick(platform.abbreviation || platform.name, e)}
+                style={{
+                  backgroundColor: '#f0f7ff',
+                  color: '#00AEBB',
+                  padding: '0.2rem 0.5rem',
+                  borderRadius: '0.5rem',
+                  fontSize: '0.7rem',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  border: '1px solid transparent'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = '#00AEBB';
+                  e.target.style.color = '#fff';
+                  e.target.style.borderColor = '#00AEBB';
+                  e.target.style.transform = 'translateY(-1px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = '#f0f7ff';
+                  e.target.style.color = '#00AEBB';
+                  e.target.style.borderColor = 'transparent';
+                  e.target.style.transform = 'translateY(0)';
+                }}
+              >
+                {platform.abbreviation || platform.name}
+              </span>
+            ))}
+          </div>
+
+          {/* Price */}
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            marginBottom: "8px"
+          }}>
+            {priceInfo.hasDiscount && (
+              <span style={{
+                textDecoration: "line-through",
+                color: "#999",
+                fontSize: "0.9rem",
+                fontWeight: "500"
+              }}>
+                ${priceInfo.originalPrice.toFixed(2)}
+              </span>
+            )}
+            <span style={{
+              fontSize: "1.3rem",
+              fontWeight: "800",
+              color: "#00AEBB"
+            }}>
+              ${priceInfo.currentPrice.toFixed(2)}
+            </span>
+            {priceInfo.hasDiscount && (
+              <span style={{
+                backgroundColor: "#e74c3c",
+                color: "#fff",
+                padding: "2px 6px",
+                borderRadius: "4px",
+                fontSize: "0.7rem",
+                fontWeight: "600"
+              }}>
+                SAVE
+              </span>
+            )}
+          </div>
+
+          {/* Action Buttons - Compact */}
+          <div style={{
+            display: "flex",
+            gap: "8px",
+            marginTop: "auto"
+          }}>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleSimilarAddToCart(game);
+              }}
+              style={{
+                padding: "12px 20px",
+                backgroundColor: similarAddedToCart[game.id] ? '#27ae60' : '#F7CA66',
+                color: "#fff",
+                fontSize: "0.9rem",
+                fontWeight: "600",
+                border: "none",
+                borderRadius: "12px",
+                cursor: "pointer",
+                transition: "all 0.3s ease",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "6px",
+                flex: "1",
+                boxShadow: "0 4px 12px rgba(247, 202, 102, 0.4)",
+              }}
+              disabled={similarAddedToCart[game.id]}
+            >
+              {similarAddedToCart[game.id] ? (
+                <>
+                  <FaCheck />
+                  Added
+                </>
+              ) : (
+                <>
+                  <FaShoppingCart />
+                  Add to Cart
+                </>
+              )}
+            </button>
+            
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleSimilarWishlist(game.id);
+              }}
+              style={{
+                padding: "12px 16px",
+                backgroundColor: similarWishlist.includes(game.id) ? '#e74c3c' : '#fff',
+                color: similarWishlist.includes(game.id) ? '#fff' : 'rgba(0, 0, 0, 0.5)',
+                fontSize: "0.9rem",
+                border: `2px solid ${similarWishlist.includes(game.id) ? '#e74c3c' : 'rgba(0, 0, 0, 0.2)'}`,
+                borderRadius: "12px",
+                cursor: "pointer",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                transition: "all 0.3s ease",
+                minWidth: "50px",
+                boxShadow: similarWishlist.includes(game.id) ? "0 4px 12px rgba(231, 76, 60, 0.3)" : "0 2px 8px rgba(0,0,0,0.1)",
+              }}
+            >
+              <FaHeart />
+            </button>
           </div>
         </div>
       </div>
@@ -651,12 +701,20 @@ function ProductPage() {
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          height: '50vh',
+          height: '100vh',
           flexDirection: 'column',
-          gap: '1rem'
+          gap: '1rem',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+          backdropFilter: 'blur(10px)',
+          WebkitBackdropFilter: 'blur(10px)',
+          zIndex: 1000
         }}>
           <FaGamepad style={{ fontSize: '3rem', color: '#00AEBB', animation: 'bounce 1s infinite' }} />
-          <p>Loading product...</p>
         </div>
       </div>
     );
@@ -697,7 +755,7 @@ function ProductPage() {
   return (
     <div style={big}>
       <NavBar currentPage="product" user={user} />
-      <div style={container}>
+      <div style={container} className="product-container">
         
         {/* Back button */}
         <button
@@ -714,10 +772,11 @@ function ProductPage() {
             borderRadius: '0.5rem',
             cursor: 'pointer',
             fontSize: '1rem',
-            marginBottom: '1rem',
+            marginBottom: '0.5rem',
             transition: 'all 0.3s ease',
             width: 'fit-content',
-            boxSizing: 'border-box'
+            boxSizing: 'border-box',
+            alignSelf: 'flex-start'
           }}
           onMouseEnter={(e) => {
             e.target.style.backgroundColor = '#00AEBB';
@@ -734,89 +793,383 @@ function ProductPage() {
           Back to Catalogue
         </button>
 
-        <div style={{...card}} className="product-card">
-          {/* Left: Image Section - Now shows only one image */}
-          <div style={{...imageSection}} className="product-image-section">
-            <img
-              src={getMainProductImage()}
-              alt={product.name}
-              style={bigImage}
-            />
+        {/* Main Product Layout - Similar to Shopping Cart */}
+        <div style={{
+          display: 'flex',
+          gap: '2rem',
+          alignItems: 'flex-start',
+          flexWrap: 'wrap'
+        }} className="product-layout">
+          
+          {/* Left: Product Details */}
+          <div style={{
+            flex: '3',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '2rem',
+            minWidth: '400px'
+          }}>
+            {/* Product Image and Basic Info with Game Details */}
+            <div style={{
+              backgroundColor: '#fff',
+              borderRadius: '1rem',
+              padding: '2rem',
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+              display: 'flex',
+              gap: '2rem',
+              alignItems: 'flex-start'
+            }}>
+              <img
+                src={getMainProductImage()}
+                alt={product.name}
+                style={{
+                  width: '200px',
+                  height: '200px',
+                  borderRadius: '0.5rem',
+                  objectFit: 'cover',
+                  backgroundColor: '#f0f0f0',
+                  flexShrink: 0
+                }}
+              />
+              
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <h1 style={{
+                  fontSize: '2rem',
+                  fontWeight: '700',
+                  color: '#1E232C',
+                  margin: '0 0 1rem 0',
+                  lineHeight: '1.2'
+                }}>
+                  {product.name}
+                </h1>
+                
+                <p style={{
+                  fontSize: '1rem',
+                  color: '#666',
+                  margin: '0 0 1rem 0',
+                  lineHeight: '1.6'
+                }}>
+                  {product.deck || "Immerse yourself in an exciting gaming adventure that combines engaging gameplay mechanics with stunning visuals and immersive storytelling. This game delivers hours of entertainment with its carefully crafted world, challenging objectives, and rewarding progression system. Whether you're a casual gamer or a hardcore enthusiast, this title offers something for everyone with its diverse gameplay elements and polished presentation."}
+                </p>
+
+                {/* Categories/Tags */}
+                <div style={{
+                  display: 'flex',
+                  gap: '0.5rem',
+                  flexWrap: 'wrap',
+                  marginBottom: '1rem'
+                }}>
+                  {product.genres?.slice(0, 4).map(genre => (
+                    <span 
+                      key={genre.id} 
+                      onClick={(e) => handleTagClick(genre.name, e)}
+                      style={{
+                        backgroundColor: '#f0f7ff',
+                        color: '#00AEBB',
+                        padding: '0.25rem 0.75rem',
+                        borderRadius: '1rem',
+                        fontSize: '0.8rem',
+                        fontWeight: '500',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease',
+                        border: '1px solid transparent'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.backgroundColor = '#00AEBB';
+                        e.target.style.color = '#fff';
+                        e.target.style.borderColor = '#00AEBB';
+                        e.target.style.transform = 'translateY(-2px)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.backgroundColor = '#f0f7ff';
+                        e.target.style.color = '#00AEBB';
+                        e.target.style.borderColor = 'transparent';
+                        e.target.style.transform = 'translateY(0)';
+                      }}
+                    >
+                      {genre.name}
+                    </span>
+                  )) || product.platforms?.slice(0, 3).map(platform => (
+                    <span 
+                      key={platform.id} 
+                      onClick={(e) => handleTagClick(platform.abbreviation || platform.name, e)}
+                      style={{
+                        backgroundColor: '#f0f7ff',
+                        color: '#00AEBB',
+                        padding: '0.25rem 0.75rem',
+                        borderRadius: '1rem',
+                        fontSize: '0.8rem',
+                        fontWeight: '500',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease',
+                        border: '1px solid transparent'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.backgroundColor = '#00AEBB';
+                        e.target.style.color = '#fff';
+                        e.target.style.borderColor = '#00AEBB';
+                        e.target.style.transform = 'translateY(-2px)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.backgroundColor = '#f0f7ff';
+                        e.target.style.color = '#00AEBB';
+                        e.target.style.borderColor = 'transparent';
+                        e.target.style.transform = 'translateY(0)';
+                      }}
+                    >
+                      {platform.abbreviation || platform.name}
+                    </span>
+                  )) || (
+                    <span style={{
+                      backgroundColor: '#f0f7ff',
+                      color: '#00AEBB',
+                      padding: '0.25rem 0.75rem',
+                      borderRadius: '1rem',
+                      fontSize: '0.8rem',
+                      fontWeight: '500'
+                    }}>
+                      Game
+                    </span>
+                  )}
+                </div>
+
+                {/* Rating */}
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  marginBottom: '1rem'
+                }}>
+                  <FaStar style={{ color: '#F7CA66', fontSize: '1.1rem' }} />
+                  <span style={{
+                    fontWeight: '700',
+                    color: '#1E232C',
+                    fontSize: '1.1rem'
+                  }}>
+                    {rating}
+                  </span>
+                  <span style={{color: '#999', fontSize: '0.9rem'}}>(150 reviews)</span>
+            </div>
+
+                {/* Game Details - Inline */}
+              <div style={{
+                backgroundColor: '#f8f9fa',
+                  padding: '1rem',
+                  borderRadius: '0.5rem',
+                  fontSize: '0.9rem',
+                color: '#444',
+                  border: '1px solid #e9ecef',
+                  marginTop: '1rem'
+              }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.5rem', lineHeight: '1.5' }}>
+                  {product.original_release_date && (
+                      <div><strong>Release Date:</strong> {new Date(product.original_release_date).toLocaleDateString()}</div>
+                  )}
+                  {product.platforms && (
+                      <div><strong>Platforms:</strong> {product.platforms.map(p => p.name || p.abbreviation).join(', ')}</div>
+                  )}
+                  {product.genres && (
+                      <div><strong>Genres:</strong> {product.genres.map(g => g.name).join(', ')}</div>
+                  )}
+                  {product.site_detail_url && (
+                      <div>
+                        <strong>More Info:</strong> 
+                      <a 
+                        href={product.site_detail_url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                          style={{ color: '#00AEBB', textDecoration: 'none', marginLeft: '4px' }}
+                      >
+                        View on GameSpot
+                      </a>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Action Buttons - Moved to Game Info Section */}
+                <div style={{ 
+                  display: 'flex', 
+                  gap: '0.75rem', 
+                  marginTop: '1.5rem',
+                  justifyContent: 'flex-start'
+                }}>
+                  <button
+                    onClick={async () => {
+                      if (!user) {
+                        alert('Please log in to add items to cart');
+                        return;
+                      }
+
+                      const productData = {
+                        id: product.id,
+                        name: product.name,
+                        description: product.deck || 'Immerse yourself in an exciting gaming adventure that combines engaging gameplay mechanics with stunning visuals and immersive storytelling. This game delivers hours of entertainment with its carefully crafted world, challenging objectives, and rewarding progression system. Whether you\'re a casual gamer or a hardcore enthusiast, this title offers something for everyone with its diverse gameplay elements and polished presentation.',
+                        image: product.image?.original || product.image?.square_small || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=300&h=300&fit=crop',
+                        price: parseFloat(priceInfo?.currentPrice || 0),
+                        originalPrice: priceInfo?.originalPrice ? parseFloat(priceInfo.originalPrice) : null,
+                        tags: product.genres?.map(g => g.name) || [],
+                        hasDiscount: priceInfo?.hasDiscount || false
+                      };
+
+                      const success = await addToCart(productData, quantity);
+                      if (success) {
+                        setAddedToCart(true);
+                        setTimeout(() => setAddedToCart(false), 3000);
+                      }
+                    }}
+                    style={{
+                      padding: '0.75rem 1.5rem',
+                      backgroundColor: addedToCart ? '#27ae60' : '#F7CA66',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '0.5rem',
+                      fontSize: '1rem',
+                      fontWeight: '600',
+                      cursor: addedToCart ? 'default' : 'pointer',
+                      transition: 'all 0.3s ease',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.5rem',
+                      minWidth: '140px'
+                    }}
+                    disabled={addedToCart}
+                  >
+                    {addedToCart ? (
+                      <>
+                        <FaCheck />
+                        Added to Cart
+                      </>
+                    ) : (
+                      <>
+                        <FaShoppingCart />
+                        Add to Cart
+                      </>
+                    )}
+                  </button>
+                  
+                  <button 
+                    onClick={() => {
+                      setWishlist(prev => 
+                        prev.includes(product.id) 
+                          ? prev.filter(id => id !== product.id)
+                          : [...prev, product.id]
+                      );
+                      console.log(`Toggled wishlist for ${product.name}`);
+                    }}
+                    style={{
+                      padding: '0.75rem 1.25rem',
+                      backgroundColor: wishlist.includes(product.id) ? '#e74c3c' : '#fff',
+                      color: wishlist.includes(product.id) ? '#fff' : '#666',
+                      border: `2px solid ${wishlist.includes(product.id) ? '#e74c3c' : '#e9ecef'}`,
+                      borderRadius: '0.5rem',
+                      fontSize: '0.9rem',
+                      fontWeight: '500',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.5rem',
+                      minWidth: '140px'
+                    }}
+                  >
+                    <FaHeart />
+                    {wishlist.includes(product.id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Right: Product Details */}
-          <div style={{...details}} className="product-details">
-            <h3 style={title}>{product.name}</h3>
-            <p style={description}>
-              {product.deck || "No description available."}
-            </p>
+          {/* Right: Add to Cart Summary - Compact */}
+          <div style={{
+            flex: '1',
+            maxWidth: '320px',
+            backgroundColor: '#fff',
+            borderRadius: '1rem',
+            padding: '1.5rem',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+            height: 'fit-content',
+            position: 'sticky',
+            top: '2rem'
+          }}>
 
-            {/* Categories/Tags */}
-            <div style={categories}>
-              {product.genres?.slice(0, 3).map(genre => (
-                <span key={genre.id} style={category}>{genre.name}</span>
-              )) || product.platforms?.slice(0, 3).map(platform => (
-                <span key={platform.id} style={category}>
-                  {platform.abbreviation || platform.name}
-                </span>
-              )) || (
-                <span style={category}>Game</span>
-              )}
-            </div>
-
-            {/* Rating */}
-            <div style={ratingContainer}>
-              <FaStar style={starStyle} />
-              <span style={ratingStyle}>{rating}</span>
-            </div>
-
-            {/* Price */}
-            <p style={price}>
+            {/* Price Display - Compact */}
+            <div style={{
+              textAlign: 'center',
+              marginBottom: '1rem',
+              padding: '0.75rem',
+              backgroundColor: '#f8f9fa',
+              borderRadius: '0.5rem',
+              border: '1px solid #e9ecef'
+            }}>
               {priceInfo?.hasDiscount && (
-                <span style={{
-                  textDecoration: 'line-through',
+                <div style={{
+                  fontSize: '0.9rem',
                   color: '#999',
-                  fontSize: '1rem',
-                  marginRight: '1rem'
+                  textDecoration: 'line-through',
+                  marginBottom: '0.25rem'
                 }}>
                   ${priceInfo.originalPrice.toFixed(2)}
-                </span>
+                </div>
               )}
-              ${priceInfo?.currentPrice.toFixed(2)}
-            </p>
+              <div style={{
+                fontSize: '1.8rem',
+                fontWeight: '800',
+                color: '#1E232C'
+              }}>
+                ${priceInfo?.currentPrice.toFixed(2)}
+              </div>
+              {priceInfo?.hasDiscount && (
+                <div style={{
+                  fontSize: '0.8rem',
+                  color: '#27ae60',
+                  fontWeight: '600',
+                  marginTop: '0.25rem'
+                }}>
+                  Save ${(priceInfo.originalPrice - priceInfo.currentPrice).toFixed(2)}!
+                </div>
+              )}
+            </div>
 
-            {/* Quantity Selector */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem',
-              marginBottom: '1.5rem'
-            }}>
+            {/* Quantity Selector - Ultra Compact */}
+            <div style={{ marginBottom: '1rem' }}>
               <label style={{
-                fontSize: '1rem',
+                display: 'block',
+                fontSize: '0.8rem',
                 fontWeight: '600',
-                color: '#333'
+                color: '#333',
+                marginBottom: '0.4rem'
               }}>
                 Quantity:
               </label>
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
-                border: '2px solid #ddd',
-                borderRadius: '0.5rem',
-                overflow: 'hidden'
+                border: '1px solid #e9ecef',
+                borderRadius: '0.4rem',
+                overflow: 'hidden',
+                backgroundColor: '#fff',
+                width: 'fit-content'
               }}>
                 <button
                   onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
                   style={{
-                    padding: '0.5rem 0.75rem',
+                    padding: '0.2rem 0.4rem',
                     backgroundColor: '#f8f9fa',
                     border: 'none',
                     cursor: 'pointer',
-                    fontSize: '1.2rem',
+                    fontSize: '0.75rem',
                     fontWeight: '600',
                     color: '#666',
-                    transition: 'all 0.3s ease'
+                    transition: 'all 0.3s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    minWidth: '24px',
+                    height: '28px'
                   }}
                   onMouseEnter={(e) => {
                     e.target.style.backgroundColor = '#00AEBB';
@@ -839,26 +1192,33 @@ function ProductPage() {
                     setQuantity(Math.max(1, Math.min(99, value)));
                   }}
                   style={{
-                    width: '60px',
-                    padding: '0.5rem',
+                    width: '30px',
+                    padding: '0.2rem 0.1rem',
                     textAlign: 'center',
                     border: 'none',
-                    fontSize: '1rem',
+                    fontSize: '0.75rem',
                     fontWeight: '600',
-                    outline: 'none'
+                    outline: 'none',
+                    backgroundColor: '#fff',
+                    height: '28px'
                   }}
                 />
                 <button
                   onClick={() => setQuantity(prev => Math.min(99, prev + 1))}
                   style={{
-                    padding: '0.5rem 0.75rem',
+                    padding: '0.2rem 0.4rem',
                     backgroundColor: '#f8f9fa',
                     border: 'none',
                     cursor: 'pointer',
-                    fontSize: '1.2rem',
+                    fontSize: '0.75rem',
                     fontWeight: '600',
                     color: '#666',
-                    transition: 'all 0.3s ease'
+                    transition: 'all 0.3s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    minWidth: '24px',
+                    height: '28px'
                   }}
                   onMouseEnter={(e) => {
                     e.target.style.backgroundColor = '#00AEBB';
@@ -874,136 +1234,233 @@ function ProductPage() {
               </div>
             </div>
 
-            {/* Specifications */}
-            <div style={specs}>
-              <h3>Game Details:</h3>
-              <ul>
+            {/* Total Price - Compact */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '0.75rem 0',
+              borderTop: '2px solid #00AEBB',
+              marginBottom: '0.75rem'
+            }}>
+              <span style={{
+                fontSize: '1rem',
+                fontWeight: '700',
+                color: '#1E232C'
+              }}>
+                Total:
+              </span>
+              <span style={{
+                fontSize: '1.2rem',
+                fontWeight: '800',
+                color: '#1E232C'
+              }}>
+                ${((priceInfo?.currentPrice || 0) * quantity).toFixed(2)}
+              </span>
+            </div>
+
+            {/* Free Delivery Message */}
+            <div style={{
+              textAlign: 'center',
+              padding: '0.5rem',
+              backgroundColor: '#f8f9fa',
+              borderRadius: '0.4rem',
+              fontSize: '0.8rem',
+              color: '#666',
+              border: '1px solid #e9ecef',
+              marginBottom: '1rem'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', marginBottom: '0.2rem' }}>
+                <FaTruck style={{ color: '#00AEBB', fontSize: '0.75rem' }} />
+                <span style={{ fontWeight: '600' }}>Free Delivery</span>
+              </div>
+              <div>Orders over $50 qualify for free shipping</div>
+            </div>
+
+          </div>
+        </div>
+
+        {/* Detailed Product Information Section - Moved Higher */}
+        <div style={productInfoSection}>
+          <h2 style={{
+            ...productInfoTitle,
+            fontSize: '1.8rem',
+            marginBottom: '1.5rem'
+          }}>
+            Product Information
+          </h2>
+          
+          {/* Description Section */}
+          <div style={productDescription}>
+            <h3 style={productDescriptionTitle}>
+              <FaGamepad style={{ color: '#00AEBB' }} />
+              About This Game
+            </h3>
+            <p style={productDescriptionText}>
+              {product.deck || "Immerse yourself in an exciting gaming adventure that combines engaging gameplay mechanics with stunning visuals and immersive storytelling. This game delivers hours of entertainment with its carefully crafted world, challenging objectives, and rewarding progression system. Whether you're a casual gamer or a hardcore enthusiast, this title offers something for everyone with its diverse gameplay elements and polished presentation."}
+            </p>
+          </div>
+
+          {/* Information Grid */}
+          <div style={productInfoGrid}>
+            {/* Game Details Card */}
+            <div style={productInfoCard}>
+              <h3 style={productInfoCardTitle}>
+                <FaGamepad style={{ color: '#00AEBB' }} />
+                Game Details
+              </h3>
+              <ul style={productInfoList}>
                 {product.original_release_date && (
-                  <li>Release Date: {new Date(product.original_release_date).toLocaleDateString()}</li>
+                  <li style={productInfoListItem}>
+                    <span style={productInfoLabel}>Release Date:</span>
+                    <span style={productInfoValue}>
+                      {new Date(product.original_release_date).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
+                    </span>
+                  </li>
                 )}
-                {product.platforms && (
-                  <li>Platforms: {product.platforms.map(p => p.name || p.abbreviation).join(', ')}</li>
+                {product.genres && product.genres.length > 0 && (
+                  <li style={productInfoListItem}>
+                    <span style={productInfoLabel}>Genres:</span>
+                    <span style={productInfoValue}>
+                      {product.genres.map(g => g.name).join(', ')}
+                    </span>
+                  </li>
                 )}
-                {product.genres && (
-                  <li>Genres: {product.genres.map(g => g.name).join(', ')}</li>
+                {product.platforms && product.platforms.length > 0 && (
+                  <li style={productInfoListItem}>
+                    <span style={productInfoLabel}>Platforms:</span>
+                    <span style={productInfoValue}>
+                      {product.platforms.map(p => p.name || p.abbreviation).join(', ')}
+                    </span>
+                  </li>
                 )}
+                <li style={productInfoListItem}>
+                  <span style={productInfoLabel}>Rating:</span>
+                  <span style={productInfoValue}>
+                    {rating} / 5.0 ({Math.floor(Math.random() * 500) + 100} reviews)
+                  </span>
+                </li>
+                <li style={productInfoListItem}>
+                  <span style={productInfoLabel}>Price:</span>
+                  <span style={productInfoValue}>
+                    ${priceInfo?.currentPrice.toFixed(2)}
+                    {priceInfo?.hasDiscount && (
+                      <span style={{ 
+                        textDecoration: 'line-through', 
+                        color: '#999', 
+                        marginLeft: '8px' 
+                      }}>
+                        ${priceInfo.originalPrice.toFixed(2)}
+                      </span>
+                    )}
+                  </span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Technical Specifications Card */}
+            <div style={productInfoCard}>
+              <h3 style={productInfoCardTitle}>
+                <FaGamepad style={{ color: '#00AEBB' }} />
+                Technical Specs
+              </h3>
+              <ul style={productInfoList}>
+                <li style={productInfoListItem}>
+                  <span style={productInfoLabel}>Game ID:</span>
+                  <span style={productInfoValue}>{product.id}</span>
+                </li>
+                <li style={productInfoListItem}>
+                  <span style={productInfoLabel}>Developer:</span>
+                  <span style={productInfoValue}>
+                    {product.developers?.[0]?.name || 'Kimberly Stern'}
+                  </span>
+                </li>
+                <li style={productInfoListItem}>
+                  <span style={productInfoLabel}>Publisher:</span>
+                  <span style={productInfoValue}>
+                    {product.publishers?.[0]?.name || 'Sthembiso Khuzwayo'}
+                  </span>
+                </li>
+                <li style={productInfoListItem}>
+                  <span style={productInfoLabel}>ESRB Rating:</span>
+                  <span style={productInfoValue}>
+                    {product.original_game_rating?.[0]?.name || 'Not Rated'}
+                  </span>
+                </li>
+                <li style={productInfoListItem}>
+                  <span style={productInfoLabel}>Game Type:</span>
+                  <span style={productInfoValue}>
+                    {product.game_type || 'Digital Game'}
+                  </span>
+                </li>
                 {product.site_detail_url && (
-                  <li>
-                    <a 
-                      href={product.site_detail_url} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      style={{ color: '#00AEBB', textDecoration: 'none' }}
-                    >
-                      View on GameSpot
-                    </a>
+                  <li style={productInfoListItem}>
+                    <span style={productInfoLabel}>External Link:</span>
+                    <span style={productInfoValue}>
+                      <a 
+                        href={product.site_detail_url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        style={{ 
+                          color: '#00AEBB', 
+                          textDecoration: 'none',
+                          fontWeight: '500'
+                        }}
+                      >
+                        View on GameSpot
+                      </a>
+                    </span>
                   </li>
                 )}
               </ul>
             </div>
 
-            {/* Buttons */}
-            <div 
-              className="button-row"
-              style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}
-            >
-              <button
-                onClick={async () => {
-                  if (!user) {
-                    alert('Please log in to add items to cart');
-                    return;
-                  }
-
-                  const productData = {
-                    id: product.id,
-                    name: product.name,
-                    description: product.deck || 'No description available',
-                    image: product.image?.original_url || product.image?.small_url || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=300&h=300&fit=crop',
-                    price: parseFloat(priceInfo?.currentPrice || 0),
-                    originalPrice: priceInfo?.originalPrice ? parseFloat(priceInfo.originalPrice) : null,
-                    tags: product.genres?.map(g => g.name) || [],
-                    hasDiscount: priceInfo?.hasDiscount || false
-                  };
-
-                  const success = await addToCart(productData, quantity);
-                  if (success) {
-                    setAddedToCart(true);
-                    setTimeout(() => setAddedToCart(false), 3000);
-                  }
-                }}
-                className="main-button"
-                style={{ 
-                  ...button, 
-                  flex: 7,
-                  backgroundColor: addedToCart ? '#27ae60' : '#F7CA66'
-                }}
-                disabled={addedToCart}
-              >
-                {addedToCart ? (
-                  <>
-                    <FaCheck style={{ marginRight: '0.5rem' }} />
-                    Added to Cart
-                  </>
-                ) : (
-                  <>
-                    <FaShoppingCart style={{ marginRight: '0.5rem' }} />
-                    Add to Cart
-                  </>
-                )}
-              </button>
-              <button 
-                onClick={() => {
-                  setWishlist(prev => 
-                    prev.includes(product.id) 
-                      ? prev.filter(id => id !== product.id)
-                      : [...prev, product.id]
-                  );
-                  console.log(`Toggled wishlist for ${product.name}`);
-                }}
-                className="wishlist-button"
-                style={{ 
-                  ...wishlistButton, 
-                  flex: 3,
-                  backgroundColor: wishlist.includes(product.id) ? '#e74c3c' : '#fff',
-                  color: wishlist.includes(product.id) ? '#fff' : 'rgba(0, 0, 0, 0.5)',
-                  borderColor: wishlist.includes(product.id) ? '#e74c3c' : 'rgba(0, 0, 0, 0.3)'
-                }}
-              >
-                <FaHeart />
-              </button>
+            {/* Purchase Information Card */}
+            <div style={productInfoCard}>
+              <h3 style={productInfoCardTitle}>
+                <FaShoppingCart style={{ color: '#00AEBB' }} />
+                Purchase Info
+              </h3>
+              <ul style={productInfoList}>
+                <li style={productInfoListItem}>
+                  <span style={productInfoLabel}>Availability:</span>
+                  <span style={productInfoValue}>In Stock</span>
+                </li>
+                <li style={productInfoListItem}>
+                  <span style={productInfoLabel}>Delivery:</span>
+                  <span style={productInfoValue}>Instant Download</span>
+                </li>
+                <li style={productInfoListItem}>
+                  <span style={productInfoLabel}>Platform Support:</span>
+                  <span style={productInfoValue}>
+                    {product.platforms?.length || 1} Platform{(product.platforms?.length || 1) > 1 ? 's' : ''}
+                  </span>
+                </li>
+                <li style={productInfoListItem}>
+                  <span style={productInfoLabel}>Warranty:</span>
+                  <span style={productInfoValue}>30-Day Money Back</span>
+                </li>
+                <li style={productInfoListItem}>
+                  <span style={productInfoLabel}>Support:</span>
+                  <span style={productInfoValue}>24/7 Customer Service</span>
+                </li>
+              </ul>
             </div>
           </div>
         </div>
 
-        {/* Similar Products Section */}
+        {/* Similar Products Section - Carousel Layout */}
         {similarProducts.length > 0 && (
-          <div 
-            className="similar-section"
-            style={{
-              marginTop: '3rem',
-              backgroundColor: '#f8f9fa',
-              borderRadius: '1rem',
-              padding: '2rem',
-              width: '100%',
-              boxSizing: 'border-box'
-            }}
-          >
-            <h3 style={{
-              fontSize: '1.8rem',
-              fontWeight: '700',
-              color: '#333',
-              marginBottom: '0.5rem',
-              textAlign: 'center'
-            }}>
+          <div style={similarSection} className="similar-section">
+            <h2 style={similarSectionTitle}>
               Similar Games You Might Like
-            </h3>
-            <p style={{
-              textAlign: 'center',
-              color: '#666',
-              marginBottom: '2rem',
-              fontSize: '1rem'
-            }}>
-              Discover more games based on your interests
+            </h2>
+            <p style={similarSectionSubtitle}>
+      
             </p>
             
             {loadingSimilar ? (
@@ -1011,48 +1468,165 @@ function ProductPage() {
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
-                height: '200px',
+                height: '300px',
                 flexDirection: 'column',
-                gap: '1rem'
+                gap: '1rem',
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                borderRadius: '1rem',
+                backdropFilter: 'blur(5px)',
+                WebkitBackdropFilter: 'blur(5px)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
               }}>
                 <FaGamepad style={{ 
-                  fontSize: '2rem', 
+                  fontSize: '2.5rem', 
                   color: '#00AEBB', 
                   animation: 'bounce 1s infinite' 
                 }} />
-                <p style={{ color: '#666' }}>Loading similar games...</p>
+                <p style={{ 
+                  color: '#1E232C', 
+                  fontSize: '1.1rem',
+                  fontWeight: '600',
+                  background: 'linear-gradient(90deg, #00AEBB, #F7CA66)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent'
+                }}>Loading similar games...</p>
               </div>
             ) : (
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '1.5rem',
-                maxWidth: '1200px',
-                margin: '0 auto'
-              }}>
-                {similarProducts.map(game => (
-                  <SimilarProductCard key={game.id} game={game} />
-                ))}
+              <div style={carouselContainer} className="carousel-container">
+                {/* Left Navigation Arrow */}
+                {similarProducts.length > 3 && (
+                  <button
+                    onClick={prevSlide}
+                    style={{
+                      ...carouselButton,
+                      ...carouselButtonLeft,
+                      ...(currentSlide === 0 ? carouselButtonDisabled : {})
+                    }}
+                    disabled={currentSlide === 0}
+                    onMouseEnter={(e) => {
+                      if (currentSlide > 0) {
+                        e.target.style.transform = 'translateY(-50%) scale(1.1)';
+                        e.target.style.boxShadow = '0 6px 16px rgba(0, 174, 187, 0.4)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (currentSlide > 0) {
+                        e.target.style.transform = 'translateY(-50%) scale(1)';
+                        e.target.style.boxShadow = '0 4px 12px rgba(0, 174, 187, 0.3)';
+                      }
+                    }}
+                  >
+                    <FaChevronLeft />
+                  </button>
+                )}
+
+                {/* 3 Cards Display */}
+                <div style={carouselTrack}>
+                  {getVisibleProducts().map((game, index) => (
+                    <div key={game.id} style={carouselSlide}>
+                      <SimilarProductCard game={game} />
+                    </div>
+                  ))}
+                </div>
+
+                {/* Right Navigation Arrow */}
+                {similarProducts.length > 3 && (
+                  <button
+                    onClick={nextSlide}
+                    style={{
+                      ...carouselButton,
+                      ...carouselButtonRight,
+                      ...(currentSlide >= similarProducts.length - 3 ? carouselButtonDisabled : {})
+                    }}
+                    disabled={currentSlide >= similarProducts.length - 3}
+                    onMouseEnter={(e) => {
+                      if (currentSlide < similarProducts.length - 3) {
+                        e.target.style.transform = 'translateY(-50%) scale(1.1)';
+                        e.target.style.boxShadow = '0 6px 16px rgba(0, 174, 187, 0.4)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (currentSlide < similarProducts.length - 3) {
+                        e.target.style.transform = 'translateY(-50%) scale(1)';
+                        e.target.style.boxShadow = '0 4px 12px rgba(0, 174, 187, 0.3)';
+                      }
+                    }}
+                  >
+                    <FaChevronRight />
+                  </button>
+                )}
+                
+                {/* Arrow Indicators */}
+                {similarProducts.length > 3 && (
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: '8px',
+                    marginTop: '30px',
+                    marginBottom: '20px'
+                  }}>
+                    {Array.from({ length: Math.ceil(similarProducts.length / 3) }, (_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => goToSlide(index * 3)}
+                        style={{
+                          width: '0',
+                          height: '0',
+                          borderLeft: currentSlide === index * 3 ? '8px solid #00AEBB' : '8px solid #ddd',
+                          borderTop: '6px solid transparent',
+                          borderBottom: '6px solid transparent',
+                          backgroundColor: 'transparent',
+                          cursor: 'pointer',
+                          transition: 'all 0.3s ease',
+                          transform: currentSlide === index * 3 ? 'scale(1.2)' : 'scale(1)',
+                          boxShadow: currentSlide === index * 3 ? '0 2px 6px rgba(0, 174, 187, 0.3)' : 'none',
+                          margin: '0 4px',
+                        }}
+                        onMouseEnter={(e) => {
+                          if (currentSlide !== index * 3) {
+                            e.target.style.borderLeftColor = '#bbb';
+                            e.target.style.transform = 'scale(1.1)';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (currentSlide !== index * 3) {
+                            e.target.style.borderLeftColor = '#ddd';
+                            e.target.style.transform = 'scale(1)';
+                          }
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
             )}
             
             {similarProducts.length > 0 && !loadingSimilar && (
               <div style={{
                 textAlign: 'center',
-                marginTop: '2rem'
+                marginTop: '60px',
+                marginBottom: '20px'
               }}>
+                 <p style={similarSectionSubtitle}>
+      
+      </p>
+      
                 <button
                   onClick={() => navigate('/catalogue')}
                   style={{
-                    padding: '0.75rem 2rem',
+                    padding: '14px 32px',
                     backgroundColor: '#00AEBB',
                     color: '#fff',
                     border: 'none',
-                    borderRadius: '0.75rem',
+                    borderRadius: '8px',
                     fontSize: '1rem',
-                    fontWeight: '500',
+                    fontWeight: '600',
                     cursor: 'pointer',
-                    transition: 'all 0.3s ease'
+                    transition: 'all 0.3s ease',
+                    margin: '0 auto',
+                    display: 'block'
                   }}
                   onMouseEnter={(e) => {
                     e.target.style.transform = 'translateY(-2px)';
@@ -1070,6 +1644,9 @@ function ProductPage() {
           </div>
         )}
       </div>
+      
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }

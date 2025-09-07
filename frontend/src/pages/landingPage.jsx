@@ -91,8 +91,14 @@ function LandingPage() {
           .slice(0, 3); // Take top 3
         
         setFeaturedGames(processedGames);
+        
+        // Ensure loading screen shows for at least 3 seconds
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        
       } catch (e) {
         setErr(e.message || "Failed to load games");
+        // Still wait 3 seconds even on error for consistent UX
+        await new Promise(resolve => setTimeout(resolve, 3000));
       } finally {
         if (alive) setLoading(false);
       }
@@ -130,7 +136,7 @@ function LandingPage() {
       id: game.id,
       name: game.name,
       description: game.deck || 'No description available',
-      image: game.image?.original_url || game.image?.small_url || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=300&h=300&fit=crop',
+      image: game.image?.original || game.image?.square_small || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=300&h=300&fit=crop',
       price: parseFloat(game.currentPrice),
       originalPrice: game.originalPrice ? parseFloat(game.originalPrice) : null,
       tags: game.genres?.map(g => g.name) || [],

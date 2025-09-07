@@ -90,6 +90,17 @@ const Navbar = ({ currentPage = 'home', user = null, onLogout }) => {
           Add Product
         </span>
 
+        {user && (
+          
+          <div 
+            className={`nav-item ${currentPage === 'cart' ? 'active' : ''}`}
+            onClick={() => handleNavigation('/cart')}
+          > Cart
+            {cartItemCount > 0 && (
+              <span className="cart-badge">{cartItemCount}</span>
+            )}
+          </div>
+        )}
         <span 
           className={`nav-item ${currentPage === 'favourites' ? 'active' : ''}`}
           onClick={() => handleNavigation('/favourites')}
@@ -97,17 +108,7 @@ const Navbar = ({ currentPage = 'home', user = null, onLogout }) => {
           <FaHeart />
         </span>
 
-        {user && (
-          <div 
-            className={`cart-container ${currentPage === 'cart' ? 'active' : ''}`}
-            onClick={() => handleNavigation('/cart')}
-          >
-            <span className="cart-icon">🛒</span>
-            {cartItemCount > 0 && (
-              <span className="cart-badge">{cartItemCount}</span>
-            )}
-          </div>
-        )}
+        
 
         {!user ? (
           <>

@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { FaSearch, FaFilter, FaStar, FaShoppingCart, FaHeart, FaGamepad, FaChevronLeft, FaChevronRight, FaChevronDown, FaChevronUp, FaCheck } from 'react-icons/fa';
 import NavBar from '../components/NavBar';
 import Footer from '../components/Footer';
 import { useUser } from '../contexts/UserContext';
+import { useCart } from '../contexts/CartContext';
 import { generateRandomPrice, generateRandomRating } from '../utils/gameDataGenerators';
 import {
   globalResetUpdated as globalReset,
@@ -118,7 +119,9 @@ const enhancedSelectStyles = {
 
 function Catalogue() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useUser();
+  const { addToCart } = useCart();
   const [searchTerm, setSearchTerm] = useState("");
   const [activeSearchTerm, setActiveSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -142,19 +145,63 @@ function Catalogue() {
   // Cache for generated prices and ratings
   const [gameDataCache, setGameDataCache] = useState({});
 
+  // Handle URL parameters on component mount
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const searchParam = urlParams.get('search');
+    if (searchParam) {
+      setSearchTerm(searchParam);
+      setActiveSearchTerm(searchParam);
+    }
+  }, [location.search]);
+
+  // Handle tag click - update search and filter
+  const handleTagClick = (tagName, event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setSearchTerm(tagName);
+    setActiveSearchTerm(tagName);
+    setCurrentPage(1);
+    setLoading(true); // Show loading screen immediately
+    // Update URL without page reload
+    navigate(`/catalogue?search=${encodeURIComponent(tagName)}`, { replace: true });
+  };
+
   const handleSearchKeyPress = (e) => {
     if (e.key === 'Enter') {
       setActiveSearchTerm(searchTerm);
       setCurrentPage(1);
+      setLoading(true); // Show loading screen for search
     }
   };
 
-  const handleAddToCart = (gameId) => {
-    setAddedToCart(prev => ({ ...prev, [gameId]: true }));
-    setTimeout(() => {
-      setAddedToCart(prev => ({ ...prev, [gameId]: false }));
-    }, 3000);
-    console.log(`Added game ${gameId} to cart`);
+  const handleAddToCart = async (game) => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
+    // Get the same price data that's being displayed
+    const { priceInfo } = getGameData(game.id);
+
+    const productData = {
+      id: game.id,
+      name: game.name,
+      description: game.deck || 'No description available',
+      image: game.image?.original || game.image?.square_small || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=300&h=300&fit=crop',
+      price: priceInfo.currentPrice,
+      originalPrice: priceInfo.hasDiscount ? priceInfo.originalPrice : null,
+      tags: game.genres?.map(g => g.name) || [],
+      hasDiscount: priceInfo.hasDiscount
+    };
+
+    const success = await addToCart(productData, 1);
+    if (success) {
+      setAddedToCart(prev => ({ ...prev, [game.id]: true }));
+      setTimeout(() => {
+        setAddedToCart(prev => ({ ...prev, [game.id]: false }));
+      }, 3000);
+    }
   };
 
   // Generate and cache data for a game if not already cached
@@ -208,9 +255,14 @@ function Catalogue() {
       setTotalResults(estimatedTotal);
       setTotalPages(Math.ceil(estimatedTotal / gamesPerPage));
       
+      // Ensure loading screen shows for at least 3 seconds
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
     } catch (err) {
       setError(err.message || "Failed to load games");
       console.error("Error fetching games:", err);
+      // Still wait 3 seconds even on error for consistent UX
+      await new Promise(resolve => setTimeout(resolve, 3000));
     } finally {
       setLoading(false);
     }
@@ -282,41 +334,95 @@ function Catalogue() {
     fetchGames(activeSearchTerm, selectedCategory, sortBy, 1);
   }, [gamesPerPage, activeSearchTerm, selectedCategory, sortBy, fetchGames]);
 
-  useEffect(() => {
-    const styleElement = document.createElement("style");
-    styleElement.textContent = globalReset;
-    document.head.appendChild(styleElement);
-    
-    return () => {
-      document.head.removeChild(styleElement);
-    };
-  }, []);
+   useEffect(() => {
+     const styleElement = document.createElement("style");
+     styleElement.textContent = globalReset + `
+       @keyframes bounce {
+         0%, 20%, 50%, 80%, 100% {
+           transform: translateY(0);
+         }
+         40% {
+           transform: translateY(-20px);
+         }
+         60% {
+           transform: translateY(-10px);
+         }
+       }
+       
+       @keyframes loadingProgress {
+         0% {
+           transform: translateX(-100%);
+         }
+         50% {
+           transform: translateX(0%);
+         }
+         100% {
+           transform: translateX(100%);
+         }
+       }
+       
+       @keyframes pulse {
+         0%, 100% {
+           opacity: 0.3;
+           transform: scale(0.8);
+         }
+         50% {
+           opacity: 1;
+           transform: scale(1.2);
+         }
+       }
+     `;
+     document.head.appendChild(styleElement);
+     
+     return () => {
+       document.head.removeChild(styleElement);
+     };
+   }, []);
 
   return (
     <div style={containerStyle}>
       <NavBar currentPage="catalogue" user={user} />
       
-      {loading && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(248, 249, 250, 0.95)',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          zIndex: 1000,
-          backdropFilter: 'blur(5px)'
-        }}>
-          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-            <FaGamepad style={{ fontSize: '3rem', color: '#00AEBB', animation: 'bounce 1s infinite' }} />
-            <FaGamepad style={{ fontSize: '3rem', color: '#F7CA66', animation: 'bounce 1s infinite 0.2s' }} />
-            <FaGamepad style={{ fontSize: '3rem', color: '#00AEBB', animation: 'bounce 1s infinite 0.4s' }} />
-          </div>
-        </div>
-      )}
+       {loading && (
+         <div style={{
+           position: 'fixed',
+           top: 0,
+           left: 0,
+           right: 0,
+           bottom: 0,
+           backgroundColor: 'rgba(248, 249, 250, 0.98)',
+           display: 'flex',
+           flexDirection: 'column',
+           justifyContent: 'center',
+           alignItems: 'center',
+           zIndex: 1000,
+           backdropFilter: 'blur(8px)'
+         }}>
+           {/* Animated Game Icons */}
+           <div style={{ 
+             display: 'flex', 
+             gap: '1rem', 
+             alignItems: 'center',
+             marginBottom: '2rem'
+           }}>
+             <FaGamepad style={{ 
+               fontSize: '4rem', 
+               color: '#00AEBB', 
+               animation: 'bounce 1.2s infinite ease-in-out' 
+             }} />
+             <FaGamepad style={{ 
+               fontSize: '4rem', 
+               color: '#F7CA66', 
+               animation: 'bounce 1.2s infinite ease-in-out 0.3s' 
+             }} />
+             <FaGamepad style={{ 
+               fontSize: '4rem', 
+               color: '#00AEBB', 
+               animation: 'bounce 1.2s infinite ease-in-out 0.6s' 
+             }} />
+           </div> 
+         </div>
+       )}
       
       <div style={contentStyle}>
         <div style={headerStyle}>
@@ -356,31 +462,37 @@ function Catalogue() {
             <div style={filterGroupStyle}>
               <h3 style={filterTitleStyle}>Categories</h3>
               <div style={categoryButtonsStyle}>
-                {categories.map(category => (
-                  <button
-                    key={category}
-                    onClick={() => setSelectedCategory(category)}
-                    style={{
-                      ...categoryButtonStyle,
-                      ...(selectedCategory === category ? activeCategoryStyle : {})
-                    }}
-                  >
-                    {category}
-                  </button>
-                ))}
+                 {categories.map(category => (
+                   <button
+                     key={category}
+                     onClick={() => {
+                       setSelectedCategory(category);
+                       setLoading(true);
+                     }}
+                     style={{
+                       ...categoryButtonStyle,
+                       ...(selectedCategory === category ? activeCategoryStyle : {})
+                     }}
+                   >
+                     {category}
+                   </button>
+                 ))}
               </div>
             </div>
 
             <div style={filterGroupStyle}>
               <h3 style={filterTitleStyle}>Sort By</h3>
               <div style={enhancedSelectStyles.container}>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  onFocus={() => setSelectOpen(true)}
-                  onBlur={() => setSelectOpen(false)}
-                  style={{ ...selectStyle, ...enhancedSelectStyles.select }}
-                >
+                 <select
+                   value={sortBy}
+                   onChange={(e) => {
+                     setSortBy(e.target.value);
+                     setLoading(true);
+                   }}
+                   onFocus={() => setSelectOpen(true)}
+                   onBlur={() => setSelectOpen(false)}
+                   style={{ ...selectStyle, ...enhancedSelectStyles.select }}
+                 >
                   {sortOptions.map(option => (
                     <option 
                       key={option.value} 
@@ -489,9 +601,55 @@ function Catalogue() {
 
                   <div style={gameTagsStyle}>
                     {game.genres?.slice(0, 2).map(genre => (
-                      <span key={genre.id} style={gameTagStyle}>{genre.name}</span>
+                      <span 
+                        key={genre.id} 
+                        onClick={(e) => handleTagClick(genre.name, e)}
+                        style={{
+                          ...gameTagStyle,
+                          cursor: 'pointer',
+                          transition: 'all 0.3s ease',
+                          border: '1px solid transparent'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.backgroundColor = '#00AEBB';
+                          e.target.style.color = '#fff';
+                          e.target.style.borderColor = '#00AEBB';
+                          e.target.style.transform = 'translateY(-2px)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.backgroundColor = '#f0f7ff';
+                          e.target.style.color = '#00AEBB';
+                          e.target.style.borderColor = 'transparent';
+                          e.target.style.transform = 'translateY(0)';
+                        }}
+                      >
+                        {genre.name}
+                      </span>
                     )) || game.platforms?.slice(0, 2).map(platform => (
-                      <span key={platform.id} style={gameTagStyle}>{platform.abbreviation || platform.name}</span>
+                      <span 
+                        key={platform.id} 
+                        onClick={(e) => handleTagClick(platform.abbreviation || platform.name, e)}
+                        style={{
+                          ...gameTagStyle,
+                          cursor: 'pointer',
+                          transition: 'all 0.3s ease',
+                          border: '1px solid transparent'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.backgroundColor = '#00AEBB';
+                          e.target.style.color = '#fff';
+                          e.target.style.borderColor = '#00AEBB';
+                          e.target.style.transform = 'translateY(-2px)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.backgroundColor = '#f0f7ff';
+                          e.target.style.color = '#00AEBB';
+                          e.target.style.borderColor = 'transparent';
+                          e.target.style.transform = 'translateY(0)';
+                        }}
+                      >
+                        {platform.abbreviation || platform.name}
+                      </span>
                     )) || (
                       <span style={gameTagStyle}>Game</span>
                     )}
@@ -522,7 +680,7 @@ function Catalogue() {
                     <button 
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleAddToCart(game.id);
+                        handleAddToCart(game);
                       }}
                       style={{
                         ...addToCartButtonStyle,

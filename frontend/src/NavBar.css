@@ -201,8 +201,8 @@
   
   .cart-badge {
     position: absolute;
-    top: -5px;
-    right: -5px;
+    top: -16px;
+    right: -12px;
     background-color: #e74c3c;
     color: white;
     border-radius: 50%;
