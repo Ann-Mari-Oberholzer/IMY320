@@ -300,6 +300,13 @@
       "password": "password123",
       "name": "Test User",
       "createdAt": "2024-08-14T10:00:00Z"
+    },
+    {
+      "id": 1757185605316,
+      "email": "annie@gmail.com",
+      "password": "@nN!30Be",
+      "name": "Ann-Mari Oberholzer",
+      "createdAt": "2025-09-06T19:06:45.316Z"
     }
   ],
   "orders": [
