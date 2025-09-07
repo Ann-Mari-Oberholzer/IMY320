@@ -5,6 +5,7 @@ import { useUser } from "../contexts/UserContext";
 import { FaTrash, FaShoppingCart } from "react-icons/fa";
 import apiServiceInstance from "../services/api";
 import favoritesService from "../services/FavouritesService";
+import { useNavigate } from "react-router-dom";
 
 import {
   containerStyle,
@@ -58,6 +59,8 @@ function Favourites() {
     }
   }, [user]);
 
+  const navigate = useNavigate();
+  
   const loadFavorites = () => {
     try {
       const userFavorites = favoritesService.getFavorites(user.id);
@@ -134,7 +137,7 @@ function Favourites() {
     <div style={containerStyle}>
       <NavBar currentPage="favourites" user={user} />
       <div style={headerStyle}>
-        <h1 style={titleStyle}>My Favourites</h1>
+        <h1 style={titleStyle}>My Wishlist</h1>
       </div>
       <div style={contentStyle}>
         {favourites.length === 0 ? (
@@ -152,6 +155,7 @@ function Favourites() {
               <div
                 key={product.id}
                 style={productCardStyle}
+                onClick={() => navigate(`/product/${product.id}`)}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.boxShadow = "0 4px 12px rgba(0, 174, 187, 0.3)";
                   e.currentTarget.style.borderColor = "#00AEBB";
@@ -171,22 +175,6 @@ function Favourites() {
                 />
                 <div style={productNameStyle}>{product.name}</div>
                 <div style={priceStyle}>{formatPrice(product.price)}</div>
-                
-                {/* Product features */}
-                {product.features && product.features.length > 0 && (
-                  <div style={{ fontSize: '12px', color: '#666', marginBottom: '10px' }}>
-                    {product.features.slice(0, 2).join(' • ')}
-                  </div>
-                )}
-                
-                {/* Stock status */}
-                <div style={{ 
-                  fontSize: '12px', 
-                  color: product.inStock ? '#4CAF50' : '#f44336',
-                  marginBottom: '10px'
-                }}>
-                  {product.inStock ? 'In Stock' : 'Out of Stock'}
-                </div>
 
                 {/* Buttons */}
                 <div style={buttonContainerStyle}>
@@ -196,30 +184,20 @@ function Favourites() {
                       backgroundColor: product.inStock ? '#00AEBB' : '#ccc',
                       cursor: product.inStock ? 'pointer' : 'not-allowed'
                     }}
-                    onClick={() => addToCart(product)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      addToCart(product);
+                    }}
                     disabled={!product.inStock}
-                    onMouseEnter={(e) => {
-                      if (product.inStock) {
-                        e.target.style.backgroundColor = '#008A94';
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (product.inStock) {
-                        e.target.style.backgroundColor = '#00AEBB';
-                      }
-                    }}
                   >
                     <FaShoppingCart /> Add to Cart
                   </button>
                   
                   <button
                     style={removeButtonStyle}
-                    onClick={() => removeFromFavourites(product.id)}
-                    onMouseEnter={(e) => {
-                      e.target.style.backgroundColor = '#d32f2f';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.backgroundColor = '#f44336';
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeFromFavourites(product.id);
                     }}
                   >
                     <FaTrash />
