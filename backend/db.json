@@ -366,25 +366,7 @@
     {
       "id": 1757239404606,
       "userId": 1757185605316,
-      "products": [
-        {
-          "productId": 1,
-          "quantity": 2,
-          "product": {
-            "id": 1,
-            "name": "Command & Conquer",
-            "description": "Overall Command & Conquer is a great strategy game and easily the best available on the PlayStation.",
-            "image": "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=300&h=300&fit=crop",
-            "price": 59,
-            "originalPrice": 69.03,
-            "tags": [
-              "Real-Time",
-              "Strategy"
-            ],
-            "hasDiscount": true
-          }
-        }
-      ]
+      "products": []
     }
   ]
 }

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
 import '../NavBar.css';
-import { FaHeart } from 'react-icons/fa';
+import { FaHeart, FaShoppingCart } from 'react-icons/fa';
 
 const Navbar = ({ currentPage = 'home', user = null, onLogout }) => {
   const navigate = useNavigate();
@@ -90,23 +90,22 @@ const Navbar = ({ currentPage = 'home', user = null, onLogout }) => {
           Add Product
         </span>
 
-        <span 
-          className={`nav-item ${currentPage === 'favourites' ? 'active' : ''}`}
-          onClick={() => handleNavigation('/favourites')}
-        >
-          <FaHeart />
-        </span>
+        {user && (
+          <span 
+            className={`nav-item ${currentPage === 'favourites' ? 'active' : ''}`}
+            onClick={() => handleNavigation('/favourites')}
+          >
+            <FaHeart />
+          </span>
+        )}
 
         {user && (
-          <div 
-            className={`cart-container ${currentPage === 'cart' ? 'active' : ''}`}
+          <span 
+            className={`nav-item ${currentPage === 'cart' ? 'active' : ''}`}
             onClick={() => handleNavigation('/cart')}
           >
-            <span className="cart-icon">🛒</span>
-            {cartItemCount > 0 && (
-              <span className="cart-badge">{cartItemCount}</span>
-            )}
-          </div>
+            <FaShoppingCart />
+          </span>
         )}
 
         {!user ? (
