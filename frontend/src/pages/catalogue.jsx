@@ -5,6 +5,8 @@ import NavBar from '../components/NavBar';
 import Footer from '../components/Footer';
 import { useUser } from '../contexts/UserContext';
 import { generateRandomPrice, generateRandomRating } from '../utils/gameDataGenerators';
+import apiServiceInstance from '../services/api';
+import favoritesService from '../services/FavouritesService';
 import {
   globalResetUpdated as globalReset,
   containerStyle,
@@ -114,8 +116,6 @@ const enhancedSelectStyles = {
   },
 };
 
-
-
 function Catalogue() {
   const navigate = useNavigate();
   const { user } = useUser();
@@ -124,7 +124,7 @@ function Catalogue() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortBy, setSortBy] = useState("popular");
   const [showFilters, setShowFilters] = useState(false);
-  const [wishlist, setWishlist] = useState([]);
+  const [favorites, setFavorites] = useState([]); // Changed from wishlist to favorites
   const [selectOpen, setSelectOpen] = useState(false);
 
   // Pagination state
@@ -142,6 +142,24 @@ function Catalogue() {
   // Cache for generated prices and ratings
   const [gameDataCache, setGameDataCache] = useState({});
 
+  // Load user's favorites when component mounts or user changes
+  useEffect(() => {
+    if (user?.id) {
+      loadUserFavorites();
+    } else {
+      setFavorites([]);
+    }
+  }, [user]);
+
+  const loadUserFavorites = () => {
+    try {
+      const userFavorites = favoritesService.getFavorites(user.id);
+      setFavorites(userFavorites.map(fav => fav.id));
+    } catch (error) {
+      console.error('Error loading user favorites:', error);
+    }
+  };
+
   const handleSearchKeyPress = (e) => {
     if (e.key === 'Enter') {
       setActiveSearchTerm(searchTerm);
@@ -149,12 +167,42 @@ function Catalogue() {
     }
   };
 
-  const handleAddToCart = (gameId) => {
-    setAddedToCart(prev => ({ ...prev, [gameId]: true }));
-    setTimeout(() => {
-      setAddedToCart(prev => ({ ...prev, [gameId]: false }));
-    }, 3000);
-    console.log(`Added game ${gameId} to cart`);
+  const handleAddToCart = async (game) => {
+    if (!user?.id) {
+      alert('Please log in to add items to cart');
+      return;
+    }
+
+    try {
+      setAddedToCart(prev => ({ ...prev, [game.id]: true }));
+      
+      // Convert game data to match the expected product format
+      const productData = {
+        id: game.id,
+        name: game.name,
+        price: getGameData(game.id).priceInfo.currentPrice,
+        description: game.deck || "No description available.",
+        image: game.image?.original || game.image?.square_small || '/images/placeholder.jpg',
+        category: 'games',
+        brand: 'Game Publisher',
+        inStock: true,
+        rating: getGameData(game.id).rating,
+        features: game.genres?.slice(0, 3).map(genre => genre.name) || ['Game'],
+        platform: game.platforms?.slice(0, 3).map(platform => platform.abbreviation || platform.name).join('/') || 'PC'
+      };
+
+      await apiServiceInstance.addToCartWithProduct(user.id, productData, 1);
+      
+      setTimeout(() => {
+        setAddedToCart(prev => ({ ...prev, [game.id]: false }));
+      }, 3000);
+      
+      console.log(`Added game ${game.id} to cart`);
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      alert('Failed to add item to cart');
+      setAddedToCart(prev => ({ ...prev, [game.id]: false }));
+    }
   };
 
   // Generate and cache data for a game if not already cached
@@ -240,12 +288,41 @@ function Catalogue() {
     return matchesSearch && matchesCategory;
   });
 
-  const toggleWishlist = (gameId) => {
-    setWishlist(prev => 
-      prev.includes(gameId) 
-        ? prev.filter(id => id !== gameId)
-        : [...prev, gameId]
-    );
+  const toggleFavorite = (game) => {
+    if (!user?.id) {
+      alert('Please log in to add items to favorites');
+      return;
+    }
+
+    try {
+      const isFavorite = favorites.includes(game.id);
+      
+      // Convert game data to match the expected product format
+      const productData = {
+        id: game.id,
+        name: game.name,
+        price: getGameData(game.id).priceInfo.currentPrice,
+        description: game.deck || "No description available.",
+        image: game.image?.original || game.image?.square_small || '/images/placeholder.jpg',
+        category: 'games',
+        brand: 'Game Publisher',
+        inStock: true,
+        rating: getGameData(game.id).rating,
+        features: game.genres?.slice(0, 3).map(genre => genre.name) || ['Game'],
+        platform: game.platforms?.slice(0, 3).map(platform => platform.abbreviation || platform.name).join('/') || 'PC'
+      };
+
+      if (isFavorite) {
+        favoritesService.removeFromFavorites(user.id, game.id);
+        setFavorites(prev => prev.filter(id => id !== game.id));
+      } else {
+        favoritesService.addToFavorites(user.id, productData);
+        setFavorites(prev => [...prev, game.id]);
+      }
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+      alert('Failed to update favorites');
+    }
   };
 
   const getPageNumbers = () => {
@@ -440,6 +517,7 @@ function Catalogue() {
         <div style={gamesGridStyle}>
           {filteredGames.map(game => {
             const { rating, priceInfo } = getGameData(game.id);
+            const isFavorite = favorites.includes(game.id);
             
             return (
               <div 
@@ -506,23 +584,23 @@ function Catalogue() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        toggleWishlist(game.id);
+                        toggleFavorite(game);
                       }}
                       style={{
                         ...wishlistButtonNewStyle,
-                        backgroundColor: wishlist.includes(game.id) ? '#e74c3c' : '#fff',
-                        borderColor: wishlist.includes(game.id) ? '#e74c3c' : '#ddd',
-                        color: wishlist.includes(game.id) ? '#fff' : '#666',
+                        backgroundColor: isFavorite ? '#e74c3c' : '#fff',
+                        borderColor: isFavorite ? '#e74c3c' : '#ddd',
+                        color: isFavorite ? '#fff' : '#666',
                       }}
-                      title={wishlist.includes(game.id) ? "Remove from wishlist" : "Add to wishlist"}
+                      title={isFavorite ? "Remove from favorites" : "Add to favorites"}
                     >
                       <FaHeart style={{ marginRight: '0.5rem' }} />
-                      {wishlist.includes(game.id) ? 'In Wishlist' : 'Add to Wishlist'}
+                      {isFavorite ? 'In Favorites' : 'Add to Favorites'}
                     </button>
                     <button 
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleAddToCart(game.id);
+                        handleAddToCart(game);
                       }}
                       style={{
                         ...addToCartButtonStyle,
