@@ -153,12 +153,12 @@ function LandingPage() {
   };
 
   const getCardStyle = (index) => ({
-    backgroundColor: hoveredIndex === index ? "#00AEBB" : "#ffffff",
-    color: hoveredIndex === index ? "#ffffff" : "#1E232C",
+    backgroundColor: "#ffffff", // always white
+    color: "#1E232C",
+    border: hoveredIndex === index ? "4px solid #00AEBB" : "4px solid transparent",
     borderRadius: "20px",
     padding: "1.5rem",
     width: "280px",
-    cursor: "pointer",
     boxShadow:
       hoveredIndex === index
         ? "0 15px 30px rgba(0,0,0,0.1)"
@@ -168,12 +168,12 @@ function LandingPage() {
   });
 
   const getCategoryCardStyle = (index) => ({
-    backgroundColor: hoveredCategoryIndex === index ? "#00AEBB" : "#ffffff",
-    color: hoveredCategoryIndex === index ? "#ffffff" : "#1E232C",
+    backgroundColor: "#ffffff", // always white
+    color: "#1E232C",
+    border: hoveredCategoryIndex === index ? "4px solid #00AEBB" : "4px solid transparent",
     borderRadius: "20px",
     padding: "1.5rem",
     width: "280px",
-    cursor: "pointer",
     boxShadow:
       hoveredCategoryIndex === index
         ? "0 15px 30px rgba(0,0,0,0.1)"
@@ -185,7 +185,7 @@ function LandingPage() {
 
   const getPastelIconStyle = (index) => ({
     fontSize: "2.5rem",
-    color: hoveredCategoryIndex === index ? "#ffffff" : "#00AEBB",
+    color: "#00AEBB",
     marginBottom: "1rem",
     transition: "color 0.3s ease"
   });
@@ -278,7 +278,7 @@ function LandingPage() {
                   }}>
                     <h3 style={{ 
                       ...productTitle, 
-                      color: hoveredIndex === index ? "#fff" : "#1E232C",
+                      color: "#1E232C",
                       fontSize: "1.2rem",
                       marginBottom: "0.5rem"
                     }}>
@@ -293,17 +293,17 @@ function LandingPage() {
                       marginBottom: "0.5rem"
                     }}>
                       <span style={{
-                        color: hoveredIndex === index ? "#F7CA66" : "#F7CA66",
+                        color: "#F7CA66",
                         fontSize: "1rem"
                       }}>★</span>
                       <span style={{
                         fontWeight: "600",
-                        color: hoveredIndex === index ? "#fff" : "#1E232C"
+                        color: "#1E232C"
                       }}>
                         {g.rating}
                       </span>
                       <span style={{
-                        color: hoveredIndex === index ? "#fff" : "#666",
+                        color: "#666",
                         fontSize: "0.8rem"
                       }}>
                         ({g.reviewsCount} reviews)
@@ -320,7 +320,7 @@ function LandingPage() {
                       {g.hasDiscount && (
                         <span style={{
                           textDecoration: "line-through",
-                          color: hoveredIndex === index ? "#ccc" : "#999",
+                          // color: hoveredIndex === index ? "#ccc" : "#999",
                           fontSize: "0.9rem"
                         }}>
                           ${g.originalPrice}
@@ -329,7 +329,7 @@ function LandingPage() {
                       <span style={{
                         fontSize: "1.3rem",
                         fontWeight: "700",
-                        color: hoveredIndex === index ? "#F7CA66" : "#00AEBB"
+                        color: "#00bb38ff"
                       }}>
                         ${g.currentPrice}
                       </span>

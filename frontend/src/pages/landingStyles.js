@@ -124,7 +124,7 @@ export const darkSection = {
   width: "100vw",
   position: "relative",
   left: "50%",
-  transform: "translateX(-50%)"
+  transform: "translateX(-50%)",
 };
 
 export const section = {
