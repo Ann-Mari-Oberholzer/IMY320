@@ -5,7 +5,7 @@ export const page = {
   margin: 0,
   minHeight: "100vh",
   overflowX: "hidden",
-  width: "100vw",
+  width: "100%",
   maxWidth: "none",
   position: "relative",
   left: "50%",

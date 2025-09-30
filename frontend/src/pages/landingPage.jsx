@@ -163,7 +163,6 @@ function LandingPage() {
       hoveredIndex === index
         ? "0 15px 30px rgba(0,0,0,0.1)"
         : "0 5px 15px rgba(0,0,0,0.05)",
-    transform: hoveredIndex === index ? "translateY(-10px)" : "none",
     transition: "all 0.3s ease"
   });
 
@@ -177,8 +176,7 @@ function LandingPage() {
     boxShadow:
       hoveredCategoryIndex === index
         ? "0 15px 30px rgba(0,0,0,0.1)"
-        : "0 5px 15px rgba(0,0,0,0.05)",
-    transform: hoveredCategoryIndex === index ? "translateY(-10px)" : "none",
+        : "0 5px 15px rgba(0, 0, 0, 0.22)",
     transition: "all 0.3s ease",
     textAlign: "center"
   });
