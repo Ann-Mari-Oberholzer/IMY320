@@ -129,6 +129,7 @@ function Catalogue() {
   const [sortBy, setSortBy] = useState("popular");
   const [showFilters, setShowFilters] = useState(false);
   const [selectOpen, setSelectOpen] = useState(false);
+  const [showOnSale, setShowOnSale] = useState(false);
 
   // Pagination state
   const [games, setGames] = useState([]);
@@ -141,6 +142,9 @@ function Catalogue() {
 
   // Cart interaction state
   const [addedToCart, setAddedToCart] = useState({});
+  
+  // Wishlist state to trigger re-renders
+  const [wishlistUpdated, setWishlistUpdated] = useState(0);
 
   // Cache for generated prices and ratings
   const [gameDataCache, setGameDataCache] = useState({});
@@ -162,8 +166,7 @@ function Catalogue() {
     setSearchTerm(tagName);
     setActiveSearchTerm(tagName);
     setCurrentPage(1);
-    setLoading(true); // Show loading screen immediately
-    // Update URL without page reload
+    setLoading(true);
     navigate(`/catalogue?search=${encodeURIComponent(tagName)}`, { replace: true });
   };
 
@@ -171,8 +174,14 @@ function Catalogue() {
     if (e.key === 'Enter') {
       setActiveSearchTerm(searchTerm);
       setCurrentPage(1);
-      setLoading(true); // Show loading screen for search
+      setLoading(true);
     }
+  };
+
+  const handleSearchClick = () => {
+    setActiveSearchTerm(searchTerm);
+    setCurrentPage(1);
+    setLoading(true);
   };
 
   const handleAddToCart = async (game) => {
@@ -181,7 +190,6 @@ function Catalogue() {
       return;
     }
 
-    // Get the same price data that's being displayed
     const { priceInfo } = getGameData(game.id);
 
     const productData = {
@@ -204,7 +212,6 @@ function Catalogue() {
     }
   };
 
-  // Generate and cache data for a game if not already cached
   const getGameData = (gameId) => {
     if (!gameDataCache[gameId]) {
       const newData = {
@@ -255,13 +262,11 @@ function Catalogue() {
       setTotalResults(estimatedTotal);
       setTotalPages(Math.ceil(estimatedTotal / gamesPerPage));
       
-      // Ensure loading screen shows for at least 3 seconds
       await new Promise(resolve => setTimeout(resolve, 3000));
       
     } catch (err) {
       setError(err.message || "Failed to load games");
       console.error("Error fetching games:", err);
-      // Still wait 3 seconds even on error for consistent UX
       await new Promise(resolve => setTimeout(resolve, 3000));
     } finally {
       setLoading(false);
@@ -289,7 +294,10 @@ function Catalogue() {
       game.genres?.some(genre => genre.name === selectedCategory) ||
       game.platforms?.some(platform => platform.name === selectedCategory);
     
-    return matchesSearch && matchesCategory;
+    const { priceInfo } = getGameData(game.id);
+    const matchesSale = !showOnSale || priceInfo.hasDiscount;
+    
+    return matchesSearch && matchesCategory && matchesSale;
   });
 
   const toggleWishlist = (game) => {
@@ -298,15 +306,17 @@ function Catalogue() {
       return;
     }
 
+    const { priceInfo } = getGameData(game.id);
+    
     const productData = {
       id: game.id,
       name: game.name,
       description: game.deck || 'No description available',
       image: game.image?.original || game.image?.square_small || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=300&h=300&fit=crop',
-      price: parseFloat(game.currentPrice || 0),
-      originalPrice: game.originalPrice ? parseFloat(game.originalPrice) : null,
+      price: priceInfo.currentPrice,
+      originalPrice: priceInfo.hasDiscount ? priceInfo.originalPrice : null,
       tags: game.genres?.map(g => g.name) || [],
-      hasDiscount: game.hasDiscount
+      hasDiscount: priceInfo.hasDiscount
     };
 
     if (favoritesService.isFavorite(user.id, game.id)) {
@@ -314,6 +324,9 @@ function Catalogue() {
     } else {
       favoritesService.addToFavorites(user.id, productData);
     }
+    
+    // Force re-render
+    setWishlistUpdated(prev => prev + 1);
   };
 
   const getPageNumbers = () => {
@@ -423,7 +436,6 @@ function Catalogue() {
 
         <div style={searchFilterStyle}>
           <div style={searchContainerStyle}>
-            <FaSearch style={searchIconStyle} />
             <input
               type="text"
               placeholder="Search games or accessories..."
@@ -432,6 +444,38 @@ function Catalogue() {
               onKeyPress={handleSearchKeyPress}
               style={searchInputStyle}
             />
+            <button
+              onClick={handleSearchClick}
+              style={{
+                position: 'absolute',
+                right: '0.5rem',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'transform 0.3s ease',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-50%) scale(1.2)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(-50%) scale(1)';
+              }}
+            >
+              <FaSearch
+                style={{
+                  color: '#00AEBB',
+                  fontSize: '1.5rem',
+                  transition: 'color 0.3s ease',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = '#F7CA66')}
+                onMouseLeave={(e) => (e.currentTarget.style.color = '#00AEBB')}
+              />
+            </button>
           </div>
 
           <button
@@ -468,6 +512,31 @@ function Catalogue() {
                      {category}
                    </button>
                  ))}
+              </div>
+              
+              <div style={{ marginTop: '1rem' }}>
+                <label style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  cursor: 'pointer',
+                  fontSize: '0.95rem',
+                  fontWeight: '500',
+                  color: '#1E232C'
+                }}>
+                  <input
+                    type="checkbox"
+                    checked={showOnSale}
+                    onChange={(e) => setShowOnSale(e.target.checked)}
+                    style={{
+                      marginRight: '0.5rem',
+                      width: '18px',
+                      height: '18px',
+                      cursor: 'pointer',
+                      accentColor: '#00AEBB'
+                    }}
+                  />
+                  Show only items on sale
+                </label>
               </div>
             </div>
 
@@ -535,7 +604,7 @@ function Catalogue() {
               Showing {filteredGames.length} games 
               {totalResults > 0 && ` of ${totalResults.toLocaleString()}`}
               {totalPages > 1 && ` (Page ${currentPage} of ${totalPages})`}
-              {activeSearchTerm && <span style={{ fontStyle: 'italic' }}> for "${activeSearchTerm}"</span>}
+              {activeSearchTerm && <span style={{ fontStyle: 'italic' }}> for "{activeSearchTerm}"</span>}
             </span>
           )}
         </div>
@@ -543,6 +612,7 @@ function Catalogue() {
         <div style={gamesGridStyle}>
           {filteredGames.map(game => {
             const { rating, priceInfo } = getGameData(game.id);
+            const isInWishlist = user?.id && favoritesService.isFavorite(user.id, game.id);
             
             return (
               <div 
@@ -558,6 +628,23 @@ function Catalogue() {
                   )}
                   <span style={currentPriceStyle}>${priceInfo.currentPrice.toFixed(2)}</span>
                 </div>
+
+                {priceInfo.hasDiscount && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '1rem',
+                    left: '1rem',
+                    backgroundColor: '#27ae60',
+                    color: '#fff',
+                    padding: '0.4rem 0.8rem',
+                    borderRadius: '0.5rem',
+                    fontSize: '0.85rem',
+                    fontWeight: '700',
+                    zIndex: 10,
+                  }}>
+                    SALE
+                  </div>
+                )}
 
                 <div style={gameImageContainerStyle}>
                   {game.image?.original || game.image?.square_small ? (
@@ -652,50 +739,29 @@ function Catalogue() {
                   </div>
 
                   <div style={buttonColumnStyle}>
-                    <button
+                    <button 
                       onClick={(e) => {
                         e.stopPropagation();
                         toggleWishlist(game);
                       }}
                       style={{
                         ...wishlistButtonNewStyle,
-                        backgroundColor: favoritesService.isFavorite(user?.id, game.id) ? '#e74c3c' : '#fff',
-                        borderColor: favoritesService.isFavorite(user?.id, game.id) ? '#e74c3c' : '#ddd',
-                        color: favoritesService.isFavorite(user?.id, game.id) ? '#fff' : '#666',
-                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                        transform: 'translateY(0)',
-                        boxShadow: favoritesService.isFavorite(user?.id, game.id) ? '0 4px 12px rgba(231, 76, 60, 0.3)' : '0 2px 8px rgba(0,0,0,0.1)',
+                        backgroundColor: wishlistUpdated[game.id] ? '#3c89e7ff' : '#fff',
+                        transition: 'all 0.3s ease',
                       }}
-                      title={favoritesService.isFavorite(user?.id, game.id) ? "Remove from wishlist" : "Add to wishlist"}
-                      onMouseEnter={(e) => {
-                        if (favoritesService.isFavorite(user?.id, game.id)) {
-                          e.target.style.transform = 'translateY(-2px) scale(1.02)';
-                          e.target.style.boxShadow = '0 8px 20px rgba(231, 76, 60, 0.4)';
-                          e.target.style.backgroundColor = '#c0392b';
-                        } else {
-                          e.target.style.transform = 'translateY(-2px) scale(1.02)';
-                          e.target.style.boxShadow = '0 8px 20px rgba(231, 76, 60, 0.3)';
-                          e.target.style.backgroundColor = '#e74c3c';
-                          e.target.style.borderColor = '#e74c3c';
-                          e.target.style.color = '#fff';
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (favoritesService.isFavorite(user?.id, game.id)) {
-                          e.target.style.transform = 'translateY(0) scale(1)';
-                          e.target.style.boxShadow = '0 4px 12px rgba(231, 76, 60, 0.3)';
-                          e.target.style.backgroundColor = '#e74c3c';
-                        } else {
-                          e.target.style.transform = 'translateY(0) scale(1)';
-                          e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
-                          e.target.style.backgroundColor = '#fff';
-                          e.target.style.borderColor = '#ddd';
-                          e.target.style.color = '#666';
-                        }
-                      }}
+                      disabled={wishlistUpdated[game.id]}
                     >
-                      <FaHeart style={{ marginRight: '0.5rem' }} />
-                      {favoritesService.isFavorite(user?.id, game.id) ? 'In Wishlist' : 'Add to Wishlist'}
+                      {favoritesService.isFavorite(user?.id, game.id) ? (
+                        <>
+                          <FaHeart style={{ marginRight: '0.5rem' }} />
+                          In Wishlist
+                        </>
+                      ) : (
+                        <>
+                          <FaHeart style={{ marginRight: '0.5rem' }} />
+                          Add to Wishlist
+                        </>
+                      )}
                     </button>
                     <button 
                       onClick={(e) => {
