@@ -1,14 +1,21 @@
 import React from 'react';
 import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn } from 'react-icons/fa';
 import './Footer.css';
+import { useNavigate } from 'react-router-dom';
 
 const Footer = () => {
+  const navigate = useNavigate();
+
+  const handleNavigation = (path) => {
+    navigate(path);
+  };
+  
   return (
     <footer className="footer">
       <div className="footer-container">
         {/* Brand / Logo */}
         <div className="footer-brand">
-          <img src="/GameCraftLight.png" alt="GameCraft Logo" className="footer-logo" />
+          <img src="/GameCraftLight.png" alt="GameCraft Logo" className="footer-logo" onClick={() => handleNavigation('/')}/>
           <p className="brand-tagline">Play. Create. Connect.</p>
         </div>
 
