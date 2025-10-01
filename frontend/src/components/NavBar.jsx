@@ -83,12 +83,14 @@ const Navbar = ({ currentPage = 'home', user = null, onLogout }) => {
           About
         </span>
 
-        <span 
-          className={`nav-item ${currentPage === 'addProduct' ? 'active' : ''}`}
-          onClick={() => handleNavigation('/addProduct')}
-        >
-          Add Product
-        </span>
+        {user && (
+          <div 
+            className={`nav-item ${currentPage === 'add-product' ? 'active' : ''}`}
+            onClick={() => handleNavigation('/addProduct')}
+          >
+            Add Product
+          </div>
+        )}
 
         {user && (
           
@@ -107,8 +109,6 @@ const Navbar = ({ currentPage = 'home', user = null, onLogout }) => {
         >
           <FaHeart />
         </span>
-
-        
 
         {!user ? (
           <>
