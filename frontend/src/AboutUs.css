@@ -1,7 +1,7 @@
 /* Main Container */
 .about-us-container {
   position: relative;
-  width: 100vw;
+  width: 100%;
   min-height: 100vh;
   background-color: transparent;
   font-family: 'Inter', sans-serif;
@@ -140,28 +140,27 @@
   padding: 30px;
   border-radius: 15px;
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
+  border: 4px solid white;
 }
 
-.about-us-container .content-section:nth-child(3) .feature-card {
+/* .about-us-container .content-section:nth-child(3) .feature-card {
   background: #ffffff !important;
   color: #1E232C !important;
   border: 2px solid #e9ecef;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
-}
+} */
 
 .feature-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-  background: #00ADB5;
+  background: #ffffff !important;
+  border: 4px solid #00ADB5;
 }
 
-.about-us-container .content-section:nth-child(3) .feature-card:hover {
+/* .about-us-container .content-section:nth-child(3) .feature-card:hover {
   background: #00ADB5 !important;
   color: #ffffff !important;
   transform: translateY(-5px);
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2) !important;
-}
+} */
 
 .feature-content {
   display: flex;
@@ -193,13 +192,13 @@
   margin-bottom: 10px;
 }
 
-.about-us-container .content-section:nth-child(3) .feature-title {
+/* .about-us-container .content-section:nth-child(3) .feature-title {
   color: #1E232C !important;
 }
 
 .about-us-container .content-section:nth-child(3) .feature-card:hover .feature-title {
   color: #ffffff !important;
-}
+} */
 
 .feature-description {
   font-size: 1rem;
@@ -207,17 +206,17 @@
   color: #393E46;
 }
 
-.about-us-container .content-section:nth-child(3) .feature-description {
+/* .about-us-container .content-section:nth-child(3) .feature-description {
   color: #393E46 !important;
 }
 
 .feature-card:hover .feature-description {
   color: white;
-}
+} */
 
-.about-us-container .content-section:nth-child(3) .feature-card:hover .feature-description {
+/* .about-us-container .content-section:nth-child(3) .feature-card:hover .feature-description {
   color: #ffffff !important;
-}
+} */
 
 /* Team Content */
 .team-content {
@@ -290,7 +289,7 @@
   border-radius: 15px;
   text-align: center;
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
+  border: 4px solid white;
 }
 
 .about-us-container .content-section:nth-child(3) .team-card {
@@ -299,15 +298,14 @@
 }
 
 .team-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-  background: #00ADB5;
+  background: #ffffff !important;
+  border: 4px solid #00ADB5;
 }
 
-.team-card:hover .team-role,
+/* .team-card:hover .team-role,
 .team-card:hover .team-specialty {
   color: white;
-}
+} */
 
 .team-avatar {
   font-size: 3rem;

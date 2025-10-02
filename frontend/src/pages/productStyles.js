@@ -421,6 +421,24 @@ export const carouselButton = {
   zIndex: 10,
 };
 
+export const wishlistButtonNewStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  padding: '0.5rem 1rem',
+  backgroundColor: '#fff',
+  color: '#666',
+  border: 'none',
+  borderRadius: '0.5rem',
+  fontSize: '0.9rem',
+  fontWeight: '500',
+  cursor: 'pointer',
+  transition: 'all 0.3s ease',
+  whiteSpace: 'nowrap',
+  width: '160px',
+  marginTop: 'auto',
+};
+
 export const carouselButtonLeft = {
   left: "10px",
 };

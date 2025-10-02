@@ -280,6 +280,11 @@ function Catalogue() {
     }
   };
 
+  const handlePageChangeAndScroll = (pageNum) => {
+    handlePageChange(pageNum);
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+  };
+
   const handleGamesPerPageChange = (newGamesPerPage) => {
     setGamesPerPage(newGamesPerPage);
     setCurrentPage(1);
@@ -739,29 +744,50 @@ function Catalogue() {
                   </div>
 
                   <div style={buttonColumnStyle}>
-                    <button 
+                    <button
                       onClick={(e) => {
                         e.stopPropagation();
                         toggleWishlist(game);
                       }}
                       style={{
                         ...wishlistButtonNewStyle,
-                        backgroundColor: wishlistUpdated[game.id] ? '#3c89e7ff' : '#fff',
-                        transition: 'all 0.3s ease',
+                        backgroundColor: isInWishlist ? '#3c89e7ff' : '#fff',
+                        borderColor: isInWishlist ? '#3c89e7ff' : '#ddd',
+                        color: isInWishlist ? '#fff' : '#666',
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                        transform: 'translateY(0)',
+                        boxShadow: isInWishlist ? '0 4px 12px rgba(60, 137, 231, 0.3)' : '0 2px 8px rgba(0,0,0,0.1)',
                       }}
-                      disabled={wishlistUpdated[game.id]}
+                      title={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
+                      onMouseEnter={(e) => {
+                        if (isInWishlist) {
+                          e.target.style.transform = 'translateY(-2px) scale(1.02)';
+                          e.target.style.boxShadow = '0 6px 16px rgba(60, 137, 231, 0.4)';
+                          e.target.style.backgroundColor = '#3c89e7ff';
+                        } else {
+                          e.target.style.transform = 'translateY(-2px) scale(1.02)';
+                          e.target.style.boxShadow = '0 4px 12px rgba(60, 137, 231, 0.3)';
+                          e.target.style.backgroundColor = '#3c89e7ff';
+                          e.target.style.borderColor = '#3c89e7ff';
+                          e.target.style.color = '#fff';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (isInWishlist) {
+                          e.target.style.transform = 'translateY(0) scale(1)';
+                          e.target.style.boxShadow = '0 4px 12px rgba(60, 137, 231, 0.3)';
+                          e.target.style.backgroundColor = '#3c89e7ff';
+                        } else {
+                          e.target.style.transform = 'translateY(0) scale(1)';
+                          e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                          e.target.style.backgroundColor = '#fff';
+                          e.target.style.borderColor = '#ddd';
+                          e.target.style.color = '#666';
+                        }
+                      }}
                     >
-                      {favoritesService.isFavorite(user?.id, game.id) ? (
-                        <>
-                          <FaHeart style={{ marginRight: '0.5rem' }} />
-                          In Wishlist
-                        </>
-                      ) : (
-                        <>
-                          <FaHeart style={{ marginRight: '0.5rem' }} />
-                          Add to Wishlist
-                        </>
-                      )}
+                      <FaHeart style={{ marginRight: '0.5rem' }} />
+                      {favoritesService.isFavorite(user?.id, game.id) ? 'In Wishlist' : 'Add to Wishlist'}
                     </button>
                     <button 
                       onClick={(e) => {
@@ -804,7 +830,7 @@ function Catalogue() {
             marginBottom: '2rem'
           }}>
             <button
-              onClick={() => handlePageChange(currentPage - 1)}
+              onClick={() => handlePageChangeAndScroll(currentPage - 1)}
               disabled={currentPage === 1}
               style={{
                 ...loadMoreButtonStyle,
@@ -821,7 +847,7 @@ function Catalogue() {
             {getPageNumbers().map(pageNum => (
               <button
                 key={pageNum}
-                onClick={() => handlePageChange(pageNum)}
+                onClick={() => handlePageChangeAndScroll(pageNum)}
                 style={{
                   ...loadMoreButtonStyle,
                   padding: '0.5rem 0.75rem',
@@ -835,7 +861,7 @@ function Catalogue() {
             ))}
 
             <button
-              onClick={() => handlePageChange(currentPage + 1)}
+              onClick={() => handlePageChangeAndScroll(currentPage + 1)}
               disabled={currentPage === totalPages}
               style={{
                 ...loadMoreButtonStyle,

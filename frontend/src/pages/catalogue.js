@@ -83,7 +83,6 @@ export const filterToggleStyle = {
 
 export const filtersStyle = {
   backgroundColor: '#fff',
-  border: '1px solid #ddd',
   borderRadius: '0.75rem',
   padding: '1.5rem',
   marginBottom: '1.5rem',
@@ -337,7 +336,7 @@ export const wishlistButtonNewStyle = {
   padding: '0.5rem 1rem',
   backgroundColor: '#fff',
   color: '#666',
-  border: '5px',
+  border: 'none',
   borderRadius: '0.5rem',
   fontSize: '0.9rem',
   fontWeight: '500',
