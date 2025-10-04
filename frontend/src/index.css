@@ -16,11 +16,12 @@ html, body {
   outline: none !important;
 }
 
-input[type="number"]::-webkit-outer-spin-button,
-input[type="number"]::-webkit-inner-spin-button {
-  -webkit-appearance: inner-spin-button;
-  opacity: 1 !important;   /* Always visible */
+/* Force Chrome and Edge to always show the spinner */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  opacity: 1 !important;
 }
+
 
 #root {
   width: 100% !important;

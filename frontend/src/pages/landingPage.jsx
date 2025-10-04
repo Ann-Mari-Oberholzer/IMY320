@@ -218,8 +218,28 @@ function LandingPage() {
 
   return (
     <div style={page} className="landing-page-container">
-      {/* LOADING SCREEN */}
-      {loading && <LoadingScreen />}
+      
+       {loading && (
+         <div style={{
+           position: 'fixed',
+           top: 0,
+           left: 0,
+           right: 0,
+           bottom: 0,
+           backgroundColor: 'rgba(248, 249, 250, 1)',
+           display: 'flex',
+           justifyContent: 'center',
+           alignItems: 'center',
+           zIndex: 1000,
+           backdropFilter: 'blur(5px)'
+         }}>
+           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+             <FaGamepad style={{ fontSize: '3rem', color: '#00AEBB', animation: 'bounce 1s infinite' }} />
+             <FaGamepad style={{ fontSize: '3rem', color: '#F7CA66', animation: 'bounce 1s infinite 0.2s' }} />
+             <FaGamepad style={{ fontSize: '3rem', color: '#00AEBB', animation: 'bounce 1s infinite 0.4s' }} />
+           </div>
+         </div>
+       )}
       
       {/* NAVIGATION - Replace the old nav with the new NavBar component */}
       <NavBar 

@@ -418,7 +418,7 @@ function Catalogue() {
            left: 0,
            right: 0,
            bottom: 0,
-           backgroundColor: 'rgba(248, 249, 250, 0.95)',
+           backgroundColor: 'rgba(248, 249, 250, 1)',
            display: 'flex',
            justifyContent: 'center',
            alignItems: 'center',

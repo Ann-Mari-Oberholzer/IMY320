@@ -68,6 +68,7 @@ import {
   productDescriptionTitle,
   productDescriptionText
 } from "./productStyles";
+import { addToCartButtonStyle } from "./catalogue";
 
 // API configuration
 const API_BASE = "http://localhost:4000";
@@ -94,6 +95,51 @@ function ProductPage() {
   
   // Carousel state
   const [currentSlide, setCurrentSlide] = useState(0);
+  
+  // Wishlist state to trigger re-renders
+  const [wishlistUpdated, setWishlistUpdated] = useState(0);
+  
+  // Cache for generated prices and ratings
+  const [gameDataCache, setGameDataCache] = useState({});
+
+  const getGameData = (gameId) => {
+      if (!gameDataCache[gameId]) {
+        const newData = {
+          rating: generateRandomRating(gameId),
+          priceInfo: generateRandomPrice(gameId)
+        };
+        setGameDataCache(prev => ({ ...prev, [gameId]: newData }));
+        return newData;
+      }
+      return gameDataCache[gameId];
+    };
+    
+  const toggleWishlist = (currentProduct) => {
+      if (!user?.id) {
+        alert('Please log in to add items to your wishlist');
+        return;
+      }
+  
+      const productData = {
+        id: currentProduct.id,
+        name: currentProduct.name,
+        description: currentProduct.deck || 'No description available',
+        image: currentProduct.image?.original || currentProduct.image?.square_small || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=300&h=300&fit=crop',
+        price: priceInfo?.currentPrice || 0,
+        originalPrice: priceInfo?.hasDiscount ? priceInfo.originalPrice : null,
+        tags: currentProduct.genres?.map(g => g.name) || [],
+        hasDiscount: priceInfo?.hasDiscount || false
+      };
+  
+      if (favoritesService.isFavorite(user.id, currentProduct.id)) {
+        favoritesService.removeFromFavorites(user.id, currentProduct.id);
+      } else {
+        favoritesService.addToFavorites(user.id, productData);
+      }
+      
+      // Force re-render
+      setWishlistUpdated(prev => prev + 1);
+    };
 
   // Fetch product data
   useEffect(() => {
@@ -435,7 +481,7 @@ function ProductPage() {
           width: "300px",
           cursor: "pointer",
           boxShadow: "0 8px 25px rgba(0, 0, 0, 0.12)",
-          transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+          // transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
           display: "flex",
           flexDirection: "column",
           height: "100%",
@@ -445,11 +491,11 @@ function ProductPage() {
         }}
         onClick={() => navigate(`/product/${game.id}`)}
         onMouseEnter={(e) => {
-          e.currentTarget.style.transform = 'translateY(-15px) scale(1.02)';
+          // e.currentTarget.style.transform = 'translateY(-15px) scale(1.02)';
           e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.15)';
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.transform = 'translateY(0) scale(1)';
+          // e.currentTarget.style.transform = 'translateY(0) scale(1)';
           e.currentTarget.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.12)';
         }}
       >
@@ -468,14 +514,14 @@ function ProductPage() {
               width: '100%',
               height: '100%',
               objectFit: 'cover',
-              transition: 'transform 0.4s ease',
+              // transition: 'transform 0.4s ease',
             }}
-            onMouseEnter={(e) => {
-              e.target.style.transform = 'scale(1.1)';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.transform = 'scale(1)';
-            }}
+            // onMouseEnter={(e) => {
+            //   e.target.style.transform = 'scale(1.1)';
+            // }}
+            // onMouseLeave={(e) => {
+            //   e.target.style.transform = 'scale(1)';
+            // }}
           />
           
           {/* Gradient Overlay */}
@@ -619,7 +665,7 @@ function ProductPage() {
             <span style={{
               fontSize: "1.3rem",
               fontWeight: "800",
-              color: "#00AEBB"
+              color: "#27ae60"
             }}>
               ${priceInfo.currentPrice.toFixed(2)}
             </span>
@@ -670,7 +716,7 @@ function ProductPage() {
               {similarAddedToCart[game.id] ? (
                 <>
                   <FaCheck />
-                  Added
+                  Added to cart
                 </>
               ) : (
                 <>
@@ -687,10 +733,10 @@ function ProductPage() {
               }}
               style={{
                 padding: "12px 16px",
-                backgroundColor: favoritesService.isFavorite(user?.id, game.id) ? '#e74c3c' : '#fff',
+                backgroundColor: favoritesService.isFavorite(user?.id, game.id) ? '#3c89e7ff' : '#fff',
                 color: favoritesService.isFavorite(user?.id, game.id) ? '#fff' : 'rgba(0, 0, 0, 0.5)',
                 fontSize: "0.9rem",
-                border: `2px solid ${favoritesService.isFavorite(user?.id, game.id) ? '#e74c3c' : 'rgba(0, 0, 0, 0.2)'}`,
+                border: `2px solid ${favoritesService.isFavorite(user?.id, game.id) ? '#3c89e7ff' : 'rgba(0, 0, 0, 0.2)'}`,
                 borderRadius: "12px",
                 cursor: "pointer",
                 display: "flex",
@@ -698,26 +744,26 @@ function ProductPage() {
                 alignItems: "center",
                 transition: "all 0.3s ease",
                 minWidth: "50px",
-                boxShadow: favoritesService.isFavorite(user?.id, game.id) ? "0 4px 12px rgba(231, 76, 60, 0.3)" : "0 2px 8px rgba(0,0,0,0.1)",
+                boxShadow: favoritesService.isFavorite(user?.id, game.id) ? "0 4px 12px rgba(60, 137, 231, 0.3)" : "0 2px 8px rgba(0,0,0,0.1)",
               }}
               onMouseEnter={(e) => {
                 if (favoritesService.isFavorite(user?.id, game.id)) {
                   e.target.style.transform = 'translateY(-2px) scale(1.05)';
-                  e.target.style.boxShadow = '0 8px 20px rgba(231, 76, 60, 0.4)';
-                  e.target.style.backgroundColor = '#c0392b';
+                  e.target.style.boxShadow = '0 8px 20px rgba(60, 137, 231, 0.3)';
+                  e.target.style.backgroundColor = '#3c89e7ff';
                 } else {
                   e.target.style.transform = 'translateY(-2px) scale(1.05)';
-                  e.target.style.boxShadow = '0 8px 20px rgba(231, 76, 60, 0.3)';
-                  e.target.style.backgroundColor = '#e74c3c';
-                  e.target.style.borderColor = '#e74c3c';
+                  e.target.style.boxShadow = '0 8px 20px rgba(60, 137, 231, 0.3)';
+                  e.target.style.backgroundColor = '#3c89e7ff';
+                  e.target.style.borderColor = '#3c89e7ff';
                   e.target.style.color = '#fff';
                 }
               }}
               onMouseLeave={(e) => {
                 if (favoritesService.isFavorite(user?.id, game.id)) {
                   e.target.style.transform = 'translateY(0) scale(1)';
-                  e.target.style.boxShadow = '0 4px 12px rgba(231, 76, 60, 0.3)';
-                  e.target.style.backgroundColor = '#e74c3c';
+                  e.target.style.boxShadow = '0 4px 12px rgba(60, 137, 231, 0.3)';
+                  e.target.style.backgroundColor = '#3c89e7ff';
                 } else {
                   e.target.style.transform = 'translateY(0) scale(1)';
                   e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
@@ -740,23 +786,23 @@ function ProductPage() {
       <div style={big}>
         <NavBar currentPage="product" user={user} />
         <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh',
-          flexDirection: 'column',
-          gap: '1rem',
           position: 'fixed',
           top: 0,
           left: 0,
           right: 0,
           bottom: 0,
-          backgroundColor: 'rgba(255, 255, 255, 0.95)',
-          backdropFilter: 'blur(10px)',
-          WebkitBackdropFilter: 'blur(10px)',
-          zIndex: 1000
+          backgroundColor: 'rgba(248, 249, 250, 1)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 1000,
+          backdropFilter: 'blur(5px)'
         }}>
-          <FaGamepad style={{ fontSize: '3rem', color: '#00AEBB', animation: 'bounce 1s infinite' }} />
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            <FaGamepad style={{ fontSize: '3rem', color: '#00AEBB', animation: 'bounce 1s infinite' }} />
+            <FaGamepad style={{ fontSize: '3rem', color: '#F7CA66', animation: 'bounce 1s infinite 0.2s' }} />
+            <FaGamepad style={{ fontSize: '3rem', color: '#00AEBB', animation: 'bounce 1s infinite 0.4s' }} />
+          </div>
         </div>
       </div>
     );
@@ -865,13 +911,13 @@ function ProductPage() {
                 src={getMainProductImage()}
                 alt={product.name}
                 style={{
-                  width: '200px',
-                  height: '200px',
+                  width: '300px',
+                  height: '400px',
                   borderRadius: '0.5rem',
                   objectFit: 'cover',
                   backgroundColor: '#f0f0f0',
                   flexShrink: 0,
-                  marginTop: '4rem'
+                  // marginTop: '4rem'
                 }}
               />
               
@@ -1085,7 +1131,52 @@ function ProductPage() {
                       display: 'flex',
                       gap: '0.75rem'
                     }}>
-                      <button
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleWishlist(product);
+                      }}
+                      style={{
+                        ...wishlistButtonNewStyle,
+                        backgroundColor: user?.id && favoritesService.isFavorite(user.id, product.id) ? '#3c89e7ff' : '#fff',
+                        borderColor: user?.id && favoritesService.isFavorite(user.id, product.id) ? '#3c89e7ff' : '#ddd',
+                        color: user?.id && favoritesService.isFavorite(user.id, product.id) ? '#fff' : '#666',
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                        transform: 'translateY(0)',
+                        boxShadow: user?.id && favoritesService.isFavorite(user.id, product.id) ? '0 4px 12px rgba(60, 137, 231, 0.3)' : '0 2px 8px rgba(0,0,0,0.1)',
+                      }}
+                      title={user?.id && favoritesService.isFavorite(user.id, product.id) ? "Remove from wishlist" : "Add to wishlist"}
+                      onMouseEnter={(e) => {
+                        if (user?.id && favoritesService.isFavorite(user.id, product.id)) {
+                          e.target.style.transform = 'translateY(-2px) scale(1.02)';
+                          e.target.style.boxShadow = '0 6px 16px rgba(60, 137, 231, 0.4)';
+                          e.target.style.backgroundColor = '#3c89e7ff';
+                        } else {
+                          e.target.style.transform = 'translateY(-2px) scale(1.02)';
+                          e.target.style.boxShadow = '0 4px 12px rgba(60, 137, 231, 0.3)';
+                          e.target.style.backgroundColor = '#3c89e7ff';
+                          e.target.style.borderColor = '#3c89e7ff';
+                          e.target.style.color = '#fff';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (user?.id && favoritesService.isFavorite(user.id, product.id)) {
+                          e.target.style.transform = 'translateY(0) scale(1)';
+                          e.target.style.boxShadow = '0 4px 12px rgba(60, 137, 231, 0.3)';
+                          e.target.style.backgroundColor = '#3c89e7ff';
+                        } else {
+                          e.target.style.transform = 'translateY(0) scale(1)';
+                          e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                          e.target.style.backgroundColor = '#fff';
+                          e.target.style.borderColor = '#ddd';
+                          e.target.style.color = '#666';
+                        }
+                      }}
+                    >
+                      <FaHeart style={{ marginRight: '0.5rem' }} />
+                      {favoritesService.isFavorite(user?.id, product.id) ? 'In Wishlist' : 'Add to Wishlist'}
+                    </button>
+                    <button
                         onClick={async () => {
                           if (!user) {
                             alert('Please log in to add items to cart');
@@ -1110,99 +1201,24 @@ function ProductPage() {
                           }
                         }}
                         style={{
-                          padding: '0.75rem 1.5rem',
+                          ...addToCartButtonStyle,
                           backgroundColor: addedToCart ? '#27ae60' : '#F7CA66',
-                          color: '#fff',
-                          border: 'none',
-                          borderRadius: '0.5rem',
-                          fontSize: '0.9rem',
-                          fontWeight: '600',
-                          cursor: addedToCart ? 'default' : 'pointer',
-                          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '0.5rem',
-                          whiteSpace: 'nowrap',
-                          height: '44px',
-                          boxShadow: addedToCart ? '0 4px 12px rgba(39, 174, 96, 0.3)' : '0 4px 12px rgba(247, 202, 102, 0.3)',
-                          transform: 'translateY(0)',
-                          position: 'relative',
-                          overflow: 'hidden'
+                          transition: 'all 0.3s ease',
                         }}
                         disabled={addedToCart}
-                        onMouseEnter={(e) => {
-                          if (!addedToCart) {
-                            e.target.style.transform = 'translateY(-2px) scale(1.02)';
-                            e.target.style.boxShadow = '0 8px 20px rgba(247, 202, 102, 0.4)';
-                            e.target.style.backgroundColor = '#f4d03f';
-                          }
-                        }}
-                        onMouseLeave={(e) => {
-                          if (!addedToCart) {
-                            e.target.style.transform = 'translateY(0) scale(1)';
-                            e.target.style.boxShadow = '0 4px 12px rgba(247, 202, 102, 0.3)';
-                            e.target.style.backgroundColor = '#F7CA66';
-                          }
-                        }}
                       >
                         {addedToCart ? (
                           <>
-                            <FaCheck />
+                            <FaCheck style={{ marginRight: '0.5rem' }} />
                             Added to Cart
                           </>
                         ) : (
                           <>
-                            <FaShoppingCart />
+                            <FaShoppingCart style={{ marginRight: '0.5rem' }} />
                             Add to Cart
                           </>
                         )}
                       </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleWishlist(game);
-                      }}
-                      style={{
-                        ...wishlistButtonNewStyle,
-                        backgroundColor: isInWishlist ? '#3c89e7ff' : '#fff',
-                        borderColor: isInWishlist ? '#3c89e7ff' : '#ddd',
-                        color: isInWishlist ? '#fff' : '#666',
-                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                        transform: 'translateY(0)',
-                        boxShadow: isInWishlist ? '0 4px 12px rgba(60, 137, 231, 0.3)' : '0 2px 8px rgba(0,0,0,0.1)',
-                      }}
-                      title={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
-                      onMouseEnter={(e) => {
-                        if (isInWishlist) {
-                          e.target.style.transform = 'translateY(-2px) scale(1.02)';
-                          e.target.style.boxShadow = '0 6px 16px rgba(60, 137, 231, 0.4)';
-                          e.target.style.backgroundColor = '#3c89e7ff';
-                        } else {
-                          e.target.style.transform = 'translateY(-2px) scale(1.02)';
-                          e.target.style.boxShadow = '0 4px 12px rgba(60, 137, 231, 0.3)';
-                          e.target.style.backgroundColor = '#3c89e7ff';
-                          e.target.style.borderColor = '#3c89e7ff';
-                          e.target.style.color = '#fff';
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (isInWishlist) {
-                          e.target.style.transform = 'translateY(0) scale(1)';
-                          e.target.style.boxShadow = '0 4px 12px rgba(60, 137, 231, 0.3)';
-                          e.target.style.backgroundColor = '#3c89e7ff';
-                        } else {
-                          e.target.style.transform = 'translateY(0) scale(1)';
-                          e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
-                          e.target.style.backgroundColor = '#fff';
-                          e.target.style.borderColor = '#ddd';
-                          e.target.style.color = '#666';
-                        }
-                      }}
-                    >
-                      <FaHeart style={{ marginRight: '0.5rem' }} />
-                      {favoritesService.isFavorite(user?.id, game.id) ? 'In Wishlist' : 'Add to Wishlist'}
-                    </button>
                     </div>
                   </div>
                 </div>
@@ -1609,7 +1625,7 @@ function ProductPage() {
                           borderBottom: '6px solid transparent',
                           backgroundColor: 'transparent',
                           cursor: 'pointer',
-                          transition: 'all 0.3s ease',
+                          // transition: 'all 0.3s ease',
                           // transform: currentSlide === index * 3 ? 'scale(1.2)' : 'scale(1)',
                           boxShadow: currentSlide === index * 3 ? '0 2px 6px rgba(0, 174, 187, 0.3)' : 'none',
                           margin: '0 4px',
