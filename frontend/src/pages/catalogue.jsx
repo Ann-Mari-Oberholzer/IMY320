@@ -116,13 +116,11 @@ const enhancedSelectStyles = {
   },
 };
 
-
-
 function Catalogue() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useUser();
-  const { addToCart } = useCart();
+  const { addToCart, removeFromCart, cart } = useCart();
   const [searchTerm, setSearchTerm] = useState("");
   const [activeSearchTerm, setActiveSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -149,81 +147,7 @@ function Catalogue() {
   // Cache for generated prices and ratings
   const [gameDataCache, setGameDataCache] = useState({});
 
-  // Handle URL parameters on component mount
-  useEffect(() => {
-    const urlParams = new URLSearchParams(location.search);
-    const searchParam = urlParams.get('search');
-    if (searchParam) {
-      setSearchTerm(searchParam);
-      setActiveSearchTerm(searchParam);
-    }
-  }, [location.search]);
-
-  // Handle tag click - update search and filter
-  const handleTagClick = (tagName, event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    setSearchTerm(tagName);
-    setActiveSearchTerm(tagName);
-    setCurrentPage(1);
-    setLoading(true);
-    navigate(`/catalogue?search=${encodeURIComponent(tagName)}`, { replace: true });
-  };
-
-  const handleSearchKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      setActiveSearchTerm(searchTerm);
-      setCurrentPage(1);
-      setLoading(true);
-    }
-  };
-
-  const handleSearchClick = () => {
-    setActiveSearchTerm(searchTerm);
-    setCurrentPage(1);
-    setLoading(true);
-  };
-
-  const handleAddToCart = async (game) => {
-    if (!user) {
-      navigate('/login');
-      return;
-    }
-
-    const { priceInfo } = getGameData(game.id);
-
-    const productData = {
-      id: game.id,
-      name: game.name,
-      description: game.deck || 'No description available',
-      image: game.image?.original || game.image?.square_small || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=300&h=300&fit=crop',
-      price: priceInfo.currentPrice,
-      originalPrice: priceInfo.hasDiscount ? priceInfo.originalPrice : null,
-      tags: game.genres?.map(g => g.name) || [],
-      hasDiscount: priceInfo.hasDiscount
-    };
-
-    const success = await addToCart(productData, 1);
-    if (success) {
-      setAddedToCart(prev => ({ ...prev, [game.id]: true }));
-      setTimeout(() => {
-        setAddedToCart(prev => ({ ...prev, [game.id]: false }));
-      }, 3000);
-    }
-  };
-
-  const getGameData = (gameId) => {
-    if (!gameDataCache[gameId]) {
-      const newData = {
-        rating: generateRandomRating(gameId),
-        priceInfo: generateRandomPrice(gameId)
-      };
-      setGameDataCache(prev => ({ ...prev, [gameId]: newData }));
-      return newData;
-    }
-    return gameDataCache[gameId];
-  };
-
+  // Define fetchGames before useEffect hooks
   const fetchGames = useCallback(async (search = "", category = "All", sort = "popular", page = 1) => {
     try {
       setLoading(true);
@@ -273,6 +197,106 @@ function Catalogue() {
     }
   }, [gamesPerPage]);
 
+  // Handle URL parameters on component mount
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const searchParam = urlParams.get('search');
+    if (searchParam) {
+      setSearchTerm(searchParam);
+      setActiveSearchTerm(searchParam);
+    }
+  }, [location.search]);
+
+  // Sync addedToCart with cart context
+  useEffect(() => {
+    if (cart) {
+      const cartState = {};
+      cart.forEach(item => { cartState[item.id] = true; });
+      setAddedToCart(cartState);
+    }
+  }, [cart]);
+
+  // Restore scroll position and page number
+  useEffect(() => {
+    const savedScroll = sessionStorage.getItem('catalogueScroll');
+    const savedPage = sessionStorage.getItem('cataloguePage');
+    if (savedScroll && savedPage && location.state?.fromProduct) {
+      const pageNum = Number(savedPage);
+      setCurrentPage(pageNum);
+      fetchGames(activeSearchTerm, selectedCategory, sortBy, pageNum);
+      setTimeout(() => {
+        window.scrollTo({ top: Number(savedScroll), behavior: 'auto' });
+      }, 0);
+      sessionStorage.removeItem('catalogueScroll');
+      sessionStorage.removeItem('cataloguePage');
+    }
+  }, [location.state, activeSearchTerm, selectedCategory, sortBy, fetchGames]);
+
+  // Handle tag click - update search and filter
+  const handleTagClick = (tagName, event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setSearchTerm(tagName);
+    setActiveSearchTerm(tagName);
+    setCurrentPage(1);
+    setLoading(true);
+    navigate(`/catalogue?search=${encodeURIComponent(tagName)}`, { replace: true });
+  };
+
+  const handleSearchKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      setActiveSearchTerm(searchTerm);
+      setCurrentPage(1);
+      setLoading(true);
+    }
+  };
+
+  const handleSearchClick = () => {
+    setActiveSearchTerm(searchTerm);
+    setCurrentPage(1);
+    setLoading(true);
+  };
+
+  const handleAddToCart = async (game) => {
+    if (!user) { navigate('/login'); return; }
+    const { priceInfo } = getGameData(game.id);
+    const productData = {
+      id: game.id,
+      name: game.name,
+      description: game.deck || 'No description available',
+      image: game.image?.original || game.image?.square_small || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=300&h=300&fit=crop',
+      price: priceInfo.currentPrice,
+      originalPrice: priceInfo.hasDiscount ? priceInfo.originalPrice : null,
+      tags: game.genres?.map(g => g.name) || [],
+      hasDiscount: priceInfo.hasDiscount
+    };
+    const success = await addToCart(productData, 1);
+    if (success) setAddedToCart(prev => ({ ...prev, [game.id]: true }));
+  };
+
+  const handleRemoveFromCart = (gameId) => {
+    removeFromCart(gameId);
+    setAddedToCart(prev => ({ ...prev, [gameId]: false }));
+  };
+
+  const getGameData = (gameId) => {
+    if (!gameDataCache[gameId]) {
+      const newData = {
+        rating: generateRandomRating(gameId),
+        priceInfo: generateRandomPrice(gameId)
+      };
+      setGameDataCache(prev => ({ ...prev, [gameId]: newData }));
+      return newData;
+    }
+    return gameDataCache[gameId];
+  };
+
+  // Store scroll position and page number before navigating
+  const saveScrollPosition = () => {
+    sessionStorage.setItem('catalogueScroll', window.scrollY);
+    sessionStorage.setItem('cataloguePage', currentPage);
+  };
+
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages && newPage !== currentPage) {
       setCurrentPage(newPage);
@@ -288,6 +312,7 @@ function Catalogue() {
   const handleGamesPerPageChange = (newGamesPerPage) => {
     setGamesPerPage(newGamesPerPage);
     setCurrentPage(1);
+    window.scrollTo({ top: 0, behavior: 'smooth' }); 
   };
 
   const filteredGames = games.filter(game => {
@@ -354,84 +379,88 @@ function Catalogue() {
     return pages;
   };
 
+  // Initial fetch and filter updates
   useEffect(() => {
     setCurrentPage(1);
     fetchGames(activeSearchTerm, selectedCategory, sortBy, 1);
   }, [activeSearchTerm, selectedCategory, sortBy, fetchGames]);
 
+  // Fetch games when page changes
   useEffect(() => {
     fetchGames(activeSearchTerm, selectedCategory, sortBy, currentPage);
   }, [currentPage, activeSearchTerm, selectedCategory, sortBy, fetchGames]);
 
+  // Reset page and fetch when games per page changes
   useEffect(() => {
     setCurrentPage(1);
     fetchGames(activeSearchTerm, selectedCategory, sortBy, 1);
   }, [gamesPerPage, activeSearchTerm, selectedCategory, sortBy, fetchGames]);
 
-   useEffect(() => {
-     const styleElement = document.createElement("style");
-     styleElement.textContent = globalReset + `
-       @keyframes bounce {
-         0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-         40% { transform: translateY(-10px); }
-         60% { transform: translateY(-5px); }
-       }
-       
-       @keyframes loadingProgress {
-         0% {
-           transform: translateX(-100%);
-         }
-         50% {
-           transform: translateX(0%);
-         }
-         100% {
-           transform: translateX(100%);
-         }
-       }
-       
-       @keyframes pulse {
-         0%, 100% {
-           opacity: 0.3;
-           transform: scale(0.8);
-         }
-         50% {
-           opacity: 1;
-           transform: scale(1.2);
-         }
-       }
-     `;
-     document.head.appendChild(styleElement);
-     
-     return () => {
-       document.head.removeChild(styleElement);
-     };
-   }, []);
+  // Add global styles
+  useEffect(() => {
+    const styleElement = document.createElement("style");
+    styleElement.textContent = globalReset + `
+      @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+        40% { transform: translateY(-10px); }
+        60% { transform: translateY(-5px); }
+      }
+      
+      @keyframes loadingProgress {
+        0% {
+          transform: translateX(-100%);
+        }
+        50% {
+          transform: translateX(0%);
+        }
+        100% {
+          transform: translateX(100%);
+        }
+      }
+      
+      @keyframes pulse {
+        0%, 100% {
+          opacity: 0.3;
+          transform: scale(0.8);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1.2);
+        }
+      }
+    `;
+    document.head.appendChild(styleElement);
+    
+    return () => {
+      document.head.removeChild(styleElement);
+    };
+  }, []);
 
   return (
     <div style={containerStyle}>
       <NavBar currentPage="catalogue" user={user} />
       
-       {loading && (
-         <div style={{
-           position: 'fixed',
-           top: 0,
-           left: 0,
-           right: 0,
-           bottom: 0,
-           backgroundColor: 'rgba(248, 249, 250, 1)',
-           display: 'flex',
-           justifyContent: 'center',
-           alignItems: 'center',
-           zIndex: 1000,
-           backdropFilter: 'blur(5px)'
-         }}>
-           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-             <FaGamepad style={{ fontSize: '3rem', color: '#00AEBB', animation: 'bounce 1s infinite' }} />
-             <FaGamepad style={{ fontSize: '3rem', color: '#F7CA66', animation: 'bounce 1s infinite 0.2s' }} />
-             <FaGamepad style={{ fontSize: '3rem', color: '#00AEBB', animation: 'bounce 1s infinite 0.4s' }} />
-           </div>
-         </div>
-       )}
+      {loading && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(248, 249, 250, 1)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 1000,
+          backdropFilter: 'blur(5px)'
+        }}>
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            <FaGamepad style={{ fontSize: '3rem', color: '#00AEBB', animation: 'bounce 1s infinite' }} />
+            <FaGamepad style={{ fontSize: '3rem', color: '#F7CA66', animation: 'bounce 1s infinite 0.2s' }} />
+            <FaGamepad style={{ fontSize: '3rem', color: '#00AEBB', animation: 'bounce 1s infinite 0.4s' }} />
+          </div>
+        </div>
+      )}
       
       <div style={contentStyle}>
         <div style={headerStyle}>
@@ -502,21 +531,21 @@ function Catalogue() {
             <div style={filterGroupStyle}>
               <h3 style={filterTitleStyle}>Categories</h3>
               <div style={categoryButtonsStyle}>
-                 {categories.map(category => (
-                   <button
-                     key={category}
-                     onClick={() => {
-                       setSelectedCategory(category);
-                       setLoading(true);
-                     }}
-                     style={{
-                       ...categoryButtonStyle,
-                       ...(selectedCategory === category ? activeCategoryStyle : {})
-                     }}
-                   >
-                     {category}
-                   </button>
-                 ))}
+                {categories.map(category => (
+                  <button
+                    key={category}
+                    onClick={() => {
+                      setSelectedCategory(category);
+                      setLoading(true);
+                    }}
+                    style={{
+                      ...categoryButtonStyle,
+                      ...(selectedCategory === category ? activeCategoryStyle : {})
+                    }}
+                  >
+                    {category}
+                  </button>
+                ))}
               </div>
               
               <div style={{ marginTop: '1rem' }}>
@@ -548,16 +577,16 @@ function Catalogue() {
             <div style={filterGroupStyle}>
               <h3 style={filterTitleStyle}>Sort By</h3>
               <div style={enhancedSelectStyles.container}>
-                 <select
-                   value={sortBy}
-                   onChange={(e) => {
-                     setSortBy(e.target.value);
-                     setLoading(true);
-                   }}
-                   onFocus={() => setSelectOpen(true)}
-                   onBlur={() => setSelectOpen(false)}
-                   style={{ ...selectStyle, ...enhancedSelectStyles.select }}
-                 >
+                <select
+                  value={sortBy}
+                  onChange={(e) => {
+                    setSortBy(e.target.value);
+                    setLoading(true);
+                  }}
+                  onFocus={() => setSelectOpen(true)}
+                  onBlur={() => setSelectOpen(false)}
+                  style={{ ...selectStyle, ...enhancedSelectStyles.select }}
+                >
                   {sortOptions.map(option => (
                     <option 
                       key={option.value} 
@@ -597,6 +626,35 @@ function Catalogue() {
                   transform: `translateY(-50%) ${selectOpen ? 'rotate(180deg)' : ''}`
                 }} />
               </div>
+              <div style={{ marginTop: '1rem' }}>
+                <button
+                  onClick={() => {
+                    setSelectedCategory('All');
+                    setShowOnSale(false);
+                    setSortBy('popular');
+                    setGamesPerPage(20);
+                    setSearchTerm('');
+                    setActiveSearchTerm('');
+                    setCurrentPage(1);
+                    setLoading(true);
+                    navigate('/catalogue', { replace: true });
+                  }}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    backgroundColor: '#e74c3c',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '0.5rem',
+                    cursor: 'pointer',
+                    fontWeight: '500',
+                    transition: 'all 0.3s ease'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#c0392b'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#e74c3c'}
+                >
+                  Reset Filters
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -624,7 +682,10 @@ function Catalogue() {
                 key={game.id} 
                 style={gameCardStyle}
                 className="game-card"
-                onClick={() => navigate(`/product/${game.id}`)}
+                onClick={() => {
+                  saveScrollPosition();
+                  navigate(`/product/${game.id}`, { state: { fromProduct: true } });
+                }}
                 title="Click to view product details"
               >
                 <div style={priceContainerStyle} className="price-container">
@@ -789,22 +850,25 @@ function Catalogue() {
                       <FaHeart style={{ marginRight: '0.5rem' }} />
                       {favoritesService.isFavorite(user?.id, game.id) ? 'In Wishlist' : 'Add to Wishlist'}
                     </button>
-                    <button 
+                    <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleAddToCart(game);
+                        if (addedToCart[game.id]) {
+                          handleRemoveFromCart(game.id);
+                        } else {
+                          handleAddToCart(game);
+                        }
                       }}
                       style={{
                         ...addToCartButtonStyle,
                         backgroundColor: addedToCart[game.id] ? '#27ae60' : '#F7CA66',
                         transition: 'all 0.3s ease',
                       }}
-                      disabled={addedToCart[game.id]}
                     >
                       {addedToCart[game.id] ? (
                         <>
                           <FaCheck style={{ marginRight: '0.5rem' }} />
-                          Added to cart
+                          Remove from Cart
                         </>
                       ) : (
                         <>
@@ -830,7 +894,7 @@ function Catalogue() {
             marginBottom: '2rem'
           }}>
             <button
-              onClick={() => handlePageChangeAndScroll(currentPage - 1)}
+              onClick={() => handlePageChangeAndScroll(1)}
               disabled={currentPage === 1}
               style={{
                 ...loadMoreButtonStyle,
@@ -841,7 +905,7 @@ function Catalogue() {
               }}
             >
               <FaChevronLeft style={{ marginRight: '0.25rem' }} />
-              Previous
+              First
             </button>
 
             {getPageNumbers().map(pageNum => (

@@ -13,6 +13,7 @@ import CheckoutProcess from "./pages/checkoutProcess.jsx";
 import AddAddressPage from "./pages/AddAddressPage.jsx";
 import EditAddressPage from "./pages/EditAddressPage.jsx";
 import OrdersPage from "./pages/ordersPage.jsx";
+import UnderConstruction from "./pages/UnderConstruction.jsx";
 import { UserProvider, useUser } from "./contexts/UserContext";
 import { CartProvider } from "./contexts/CartContext";
 
@@ -36,6 +37,8 @@ function AppContent() {
           <Route path="/checkout/add-address" element={<AddAddressPage />} />
           <Route path="/checkout/edit-address/:addressId" element={<EditAddressPage />} />
           <Route path="/orders" element={<OrdersPage />} />
+          <Route path="/underConstruction" element={<UnderConstruction />} />
+
         </Routes>
       </CartProvider>
     </BrowserRouter>

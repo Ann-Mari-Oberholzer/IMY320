@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { FaStar, FaHeart, FaShoppingCart, FaArrowLeft, FaGamepad, FaCheck, FaChevronLeft, FaChevronRight, FaTruck } from "react-icons/fa";
+import { FaStar, FaHeart, FaShoppingCart, FaArrowLeft, FaGamepad, FaCheck, FaChevronLeft, FaChevronRight, FaTruck, FaPlus, FaMinus } from "react-icons/fa";
 import favoritesService from '../services/FavouritesService';
 import NavBar from "../components/NavBar";
 import Footer from "../components/Footer";
@@ -66,7 +66,10 @@ import {
   productInfoValue,
   productDescription,
   productDescriptionTitle,
-  productDescriptionText
+  productDescriptionText,
+  quantityControlsStyle,
+  quantityButtonStyle,
+  quantityInputStyle
 } from "./productStyles";
 import { addToCartButtonStyle } from "./catalogue";
 
@@ -77,69 +80,67 @@ function ProductPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useUser();
-  const { addToCart, isInCart } = useCart();
+  const { addToCart, removeFromCart, cart } = useCart();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [addedToCart, setAddedToCart] = useState(false);
   const [priceInfo, setPriceInfo] = useState(null);
   const [rating, setRating] = useState(null);
   const [quantity, setQuantity] = useState(1);
-  
-  // Similar products state
+  const [addedToCart, setAddedToCart] = useState({}); // Track cart status
   const [similarProducts, setSimilarProducts] = useState([]);
   const [loadingSimilar, setLoadingSimilar] = useState(false);
-  const [similarAddedToCart, setSimilarAddedToCart] = useState({});
   const [similarGameDataCache, setSimilarGameDataCache] = useState({});
   const [similarQuantities, setSimilarQuantities] = useState({});
-  
-  // Carousel state
   const [currentSlide, setCurrentSlide] = useState(0);
-  
-  // Wishlist state to trigger re-renders
   const [wishlistUpdated, setWishlistUpdated] = useState(0);
-  
-  // Cache for generated prices and ratings
   const [gameDataCache, setGameDataCache] = useState({});
 
+  // Sync addedToCart with cart context
+  useEffect(() => {
+    if (cart) {
+      const cartState = {};
+      cart.forEach(item => { cartState[item.id] = true; });
+      setAddedToCart(cartState);
+    }
+  }, [cart]);
+
   const getGameData = (gameId) => {
-      if (!gameDataCache[gameId]) {
-        const newData = {
-          rating: generateRandomRating(gameId),
-          priceInfo: generateRandomPrice(gameId)
-        };
-        setGameDataCache(prev => ({ ...prev, [gameId]: newData }));
-        return newData;
-      }
-      return gameDataCache[gameId];
-    };
-    
-  const toggleWishlist = (currentProduct) => {
-      if (!user?.id) {
-        alert('Please log in to add items to your wishlist');
-        return;
-      }
-  
-      const productData = {
-        id: currentProduct.id,
-        name: currentProduct.name,
-        description: currentProduct.deck || 'No description available',
-        image: currentProduct.image?.original || currentProduct.image?.square_small || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=300&h=300&fit=crop',
-        price: priceInfo?.currentPrice || 0,
-        originalPrice: priceInfo?.hasDiscount ? priceInfo.originalPrice : null,
-        tags: currentProduct.genres?.map(g => g.name) || [],
-        hasDiscount: priceInfo?.hasDiscount || false
+    if (!gameDataCache[gameId]) {
+      const newData = {
+        rating: generateRandomRating(gameId),
+        priceInfo: generateRandomPrice(gameId)
       };
-  
-      if (favoritesService.isFavorite(user.id, currentProduct.id)) {
-        favoritesService.removeFromFavorites(user.id, currentProduct.id);
-      } else {
-        favoritesService.addToFavorites(user.id, productData);
-      }
-      
-      // Force re-render
-      setWishlistUpdated(prev => prev + 1);
+      setGameDataCache(prev => ({ ...prev, [gameId]: newData }));
+      return newData;
+    }
+    return gameDataCache[gameId];
+  };
+
+  const toggleWishlist = (currentProduct) => {
+    if (!user?.id) {
+      alert('Please log in to add items to your wishlist');
+      return;
+    }
+
+    const productData = {
+      id: currentProduct.id,
+      name: currentProduct.name,
+      description: currentProduct.deck || 'No description available',
+      image: currentProduct.image?.original || currentProduct.image?.square_small || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=300&h=300&fit=crop',
+      price: priceInfo?.currentPrice || 0,
+      originalPrice: priceInfo?.hasDiscount ? priceInfo.originalPrice : null,
+      tags: currentProduct.genres?.map(g => g.name) || [],
+      hasDiscount: priceInfo?.hasDiscount || false
     };
+
+    if (favoritesService.isFavorite(user.id, currentProduct.id)) {
+      favoritesService.removeFromFavorites(user.id, currentProduct.id);
+    } else {
+      favoritesService.addToFavorites(user.id, productData);
+    }
+    setWishlistUpdated(prev => prev + 1);
+  };
 
   // Fetch product data
   useEffect(() => {
@@ -149,31 +150,22 @@ function ProductPage() {
         setError("");
 
         const response = await fetch(`${API_BASE}/api/games/${id}`);
-        
         if (!response.ok) {
           throw new Error(`Failed to fetch product: ${response.status}`);
         }
 
         const data = await response.json();
-        
-        // Check if we got valid product data
         if (!data || !data.id) {
           throw new Error('Invalid product data received');
         }
-        
+
         setProduct(data);
-        
-        // Generate price and rating only once when product is loaded
         setPriceInfo(generateRandomPrice(data.id));
         setRating(generateRandomRating(data.id));
-        
-        // Ensure loading screen shows for at least 3 seconds
         await new Promise(resolve => setTimeout(resolve, 3000));
-        
       } catch (err) {
         setError(err.message || "Failed to load product");
         console.error("Error fetching product:", err);
-        // Still wait 3 seconds even on error for consistent UX
         await new Promise(resolve => setTimeout(resolve, 3000));
       } finally {
         setLoading(false);
@@ -185,51 +177,40 @@ function ProductPage() {
     }
   }, [id]);
 
-  // Fetch similar products based on current product's genres or platforms
+  // Fetch similar products
   useEffect(() => {
     const fetchSimilarProducts = async () => {
       if (!product) return;
-      
       setLoadingSimilar(true);
       try {
         let searchFilter = '';
-        
-        // First try to find by genres
         if (product.genres && product.genres.length > 0) {
-          // Use the first genre for filtering
-          const genreName = product.genres[0].name;
-          searchFilter = genreName;
+          searchFilter = product.genres[0].name;
         } else if (product.platforms && product.platforms.length > 0) {
-          // Fallback to platform if no genres
           const platformIds = product.platforms.map(p => p.id).slice(0, 2).join(',');
           searchFilter = `platforms:${platformIds}`;
         }
 
         if (searchFilter) {
-            const response = await fetch(
-              `${API_BASE}/api/games?${
-                product.genres && product.genres.length > 0 
-                  ? `search=${encodeURIComponent(searchFilter)}`
-                  : `filter=${encodeURIComponent(searchFilter)}`
-              }&limit=3&field_list=id,name,image,deck,genres,platforms,original_release_date`
-            );
-            
-            if (response.ok) {
-              const data = await response.json();
-              // Filter out the current product and limit to 3 items for carousel
-              const filtered = (data.results || [])
-                .filter(game => game.id !== parseInt(id))
-                .slice(0, 3);
-              setSimilarProducts(filtered);
-            }
+          const response = await fetch(
+            `${API_BASE}/api/games?${
+              product.genres && product.genres.length > 0
+                ? `search=${encodeURIComponent(searchFilter)}`
+                : `filter=${encodeURIComponent(searchFilter)}`
+            }&limit=3&field_list=id,name,image,deck,genres,platforms,original_release_date`
+          );
+
+          if (response.ok) {
+            const data = await response.json();
+            const filtered = (data.results || [])
+              .filter(game => game.id !== parseInt(id))
+              .slice(0, 3);
+            setSimilarProducts(filtered);
+          }
         }
-        
-        // Ensure loading screen shows for at least 3 seconds
         await new Promise(resolve => setTimeout(resolve, 3000));
-        
       } catch (error) {
         console.error('Error fetching similar products:', error);
-        // Still wait 3 seconds even on error for consistent UX
         await new Promise(resolve => setTimeout(resolve, 3000));
       } finally {
         setLoadingSimilar(false);
@@ -239,132 +220,45 @@ function ProductPage() {
     fetchSimilarProducts();
   }, [product, id]);
 
-  // Inject CSS animations and responsive styles
+  // CSS animations and responsive styles
   useEffect(() => {
     const styleElement = document.createElement("style");
     styleElement.textContent = bounceAnimation + spinAnimation + `
       @media (max-width: 1024px) {
-        .product-layout {
-          flex-direction: column !important;
-        }
-        .product-layout > div:first-child {
-          flex: none !important;
-          min-width: 100% !important;
-        }
-        .product-layout > div:last-child {
-          flex: none !important;
-          max-width: 100% !important;
-          position: static !important;
-        }
-        .carousel-container {
-          max-width: 100% !important;
-          gap: 12px !important;
-          padding: 0 50px !important;
-          overflow: visible !important;
-        }
-        .carousel-track {
-          gap: 1rem !important;
-          overflow: visible !important;
-          justify-content: flex-start !important;
-          padding-left: 0px !important;
-          margin-left: -15px !important;
-        }
-        .carousel-slide {
-          width: 280px !important;
-          flex: 0 0 280px !important;
-          justify-content: center !important;
-        }
-        .carousel-button {
-          width: 45px !important;
-          height: 45px !important;
-          font-size: 1.1rem !important;
-        }
+        .product-layout { flex-direction: column !important; }
+        .product-layout > div:first-child { flex: none !important; min-width: 100% !important; }
+        .product-layout > div:last-child { flex: none !important; max-width: 100% !important; position: static !important; }
+        .carousel-container { max-width: 100% !important; gap: 12px !important; padding: 0 50px !important; overflow: visible !important; }
+        .carousel-track { gap: 1rem !important; overflow: visible !important; justify-content: flex-start !important; padding-left: 0px !important; margin-left: -15px !important; }
+        .carousel-slide { width: 280px !important; flex: 0 0 280px !important; justify-content: center !important; }
+        .carousel-button { width: 45px !important; height: 45px !important; font-size: 1.1rem !important; }
       }
       @media (max-width: 768px) {
-        .product-container {
-          padding: 16px !important;
-        }
-        .product-layout > div:first-child > div:first-child {
-          flex-direction: column !important;
-          text-align: center !important;
-        }
-        .product-layout > div:first-child > div:first-child img {
-          width: 100% !important;
-          max-width: 300px !important;
-          height: 300px !important;
-          margin: 0 auto !important;
-        }
-        .carousel-container {
-          max-width: 100% !important;
-          gap: 8px !important;
-          padding: 0 40px !important;
-          overflow: visible !important;
-        }
-        .carousel-track {
-          gap: 0.75rem !important;
-          overflow: visible !important;
-          justify-content: flex-start !important;
-          padding-left: 0px !important;
-          margin-left: -10px !important;
-        }
-        .carousel-slide {
-          width: 240px !important;
-          flex: 0 0 240px !important;
-          justify-content: center !important;
-        }
-        .carousel-button {
-          width: 40px !important;
-          height: 40px !important;
-          font-size: 1rem !important;
-        }
+        .product-container { padding: 16px !important; }
+        .product-layout > div:first-child > div:first-child { flex-direction: column !important; text-align: center !important; }
+        .product-layout > div:first-child > div:first-child img { width: 100% !important; max-width: 300px !important; height: 300px !important; margin: 0 auto !important; }
+        .carousel-container { max-width: 100% !important; gap: 8px !important; padding: 0 40px !important; overflow: visible !important; }
+        .carousel-track { gap: 0.75rem !important; overflow: visible !important; justify-content: flex-start !important; padding-left: 0px !important; margin-left: -10px !important; }
+        .carousel-slide { width: 240px !important; flex: 0 0 240px !important; justify-content: center !important; }
+        .carousel-button { width: 40px !important; height: 40px !important; font-size: 1rem !important; }
       }
       @media (max-width: 480px) {
-        .product-container {
-          padding: 12px !important;
-        }
-        .back-button {
-          padding: 0.5rem 1rem !important;
-          font-size: 0.9rem !important;
-        }
-        .similar-section {
-          padding: 20px !important;
-        }
-        .product-layout > div:first-child > div:first-child img {
-          height: 250px !important;
-        }
-        .carousel-container {
-          max-width: 100% !important;
-          gap: 4px !important;
-          padding: 0 30px !important;
-          overflow: visible !important;
-        }
-        .carousel-track {
-          gap: 0.5rem !important;
-          overflow: visible !important;
-          justify-content: flex-start !important;
-          padding-left: 0px !important;
-          margin-left: -8px !important;
-        }
-        .carousel-slide {
-          width: 200px !important;
-          flex: 0 0 200px !important;
-          justify-content: center !important;
-        }
-        .carousel-button {
-          width: 35px !important;
-          height: 35px !important;
-          font-size: 0.9rem !important;
-        }
+        .product-container { padding: 12px !important; }
+        .back-button { padding: 0.5rem 1rem !important; font-size: 0.9rem !important; }
+        .similar-section { padding: 20px !important; }
+        .product-layout > div:first-child > div:first-child img { height: 250px !important; }
+        .carousel-container { max-width: 100% !important; gap: 4px !important; padding: 0 30px !important; overflow: visible !important; }
+        .carousel-track { gap: 0.5rem !important; overflow: visible !important; justify-content: flex-start !important; padding-left: 0px !important; margin-left: -8px !important; }
+        .carousel-slide { width: 200px !important; flex: 0 0 200px !important; justify-content: center !important; }
+        .carousel-button { width: 35px !important; height: 35px !important; font-size: 0.9rem !important; }
       }
     `;
     document.head.appendChild(styleElement);
-    
     return () => {
       document.head.removeChild(styleElement);
     };
   }, []);
 
-  // Generate and cache data for similar products
   const getSimilarGameData = (gameId) => {
     if (!similarGameDataCache[gameId]) {
       const newData = {
@@ -377,32 +271,47 @@ function ProductPage() {
     return similarGameDataCache[gameId];
   };
 
-  const handleSimilarAddToCart = async (game) => {
+  const handleAddToCart = async (productData, qty) => {
     if (!user) {
-      alert('Please log in to add items to cart');
+      navigate('/login');
       return;
     }
+    const success = await addToCart(productData, qty);
+    if (success) {
+      setAddedToCart(prev => ({ ...prev, [productData.id]: true }));
+    }
+  };
 
-    const gameData = getSimilarGameData(game.id);
+  const handleRemoveFromCart = (productId) => {
+    removeFromCart(productId);
+    setAddedToCart(prev => ({ ...prev, [productId]: false }));
+  };
+
+  const handleSimilarAddToCart = async (game) => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    const { priceInfo } = getSimilarGameData(game.id);
     const productData = {
       id: game.id,
       name: game.name,
-      description: game.deck || 'Immerse yourself in an exciting gaming adventure that combines engaging gameplay mechanics with stunning visuals and immersive storytelling. This game delivers hours of entertainment with its carefully crafted world, challenging objectives, and rewarding progression system. Whether you\'re a casual gamer or a hardcore enthusiast, this title offers something for everyone with its diverse gameplay elements and polished presentation.',
+      description: game.deck || 'Immerse yourself in an exciting gaming adventure...',
       image: game.image?.original || game.image?.square_small || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=300&h=300&fit=crop',
-      price: parseFloat(gameData.priceInfo.currentPrice),
-      originalPrice: gameData.priceInfo.originalPrice ? parseFloat(gameData.priceInfo.originalPrice) : null,
+      price: parseFloat(priceInfo.currentPrice),
+      originalPrice: priceInfo.hasDiscount ? parseFloat(priceInfo.originalPrice) : null,
       tags: game.genres?.map(g => g.name) || [],
-      hasDiscount: gameData.priceInfo.hasDiscount
+      hasDiscount: priceInfo.hasDiscount
     };
-
-    const quantity = similarQuantities[game.id] || 1;
-    const success = await addToCart(productData, quantity);
+    const success = await addToCart(productData, 1);
     if (success) {
-      setSimilarAddedToCart(prev => ({ ...prev, [game.id]: true }));
-      setTimeout(() => {
-        setSimilarAddedToCart(prev => ({ ...prev, [game.id]: false }));
-      }, 3000);
+      setAddedToCart(prev => ({ ...prev, [game.id]: true }));
     }
+  };
+
+  const handleSimilarRemoveFromCart = (gameId) => {
+    removeFromCart(gameId);
+    setAddedToCart(prev => ({ ...prev, [gameId]: false }));
   };
 
   const toggleSimilarWishlist = (game) => {
@@ -410,16 +319,16 @@ function ProductPage() {
       alert('Please log in to add items to your wishlist');
       return;
     }
-
+    const { priceInfo } = getSimilarGameData(game.id);
     const productData = {
       id: game.id,
       name: game.name,
       description: game.deck || 'No description available',
       image: game.image?.original || game.image?.square_small || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=300&h=300&fit=crop',
-      price: parseFloat(game.currentPrice || 0),
-      originalPrice: game.originalPrice ? parseFloat(game.originalPrice) : null,
+      price: parseFloat(priceInfo.currentPrice || 0),
+      originalPrice: priceInfo.hasDiscount ? parseFloat(priceInfo.originalPrice) : null,
       tags: game.genres?.map(g => g.name) || [],
-      hasDiscount: game.hasDiscount || false
+      hasDiscount: priceInfo.hasDiscount || false
     };
 
     if (favoritesService.isFavorite(user.id, game.id)) {
@@ -429,7 +338,6 @@ function ProductPage() {
     }
   };
 
-  // Carousel navigation functions for 3-card display
   const nextSlide = () => {
     if (similarProducts.length <= 3) return;
     setCurrentSlide((prev) => Math.min(prev + 1, similarProducts.length - 3));
@@ -443,7 +351,6 @@ function ProductPage() {
     setCurrentSlide(index);
   };
 
-  // Get the 3 products to display
   const getVisibleProducts = () => {
     if (similarProducts.length <= 3) {
       return similarProducts;
@@ -451,26 +358,21 @@ function ProductPage() {
     return similarProducts.slice(currentSlide, currentSlide + 3);
   };
 
-  // Get the main product image - prioritize original, then fallback to others
   const getMainProductImage = () => {
     if (!product) return "/controllers.jpg";
-    
     if (product.image?.original) return product.image.original;
-    
     return "/controllers.jpg";
   };
 
-  // Handle tag click - navigate to catalogue with filter
   const handleTagClick = (tagName, event) => {
     event.preventDefault();
     event.stopPropagation();
     navigate(`/catalogue?search=${encodeURIComponent(tagName)}`);
   };
 
-  // Similar Products Component - Image-focused carousel card
   const SimilarProductCard = ({ game }) => {
     const { rating, priceInfo } = getSimilarGameData(game.id);
-    
+
     return (
       <div
         className="similar-card-item"
@@ -481,7 +383,6 @@ function ProductPage() {
           width: "300px",
           cursor: "pointer",
           boxShadow: "0 8px 25px rgba(0, 0, 0, 0.12)",
-          // transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
           display: "flex",
           flexDirection: "column",
           height: "100%",
@@ -491,15 +392,12 @@ function ProductPage() {
         }}
         onClick={() => navigate(`/product/${game.id}`)}
         onMouseEnter={(e) => {
-          // e.currentTarget.style.transform = 'translateY(-15px) scale(1.02)';
           e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.15)';
         }}
         onMouseLeave={(e) => {
-          // e.currentTarget.style.transform = 'translateY(0) scale(1)';
           e.currentTarget.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.12)';
         }}
       >
-        {/* Image Container with Overlay */}
         <div style={{
           position: "relative",
           width: "100%",
@@ -514,17 +412,8 @@ function ProductPage() {
               width: '100%',
               height: '100%',
               objectFit: 'cover',
-              // transition: 'transform 0.4s ease',
             }}
-            // onMouseEnter={(e) => {
-            //   e.target.style.transform = 'scale(1.1)';
-            // }}
-            // onMouseLeave={(e) => {
-            //   e.target.style.transform = 'scale(1)';
-            // }}
           />
-          
-          {/* Gradient Overlay */}
           <div style={{
             position: "absolute",
             bottom: "0",
@@ -536,7 +425,6 @@ function ProductPage() {
             alignItems: "flex-end",
             padding: "12px",
           }}>
-            {/* Rating Badge */}
             <div style={{
               display: "flex",
               alignItems: "center",
@@ -553,8 +441,6 @@ function ProductPage() {
             </div>
           </div>
         </div>
-        
-        {/* Content */}
         <div style={{
           padding: "20px",
           display: "flex",
@@ -574,8 +460,6 @@ function ProductPage() {
           }}>
             {game.name}
           </h3>
-
-          {/* Tags */}
           <div style={{
             display: 'flex',
             gap: '0.25rem',
@@ -583,8 +467,8 @@ function ProductPage() {
             marginBottom: '0.5rem'
           }}>
             {game.genres?.slice(0, 2).map(genre => (
-              <span 
-                key={genre.id} 
+              <span
+                key={genre.id}
                 onClick={(e) => handleTagClick(genre.name, e)}
                 style={{
                   backgroundColor: '#f0f7ff',
@@ -613,8 +497,8 @@ function ProductPage() {
                 {genre.name}
               </span>
             )) || game.platforms?.slice(0, 2).map(platform => (
-              <span 
-                key={platform.id} 
+              <span
+                key={platform.id}
                 onClick={(e) => handleTagClick(platform.abbreviation || platform.name, e)}
                 style={{
                   backgroundColor: '#f0f7ff',
@@ -644,8 +528,6 @@ function ProductPage() {
               </span>
             ))}
           </div>
-
-          {/* Price */}
           <div style={{
             display: "flex",
             alignItems: "center",
@@ -682,8 +564,6 @@ function ProductPage() {
               </span>
             )}
           </div>
-
-          {/* Action Buttons - Compact */}
           <div style={{
             display: "flex",
             gap: "8px",
@@ -692,11 +572,15 @@ function ProductPage() {
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                handleSimilarAddToCart(game);
+                if (addedToCart[game.id]) {
+                  handleSimilarRemoveFromCart(game.id);
+                } else {
+                  handleSimilarAddToCart(game);
+                }
               }}
               style={{
                 padding: "12px 20px",
-                backgroundColor: similarAddedToCart[game.id] ? '#27ae60' : '#F7CA66',
+                backgroundColor: addedToCart[game.id] ? '#27ae60' : '#F7CA66',
                 color: "#fff",
                 fontSize: "0.9rem",
                 fontWeight: "600",
@@ -709,14 +593,13 @@ function ProductPage() {
                 justifyContent: "center",
                 gap: "6px",
                 flex: "1",
-                boxShadow: "0 4px 12px rgba(247, 202, 102, 0.4)",
+                boxShadow: addedToCart[game.id] ? "0 4px 12px rgba(39, 174, 96, 0.4)" : "0 4px 12px rgba(247, 202, 102, 0.4)",
               }}
-              disabled={similarAddedToCart[game.id]}
             >
-              {similarAddedToCart[game.id] ? (
+              {addedToCart[game.id] ? (
                 <>
                   <FaCheck />
-                  Added to cart
+                  Remove from Cart
                 </>
               ) : (
                 <>
@@ -725,7 +608,6 @@ function ProductPage() {
                 </>
               )}
             </button>
-            
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -821,7 +703,7 @@ function ProductPage() {
           gap: '1rem'
         }}>
           <p style={{ color: '#e74c3c' }}>Error: {error || 'Product not found'}</p>
-          <button 
+          <button
             onClick={() => navigate('/catalogue')}
             style={{
               padding: '0.75rem 1.5rem',
@@ -844,8 +726,6 @@ function ProductPage() {
     <div style={big}>
       <NavBar currentPage="product" user={user} />
       <div style={container} className="product-container">
-        
-        {/* Back button */}
         <button
           onClick={() => navigate('/catalogue')}
           className="back-button"
@@ -881,15 +761,12 @@ function ProductPage() {
           Back to Catalogue
         </button>
 
-        {/* Main Product Layout - Similar to Shopping Cart */}
         <div style={{
           display: 'flex',
           gap: '2rem',
           alignItems: 'flex-start',
           flexWrap: 'wrap'
         }} className="product-layout">
-          
-          {/* Left: Product Details */}
           <div style={{
             flex: '3',
             display: 'flex',
@@ -897,7 +774,6 @@ function ProductPage() {
             gap: '2rem',
             minWidth: '400px'
           }}>
-            {/* Product Image and Basic Info with Game Details */}
             <div style={{
               backgroundColor: '#fff',
               borderRadius: '1rem',
@@ -917,10 +793,8 @@ function ProductPage() {
                   objectFit: 'cover',
                   backgroundColor: '#f0f0f0',
                   flexShrink: 0,
-                  // marginTop: '4rem'
                 }}
               />
-              
               <div style={{ flex: 1, minWidth: 0 }}>
                 <h1 style={{
                   fontSize: '2rem',
@@ -931,17 +805,14 @@ function ProductPage() {
                 }}>
                   {product.name}
                 </h1>
-                
                 <p style={{
                   fontSize: '1rem',
                   color: '#666',
                   margin: '0 0 1rem 0',
                   lineHeight: '1.6'
                 }}>
-                  {product.deck || "Immerse yourself in an exciting gaming adventure that combines engaging gameplay mechanics with stunning visuals and immersive storytelling. This game delivers hours of entertainment with its carefully crafted world, challenging objectives, and rewarding progression system. Whether you're a casual gamer or a hardcore enthusiast, this title offers something for everyone with its diverse gameplay elements and polished presentation."}
+                  {product.deck || "Immerse yourself in an exciting gaming adventure..."}
                 </p>
-
-                {/* Categories/Tags */}
                 <div style={{
                   display: 'flex',
                   gap: '0.5rem',
@@ -949,8 +820,8 @@ function ProductPage() {
                   marginBottom: '1rem'
                 }}>
                   {product.genres?.slice(0, 4).map(genre => (
-                    <span 
-                      key={genre.id} 
+                    <span
+                      key={genre.id}
                       onClick={(e) => handleTagClick(genre.name, e)}
                       style={{
                         backgroundColor: '#f0f7ff',
@@ -979,8 +850,8 @@ function ProductPage() {
                       {genre.name}
                     </span>
                   )) || product.platforms?.slice(0, 3).map(platform => (
-                    <span 
-                      key={platform.id} 
+                    <span
+                      key={platform.id}
                       onClick={(e) => handleTagClick(platform.abbreviation || platform.name, e)}
                       style={{
                         backgroundColor: '#f0f7ff',
@@ -1021,8 +892,6 @@ function ProductPage() {
                     </span>
                   )}
                 </div>
-
-                {/* Rating */}
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -1038,45 +907,41 @@ function ProductPage() {
                     {rating}
                   </span>
                   <span style={{color: '#999', fontSize: '0.9rem'}}>(150 reviews)</span>
-            </div>
-
-                {/* Game Details - Inline */}
-              <div style={{
-                backgroundColor: '#f8f9fa',
+                </div>
+                <div style={{
+                  backgroundColor: '#f8f9fa',
                   padding: '1rem',
                   borderRadius: '0.5rem',
                   fontSize: '0.9rem',
-                color: '#444',
+                  color: '#444',
                   border: '1px solid #e9ecef',
                   marginTop: '1rem'
-              }}>
+                }}>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.5rem', lineHeight: '1.5' }}>
-                  {product.original_release_date && (
+                    {product.original_release_date && (
                       <div><strong>Release Date:</strong> {new Date(product.original_release_date).toLocaleDateString()}</div>
-                  )}
-                  {product.platforms && (
+                    )}
+                    {product.platforms && (
                       <div><strong>Platforms:</strong> {product.platforms.map(p => p.name || p.abbreviation).join(', ')}</div>
-                  )}
-                  {product.genres && (
+                    )}
+                    {product.genres && (
                       <div><strong>Genres:</strong> {product.genres.map(g => g.name).join(', ')}</div>
-                  )}
-                  {product.site_detail_url && (
+                    )}
+                    {product.site_detail_url && (
                       <div>
-                        <strong>More Info:</strong> 
-                      <a 
-                        href={product.site_detail_url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
+                        <strong>More Info:</strong>
+                        <a
+                          href={product.site_detail_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
                           style={{ color: '#00AEBB', textDecoration: 'none', marginLeft: '4px' }}
-                      >
-                        View on GameSpot
-                      </a>
+                        >
+                          View on GameSpot
+                        </a>
                       </div>
                     )}
                   </div>
                 </div>
-
-                {/* Quantity Selector and Action Buttons - Left Side */}
                 <div style={{ marginTop: '1.5rem' }}>
                   <label style={{
                     display: 'block',
@@ -1093,15 +958,15 @@ function ProductPage() {
                     gap: '1rem',
                     marginBottom: '1rem'
                   }}>
-                    {/* Smaller Quantity Controls */}
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      border: '1px solid #e9ecef',
-                      borderRadius: '0.4rem',
-                      overflow: 'hidden',
-                      backgroundColor: '#fff'
-                    }}>
+                    <div style={quantityControlsStyle}>
+                      <button
+                        style={quantityButtonStyle}
+                        onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
+                        disabled={quantity <= 1}
+                        className="quantity-button"
+                      >
+                        <FaMinus />
+                      </button>
                       <input
                         type="number"
                         min="1"
@@ -1111,106 +976,95 @@ function ProductPage() {
                           const value = parseInt(e.target.value) || 1;
                           setQuantity(Math.max(1, Math.min(99, value)));
                         }}
-                        style={{
-                          width: '40px',
-                          padding: '0.25rem 0.1rem',
-                          textAlign: 'center',
-                          border: 'none',
-                          fontSize: '0.8rem',
-                          fontWeight: '600',
-                          outline: 'none',
-                          backgroundColor: '#fff',
-                          height: '32px',
-                          color: 'black',
-                        }}
+                        style={quantityInputStyle}
                       />
+                      <button
+                        style={quantityButtonStyle}
+                        onClick={() => setQuantity(prev => Math.min(99, prev + 1))}
+                        className="quantity-button"
+                      >
+                        <FaPlus />
+                      </button>
                     </div>
-
-                    {/* Action Buttons - Side by Side */}
                     <div style={{
                       display: 'flex',
                       gap: '0.75rem'
                     }}>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleWishlist(product);
-                      }}
-                      style={{
-                        ...wishlistButtonNewStyle,
-                        backgroundColor: user?.id && favoritesService.isFavorite(user.id, product.id) ? '#3c89e7ff' : '#fff',
-                        borderColor: user?.id && favoritesService.isFavorite(user.id, product.id) ? '#3c89e7ff' : '#ddd',
-                        color: user?.id && favoritesService.isFavorite(user.id, product.id) ? '#fff' : '#666',
-                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                        transform: 'translateY(0)',
-                        boxShadow: user?.id && favoritesService.isFavorite(user.id, product.id) ? '0 4px 12px rgba(60, 137, 231, 0.3)' : '0 2px 8px rgba(0,0,0,0.1)',
-                      }}
-                      title={user?.id && favoritesService.isFavorite(user.id, product.id) ? "Remove from wishlist" : "Add to wishlist"}
-                      onMouseEnter={(e) => {
-                        if (user?.id && favoritesService.isFavorite(user.id, product.id)) {
-                          e.target.style.transform = 'translateY(-2px) scale(1.02)';
-                          e.target.style.boxShadow = '0 6px 16px rgba(60, 137, 231, 0.4)';
-                          e.target.style.backgroundColor = '#3c89e7ff';
-                        } else {
-                          e.target.style.transform = 'translateY(-2px) scale(1.02)';
-                          e.target.style.boxShadow = '0 4px 12px rgba(60, 137, 231, 0.3)';
-                          e.target.style.backgroundColor = '#3c89e7ff';
-                          e.target.style.borderColor = '#3c89e7ff';
-                          e.target.style.color = '#fff';
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (user?.id && favoritesService.isFavorite(user.id, product.id)) {
-                          e.target.style.transform = 'translateY(0) scale(1)';
-                          e.target.style.boxShadow = '0 4px 12px rgba(60, 137, 231, 0.3)';
-                          e.target.style.backgroundColor = '#3c89e7ff';
-                        } else {
-                          e.target.style.transform = 'translateY(0) scale(1)';
-                          e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
-                          e.target.style.backgroundColor = '#fff';
-                          e.target.style.borderColor = '#ddd';
-                          e.target.style.color = '#666';
-                        }
-                      }}
-                    >
-                      <FaHeart style={{ marginRight: '0.5rem' }} />
-                      {favoritesService.isFavorite(user?.id, product.id) ? 'In Wishlist' : 'Add to Wishlist'}
-                    </button>
-                    <button
-                        onClick={async () => {
-                          if (!user) {
-                            alert('Please log in to add items to cart');
-                            return;
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleWishlist(product);
+                        }}
+                        style={{
+                          ...wishlistButtonNewStyle,
+                          backgroundColor: user?.id && favoritesService.isFavorite(user.id, product.id) ? '#3c89e7ff' : '#fff',
+                          borderColor: user?.id && favoritesService.isFavorite(user.id, product.id) ? '#3c89e7ff' : '#ddd',
+                          color: user?.id && favoritesService.isFavorite(user.id, product.id) ? '#fff' : '#666',
+                          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                          transform: 'translateY(0)',
+                          boxShadow: user?.id && favoritesService.isFavorite(user.id, product.id) ? '0 4px 12px rgba(60, 137, 231, 0.3)' : '0 2px 8px rgba(0,0,0,0.1)',
+                        }}
+                        title={user?.id && favoritesService.isFavorite(user.id, product.id) ? "Remove from wishlist" : "Add to wishlist"}
+                        onMouseEnter={(e) => {
+                          if (user?.id && favoritesService.isFavorite(user.id, product.id)) {
+                            e.target.style.transform = 'translateY(-2px) scale(1.02)';
+                            e.target.style.boxShadow = '0 6px 16px rgba(60, 137, 231, 0.4)';
+                            e.target.style.backgroundColor = '#3c89e7ff';
+                          } else {
+                            e.target.style.transform = 'translateY(-2px) scale(1.02)';
+                            e.target.style.boxShadow = '0 4px 12px rgba(60, 137, 231, 0.3)';
+                            e.target.style.backgroundColor = '#3c89e7ff';
+                            e.target.style.borderColor = '#3c89e7ff';
+                            e.target.style.color = '#fff';
                           }
-
+                        }}
+                        onMouseLeave={(e) => {
+                          if (user?.id && favoritesService.isFavorite(user.id, product.id)) {
+                            e.target.style.transform = 'translateY(0) scale(1)';
+                            e.target.style.boxShadow = '0 4px 12px rgba(60, 137, 231, 0.3)';
+                            e.target.style.backgroundColor = '#3c89e7ff';
+                          } else {
+                            e.target.style.transform = 'translateY(0) scale(1)';
+                            e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                            e.target.style.backgroundColor = '#fff';
+                            e.target.style.borderColor = '#ddd';
+                            e.target.style.color = '#666';
+                          }
+                        }}
+                      >
+                        <FaHeart style={{ marginRight: '0.5rem' }} />
+                        {favoritesService.isFavorite(user?.id, product.id) ? 'In Wishlist' : 'Add to Wishlist'}
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
                           const productData = {
                             id: product.id,
                             name: product.name,
-                            description: product.deck || 'Immerse yourself in an exciting gaming adventure that combines engaging gameplay mechanics with stunning visuals and immersive storytelling. This game delivers hours of entertainment with its carefully crafted world, challenging objectives, and rewarding progression system. Whether you\'re a casual gamer or a hardcore enthusiast, this title offers something for everyone with its diverse gameplay elements and polished presentation.',
+                            description: product.deck || 'Immerse yourself in an exciting gaming adventure...',
                             image: product.image?.original || product.image?.square_small || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=300&h=300&fit=crop',
                             price: parseFloat(priceInfo?.currentPrice || 0),
-                            originalPrice: priceInfo?.originalPrice ? parseFloat(priceInfo.originalPrice) : null,
+                            originalPrice: priceInfo?.hasDiscount ? parseFloat(priceInfo.originalPrice) : null,
                             tags: product.genres?.map(g => g.name) || [],
                             hasDiscount: priceInfo?.hasDiscount || false
                           };
-
-                          const success = await addToCart(productData, quantity);
-                          if (success) {
-                            setAddedToCart(true);
-                            setTimeout(() => setAddedToCart(false), 3000);
+                          if (addedToCart[product.id]) {
+                            handleRemoveFromCart(product.id);
+                          } else {
+                            handleAddToCart(productData, quantity);
                           }
                         }}
                         style={{
                           ...addToCartButtonStyle,
-                          backgroundColor: addedToCart ? '#27ae60' : '#F7CA66',
+                          backgroundColor: addedToCart[product.id] ? '#27ae60' : '#F7CA66',
+                          boxShadow: addedToCart[product.id] ? '0 4px 12px rgba(39, 174, 96, 0.4)' : '0 4px 12px rgba(247, 202, 102, 0.4)',
                           transition: 'all 0.3s ease',
                         }}
-                        disabled={addedToCart}
                       >
-                        {addedToCart ? (
+                        {addedToCart[product.id] ? (
                           <>
                             <FaCheck style={{ marginRight: '0.5rem' }} />
-                            Added to Cart
+                            Remove from Cart
                           </>
                         ) : (
                           <>
@@ -1222,12 +1076,9 @@ function ProductPage() {
                     </div>
                   </div>
                 </div>
-
               </div>
             </div>
           </div>
-
-          {/* Right: Add to Cart Summary - Compact */}
           <div style={{
             flex: '1',
             maxWidth: '320px',
@@ -1240,8 +1091,6 @@ function ProductPage() {
             position: 'sticky',
             top: '2rem',
           }}>
-
-            {/* Price Display - Compact */}
             <div style={{
               textAlign: 'center',
               marginBottom: '1rem',
@@ -1278,9 +1127,6 @@ function ProductPage() {
                 </div>
               )}
             </div>
-
-
-            {/* Total Price - Compact */}
             <div style={{
               display: 'flex',
               justifyContent: 'space-between',
@@ -1304,8 +1150,6 @@ function ProductPage() {
                 ${((priceInfo?.currentPrice || 0) * quantity).toFixed(2)}
               </span>
             </div>
-
-            {/* Free Delivery Message */}
             <div style={{
               textAlign: 'center',
               padding: '0.5rem',
@@ -1322,11 +1166,9 @@ function ProductPage() {
               </div>
               <div>Orders over $50 qualify for free shipping</div>
             </div>
-
           </div>
         </div>
 
-        {/* Detailed Product Information Section - Moved Higher */}
         <div style={productInfoSection}>
           <h2 style={{
             ...productInfoTitle,
@@ -1335,21 +1177,16 @@ function ProductPage() {
           }}>
             Product Information
           </h2>
-          
-          {/* Description Section */}
           <div style={productDescription}>
             <h3 style={productDescriptionTitle}>
               <FaGamepad style={{ color: '#00AEBB' }} />
               About This Game
             </h3>
             <p style={productDescriptionText}>
-              {product.deck || "Immerse yourself in an exciting gaming adventure that combines engaging gameplay mechanics with stunning visuals and immersive storytelling. This game delivers hours of entertainment with its carefully crafted world, challenging objectives, and rewarding progression system. Whether you're a casual gamer or a hardcore enthusiast, this title offers something for everyone with its diverse gameplay elements and polished presentation."}
+              {product.deck || "Immerse yourself in an exciting gaming adventure..."}
             </p>
           </div>
-
-          {/* Information Grid */}
           <div style={productInfoGrid}>
-            {/* Game Details Card */}
             <div style={productInfoCard}>
               <h3 style={productInfoCardTitle}>
                 <FaGamepad style={{ color: '#00AEBB' }} />
@@ -1395,10 +1232,10 @@ function ProductPage() {
                   <span style={productInfoValue}>
                     ${priceInfo?.currentPrice.toFixed(2)}
                     {priceInfo?.hasDiscount && (
-                      <span style={{ 
-                        textDecoration: 'line-through', 
-                        color: '#999', 
-                        marginLeft: '8px' 
+                      <span style={{
+                        textDecoration: 'line-through',
+                        color: '#999',
+                        marginLeft: '8px'
                       }}>
                         ${priceInfo.originalPrice.toFixed(2)}
                       </span>
@@ -1407,8 +1244,6 @@ function ProductPage() {
                 </li>
               </ul>
             </div>
-
-            {/* Technical Specifications Card */}
             <div style={productInfoCard}>
               <h3 style={productInfoCardTitle}>
                 <FaGamepad style={{ color: '#00AEBB' }} />
@@ -1447,12 +1282,12 @@ function ProductPage() {
                   <li style={productInfoListItem}>
                     <span style={productInfoLabel}>External Link:</span>
                     <span style={productInfoValue}>
-                      <a 
-                        href={product.site_detail_url} 
-                        target="_blank" 
+                      <a
+                        href={product.site_detail_url}
+                        target="_blank"
                         rel="noopener noreferrer"
-                        style={{ 
-                          color: '#00AEBB', 
+                        style={{
+                          color: '#00AEBB',
                           textDecoration: 'none',
                           fontWeight: '500'
                         }}
@@ -1464,8 +1299,6 @@ function ProductPage() {
                 )}
               </ul>
             </div>
-
-            {/* Purchase Information Card */}
             <div style={productInfoCard}>
               <h3 style={productInfoCardTitle}>
                 <FaShoppingCart style={{ color: '#00AEBB' }} />
@@ -1499,16 +1332,12 @@ function ProductPage() {
           </div>
         </div>
 
-        {/* Similar Products Section - Carousel Layout */}
         {similarProducts.length > 0 && (
           <div style={similarSection} className="similar-section">
             <h2 style={similarSectionTitle}>
               Similar Games You Might Like
             </h2>
-            <p style={similarSectionSubtitle}>
-      
-            </p>
-            
+            <p style={similarSectionSubtitle}></p>
             {loadingSimilar ? (
               <div style={{
                 display: 'flex',
@@ -1524,13 +1353,13 @@ function ProductPage() {
                 border: '1px solid rgba(255, 255, 255, 0.2)',
                 boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
               }}>
-                <FaGamepad style={{ 
-                  fontSize: '2.5rem', 
-                  color: '#00AEBB', 
-                  animation: 'bounce 1s infinite' 
+                <FaGamepad style={{
+                  fontSize: '2.5rem',
+                  color: '#00AEBB',
+                  animation: 'bounce 1s infinite'
                 }} />
-                <p style={{ 
-                  color: '#1E232C', 
+                <p style={{
+                  color: '#1E232C',
                   fontSize: '1.1rem',
                   fontWeight: '600',
                   background: 'linear-gradient(90deg, #00AEBB, #F7CA66)',
@@ -1540,7 +1369,6 @@ function ProductPage() {
               </div>
             ) : (
               <div style={carouselContainer} className="carousel-container">
-                {/* Left Navigation Arrow */}
                 {similarProducts.length > 3 && (
                   <button
                     onClick={prevSlide}
@@ -1552,13 +1380,11 @@ function ProductPage() {
                     disabled={currentSlide === 0}
                     onMouseEnter={(e) => {
                       if (currentSlide > 0) {
-                        // e.target.style.transform = 'translateY(-50%) scale(1.1)';
                         e.target.style.boxShadow = '0 6px 16px rgba(0, 174, 187, 0.4)';
                       }
                     }}
                     onMouseLeave={(e) => {
                       if (currentSlide > 0) {
-                        // e.target.style.transform = 'translateY(-50%) scale(1)';
                         e.target.style.boxShadow = '0 4px 12px rgba(0, 174, 187, 0.3)';
                       }
                     }}
@@ -1566,17 +1392,13 @@ function ProductPage() {
                     <FaChevronLeft />
                   </button>
                 )}
-
-                {/* 3 Cards Display */}
                 <div style={carouselTrack}>
-                  {getVisibleProducts().map((game, index) => (
+                  {getVisibleProducts().map((game) => (
                     <div key={game.id} style={carouselSlide}>
                       <SimilarProductCard game={game} />
                     </div>
                   ))}
                 </div>
-
-                {/* Right Navigation Arrow */}
                 {similarProducts.length > 3 && (
                   <button
                     onClick={nextSlide}
@@ -1588,13 +1410,11 @@ function ProductPage() {
                     disabled={currentSlide >= similarProducts.length - 3}
                     onMouseEnter={(e) => {
                       if (currentSlide < similarProducts.length - 3) {
-                        // e.target.style.transform = 'translateY(-50%) scale(1.1)';
                         e.target.style.boxShadow = '0 6px 16px rgba(0, 174, 187, 0.4)';
                       }
                     }}
                     onMouseLeave={(e) => {
                       if (currentSlide < similarProducts.length - 3) {
-                        // e.target.style.transform = 'translateY(-50%) scale(1)';
                         e.target.style.boxShadow = '0 4px 12px rgba(0, 174, 187, 0.3)';
                       }
                     }}
@@ -1602,8 +1422,6 @@ function ProductPage() {
                     <FaChevronRight />
                   </button>
                 )}
-                
-                {/* Arrow Indicators */}
                 {similarProducts.length > 3 && (
                   <div style={{
                     display: 'flex',
@@ -1625,21 +1443,17 @@ function ProductPage() {
                           borderBottom: '6px solid transparent',
                           backgroundColor: 'transparent',
                           cursor: 'pointer',
-                          // transition: 'all 0.3s ease',
-                          // transform: currentSlide === index * 3 ? 'scale(1.2)' : 'scale(1)',
                           boxShadow: currentSlide === index * 3 ? '0 2px 6px rgba(0, 174, 187, 0.3)' : 'none',
                           margin: '0 4px',
                         }}
                         onMouseEnter={(e) => {
                           if (currentSlide !== index * 3) {
                             e.target.style.borderLeftColor = '#bbb';
-                            // e.target.style.transform = 'scale(1.1)';
                           }
                         }}
                         onMouseLeave={(e) => {
                           if (currentSlide !== index * 3) {
                             e.target.style.borderLeftColor = '#ddd';
-                            // e.target.style.transform = 'scale(1)';
                           }
                         }}
                       />
@@ -1648,17 +1462,13 @@ function ProductPage() {
                 )}
               </div>
             )}
-            
             {similarProducts.length > 0 && !loadingSimilar && (
               <div style={{
                 textAlign: 'center',
                 marginTop: '60px',
                 marginBottom: '20px'
               }}>
-                 <p style={similarSectionSubtitle}>
-      
-      </p>
-      
+                <p style={similarSectionSubtitle}></p>
                 <button
                   onClick={() => navigate('/catalogue')}
                   style={{
@@ -1690,8 +1500,6 @@ function ProductPage() {
           </div>
         )}
       </div>
-      
-      {/* Footer */}
       <Footer />
     </div>
   );

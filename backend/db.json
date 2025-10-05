@@ -454,6 +454,85 @@
         "Adventure"
       ],
       "hasDiscount": false
+    },
+    {
+      "id": 30151,
+      "name": "God of War: Chains of Olympus",
+      "description": "Chains of Olympus sees the return of angry demigod Kratos as he hacks and slashes his way through an ultra-violent adventure on the PSP.",
+      "image": "https://www.gamespot.com/a/uploads/original/1197/11970954/2428273-2219173-box_gowcoo.png",
+      "price": 56,
+      "originalPrice": null,
+      "tags": [
+        "Action",
+        "Adventure"
+      ],
+      "hasDiscount": false
+    },
+    {
+      "id": 19,
+      "name": "Risk",
+      "description": "The best computerized version of Risk yet.",
+      "image": "https://www.gamespot.com/a/uploads/original/box/1/2/5/19-125.jpg",
+      "price": 14,
+      "originalPrice": null,
+      "tags": [
+        "Trivia/Board Game"
+      ],
+      "hasDiscount": false
+    },
+    {
+      "id": 495785,
+      "name": "22 Racing Series: Real-Time Strategy Racing",
+      "description": "Immerse yourself in an exciting gaming adventure...",
+      "image": "https://www.gamespot.com/a/uploads/original/box/9/5/3/4/495785-709534.jpg",
+      "price": 30,
+      "originalPrice": null,
+      "tags": [
+        "Arcade",
+        "Driving/Racing",
+        "VR"
+      ],
+      "hasDiscount": false
+    },
+    {
+      "id": 208,
+      "name": "Commandos: Beyond the Call of Duty",
+      "description": "Beyond the Call of Duty ends up feeling like a shadow of its former self, being both shorter and more frustrating than the original.",
+      "image": "https://www.gamespot.com/a/uploads/original/mig/4/1/3/2/2214132-commando.jpeg",
+      "price": 11,
+      "originalPrice": null,
+      "tags": [
+        "Real-Time",
+        "Strategy"
+      ],
+      "hasDiscount": false
+    },
+    {
+      "id": 56,
+      "name": "Fighter Squadron: The Screamin' Demons over Europe",
+      "description": "Despite the lack of a full campaign, the physics models and top-notch AI make this one of the best dogfighting experiences yet.",
+      "image": "https://www.gamespot.com/a/uploads/original/box/2/6/2/56-262.jpg",
+      "price": 15,
+      "originalPrice": 16.8,
+      "tags": [
+        "Flight",
+        "Simulation"
+      ],
+      "hasDiscount": true
+    },
+    {
+      "id": 151,
+      "name": "John Saul's Blackstone Chronicles: An Adventure in Terror",
+      "description": "The Blackstone Chronicles isn't a bad game. It's just average to a fault.",
+      "image": "https://www.gamespot.com/a/uploads/original/box/5/5/2/151-552.jpg",
+      "price": 59,
+      "originalPrice": null,
+      "tags": [
+        "3D",
+        "Adventure",
+        "First-Person"
+      ],
+      "hasDiscount": false
     }
   ],
   "categories": [
@@ -494,6 +573,13 @@
       "password": "IConquerAll@1",
       "name": "Overlord",
       "createdAt": "2025-09-26T09:08:45.464Z"
+    },
+    {
+      "id": 1759614313707,
+      "email": "lineo@gmail.com",
+      "password": "Pass_123",
+      "name": "Lineo",
+      "createdAt": "2025-10-04T21:45:13.707Z"
     }
   ],
   "orders": [
@@ -516,7 +602,24 @@
     {
       "id": 1,
       "userId": 1,
-      "products": []
+      "products": [
+        {
+          "productId": 2,
+          "quantity": 1,
+          "product": {
+            "id": 2,
+            "name": "Return of Arcade",
+            "description": "For nostalgia buffs, these old games are worth your time and money, though you will miss the feel of the arcade controller.",
+            "image": "https://www.gamespot.com/a/uploads/original/box/1/8/2-18.jpg",
+            "price": 60,
+            "originalPrice": null,
+            "tags": [
+              "Compilation"
+            ],
+            "hasDiscount": false
+          }
+        }
+      ]
     },
     {
       "id": 1757239404606,
@@ -577,6 +680,101 @@
               "Third-Person"
             ],
             "hasDiscount": true
+          }
+        }
+      ]
+    },
+    {
+      "id": 1759609447061,
+      "userId": null,
+      "products": [
+        {
+          "productId": 30151,
+          "quantity": 1,
+          "product": {
+            "id": 30151,
+            "name": "God of War: Chains of Olympus",
+            "description": "Chains of Olympus sees the return of angry demigod Kratos as he hacks and slashes his way through an ultra-violent adventure on the PSP.",
+            "image": "https://www.gamespot.com/a/uploads/original/1197/11970954/2428273-2219173-box_gowcoo.png",
+            "price": 56,
+            "originalPrice": null,
+            "tags": [
+              "Action",
+              "Adventure"
+            ],
+            "hasDiscount": false
+          }
+        }
+      ]
+    },
+    {
+      "id": 1759609835979,
+      "userId": null,
+      "products": [
+        {
+          "productId": 1,
+          "quantity": 1,
+          "product": {
+            "id": 1,
+            "name": "Command & Conquer",
+            "description": "Overall Command & Conquer is a great strategy game and easily the best available on the PlayStation.",
+            "image": "https://www.gamespot.com/a/uploads/original/mig/0/9/6/2/2210962-cncbox.jpg",
+            "price": 59,
+            "originalPrice": 69.03,
+            "tags": [
+              "Real-Time",
+              "Strategy"
+            ],
+            "hasDiscount": true
+          }
+        }
+      ]
+    },
+    {
+      "id": 1759614719713,
+      "userId": 1759614313707,
+      "products": []
+    },
+    {
+      "id": 1759622396046,
+      "userId": null,
+      "products": [
+        {
+          "productId": 3,
+          "quantity": 1,
+          "product": {
+            "id": 3,
+            "name": "The Dig",
+            "description": "In almost every sense, The Dig represents a leap backwards from LucasArts' previous group of adventure games.",
+            "image": "https://www.gamespot.com/a/uploads/original/mig/0/0/4/6/2210046-the_dig_box_front_6570x8280.jpg",
+            "price": 10,
+            "originalPrice": 10,
+            "tags": [
+              "Adventure"
+            ],
+            "hasDiscount": false
+          }
+        }
+      ]
+    },
+    {
+      "id": 1759622401920,
+      "userId": null,
+      "products": [
+        {
+          "productId": 3,
+          "quantity": 1,
+          "product": {
+            "id": 3,
+            "name": "The Dig",
+            "description": "In almost every sense, The Dig represents a leap backwards from LucasArts' previous group of adventure games.",
+            "image": "https://www.gamespot.com/a/uploads/original/mig/0/0/4/6/2210046-the_dig_box_front_6570x8280.jpg",
+            "price": 10,
+            "originalPrice": 10,
+            "tags": [
+              "Adventure"
+            ],
+            "hasDiscount": false
           }
         }
       ]
