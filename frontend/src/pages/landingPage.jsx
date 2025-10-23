@@ -153,39 +153,37 @@ function LandingPage() {
   };
 
   const getCardStyle = (index) => ({
-    backgroundColor: hoveredIndex === index ? "#00AEBB" : "#ffffff",
-    color: hoveredIndex === index ? "#ffffff" : "#1E232C",
+    backgroundColor: "#ffffff", // always white
+    color: "#1E232C",
+    border: hoveredIndex === index ? "4px solid #00AEBB" : "4px solid transparent",
     borderRadius: "20px",
     padding: "1.5rem",
     width: "280px",
-    cursor: "pointer",
     boxShadow:
       hoveredIndex === index
         ? "0 15px 30px rgba(0,0,0,0.1)"
         : "0 5px 15px rgba(0,0,0,0.05)",
-    transform: hoveredIndex === index ? "translateY(-10px)" : "none",
     transition: "all 0.3s ease"
   });
 
   const getCategoryCardStyle = (index) => ({
-    backgroundColor: hoveredCategoryIndex === index ? "#00AEBB" : "#ffffff",
-    color: hoveredCategoryIndex === index ? "#ffffff" : "#1E232C",
+    backgroundColor: "#ffffff", // always white
+    color: "#1E232C",
+    border: hoveredCategoryIndex === index ? "4px solid #00AEBB" : "4px solid transparent",
     borderRadius: "20px",
     padding: "1.5rem",
     width: "280px",
-    cursor: "pointer",
     boxShadow:
       hoveredCategoryIndex === index
         ? "0 15px 30px rgba(0,0,0,0.1)"
-        : "0 5px 15px rgba(0,0,0,0.05)",
-    transform: hoveredCategoryIndex === index ? "translateY(-10px)" : "none",
+        : "0 5px 15px rgba(0, 0, 0, 0.22)",
     transition: "all 0.3s ease",
     textAlign: "center"
   });
 
   const getPastelIconStyle = (index) => ({
     fontSize: "2.5rem",
-    color: hoveredCategoryIndex === index ? "#ffffff" : "#00AEBB",
+    color: "#00AEBB",
     marginBottom: "1rem",
     transition: "color 0.3s ease"
   });
@@ -220,8 +218,28 @@ function LandingPage() {
 
   return (
     <div style={page} className="landing-page-container">
-      {/* LOADING SCREEN */}
-      {loading && <LoadingScreen />}
+      
+       {loading && (
+         <div style={{
+           position: 'fixed',
+           top: 0,
+           left: 0,
+           right: 0,
+           bottom: 0,
+           backgroundColor: 'rgba(248, 249, 250, 1)',
+           display: 'flex',
+           justifyContent: 'center',
+           alignItems: 'center',
+           zIndex: 1000,
+           backdropFilter: 'blur(5px)'
+         }}>
+           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+             <FaGamepad style={{ fontSize: '3rem', color: '#00AEBB', animation: 'bounce 1s infinite' }} />
+             <FaGamepad style={{ fontSize: '3rem', color: '#F7CA66', animation: 'bounce 1s infinite 0.2s' }} />
+             <FaGamepad style={{ fontSize: '3rem', color: '#00AEBB', animation: 'bounce 1s infinite 0.4s' }} />
+           </div>
+         </div>
+       )}
       
       {/* NAVIGATION - Replace the old nav with the new NavBar component */}
       <NavBar 
@@ -278,7 +296,7 @@ function LandingPage() {
                   }}>
                     <h3 style={{ 
                       ...productTitle, 
-                      color: hoveredIndex === index ? "#fff" : "#1E232C",
+                      color: "#1E232C",
                       fontSize: "1.2rem",
                       marginBottom: "0.5rem"
                     }}>
@@ -293,17 +311,17 @@ function LandingPage() {
                       marginBottom: "0.5rem"
                     }}>
                       <span style={{
-                        color: hoveredIndex === index ? "#F7CA66" : "#F7CA66",
+                        color: "#F7CA66",
                         fontSize: "1rem"
                       }}>★</span>
                       <span style={{
                         fontWeight: "600",
-                        color: hoveredIndex === index ? "#fff" : "#1E232C"
+                        color: "#1E232C"
                       }}>
                         {g.rating}
                       </span>
                       <span style={{
-                        color: hoveredIndex === index ? "#fff" : "#666",
+                        color: "#666",
                         fontSize: "0.8rem"
                       }}>
                         ({g.reviewsCount} reviews)
@@ -320,7 +338,7 @@ function LandingPage() {
                       {g.hasDiscount && (
                         <span style={{
                           textDecoration: "line-through",
-                          color: hoveredIndex === index ? "#ccc" : "#999",
+                          // color: hoveredIndex === index ? "#ccc" : "#999",
                           fontSize: "0.9rem"
                         }}>
                           ${g.originalPrice}
@@ -329,7 +347,7 @@ function LandingPage() {
                       <span style={{
                         fontSize: "1.3rem",
                         fontWeight: "700",
-                        color: hoveredIndex === index ? "#F7CA66" : "#00AEBB"
+                        color: "#00bb38ff"
                       }}>
                         ${g.currentPrice}
                       </span>

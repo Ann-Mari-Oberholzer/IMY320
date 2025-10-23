@@ -38,13 +38,15 @@ const AboutUs = () => {
       name: 'Ann-Mari Oberholzer',
       role: 'Frontend Engineer',
       specialty: 'u23537729',
-      avatar: '🎲'
+      // avatar: '🎲'
+      avatar: '🏆'
     },
     {
       name: 'Lineo Khabane',
       role: 'Frontend Engineer',
       specialty: 'u23604043',
-      avatar: '🎮'
+      // avatar: '🎮'
+      avatar: '🏆'
     },
     {
       name: 'Moyahabo Hamese',
@@ -56,7 +58,8 @@ const AboutUs = () => {
       name: 'Mpho Martha Siminya',
       role: 'Frontend Engineer',
       specialty: 'u21824241',
-      avatar: '🃏'
+      // avatar: '🃏'
+      avatar: '🏆'
     }
   ];
 

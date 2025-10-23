@@ -106,8 +106,6 @@ const Navbar = ({ currentPage = 'home', user = null, onLogout }) => {
           <FaHeart />
         </span>
 
-        
-
         {!user ? (
           <>
             <span 

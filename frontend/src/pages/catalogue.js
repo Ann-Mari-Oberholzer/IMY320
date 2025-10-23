@@ -25,9 +25,10 @@ export const titleStyle = {
 };
 
 export const subtitleStyle = {
-  fontSize: '1.1rem',
-  color: '#666',
-  margin: '0',
+  fontSize: "1.25rem",
+  fontWeight: "400",
+  color: "#555",
+  marginBottom: "2rem"
 };
 
 export const searchFilterStyle = {
@@ -56,7 +57,7 @@ export const searchIconStyle = {
 
 export const searchInputStyle = {
   width: '100%',
-  padding: '0.75rem 1rem 0.75rem 2.5rem',
+  padding: '0.75rem 0rem 0.75rem 0.5rem',
   border: '1px solid #ddd',
   borderRadius: '0.75rem',
   fontSize: '1rem',
@@ -82,7 +83,6 @@ export const filterToggleStyle = {
 
 export const filtersStyle = {
   backgroundColor: '#fff',
-  border: '1px solid #ddd',
   borderRadius: '0.75rem',
   padding: '1.5rem',
   marginBottom: '1.5rem',
@@ -306,8 +306,8 @@ export const originalPriceStyle = {
 
 export const currentPriceStyle = {
   fontSize: '1.2rem',
-  fontWeight: '500',
-  color: '#00AEBB',
+  fontWeight: '700',
+  color: '#00bb38ff',
 };
 
 export const addToCartButtonStyle = {
@@ -336,19 +336,20 @@ export const wishlistButtonNewStyle = {
   padding: '0.5rem 1rem',
   backgroundColor: '#fff',
   color: '#666',
-  border: '2px solid #ddd',
+  border: 'none',
   borderRadius: '0.5rem',
   fontSize: '0.9rem',
   fontWeight: '500',
   cursor: 'pointer',
   transition: 'all 0.3s ease',
-  marginBottom: '0.5rem',
+  whiteSpace: 'nowrap',
   width: '160px',
+  marginTop: 'auto',
 };
 
 export const buttonColumnStyle = {
   display: 'flex',
-  flexDirection: 'column',
+  flexDirection: 'row',
   alignItems: 'flex-end',
   gap: '0.5rem',
 };

@@ -199,8 +199,7 @@ function Catalogue() {
     setSearchTerm(tagName);
     setActiveSearchTerm(tagName);
     setCurrentPage(1);
-    setLoading(true); // Show loading screen immediately
-    // Update URL without page reload
+    setLoading(true);
     navigate(`/catalogue?search=${encodeURIComponent(tagName)}`, { replace: true });
   };
 
@@ -208,8 +207,14 @@ function Catalogue() {
     if (e.key === 'Enter') {
       setActiveSearchTerm(searchTerm);
       setCurrentPage(1);
-      setLoading(true); // Show loading screen for search
+      setLoading(true);
     }
+  };
+
+  const handleSearchClick = () => {
+    setActiveSearchTerm(searchTerm);
+    setCurrentPage(1);
+    setLoading(true);
   };
 
   const handleAddToCart = async (game, quantity = 1) => {
@@ -399,7 +404,6 @@ function Catalogue() {
     } catch (err) {
       setError(err.message || "Failed to load games");
       console.error("Error fetching games:", err);
-      // Still wait 3 seconds even on error for consistent UX
       await new Promise(resolve => setTimeout(resolve, 3000));
     } finally {
       setLoading(false);
@@ -423,6 +427,11 @@ function Catalogue() {
       await new Promise(resolve => setTimeout(resolve, 3000));
       setLoading(false);
     }
+  };
+
+  const handlePageChangeAndScroll = (pageNum) => {
+    handlePageChange(pageNum);
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
   };
 
   const handleGamesPerPageChange = (newGamesPerPage) => {
@@ -599,6 +608,9 @@ function Catalogue() {
     } else {
       favoritesService.addToFavorites(user.id, productData);
     }
+    
+    // Force re-render
+    setWishlistUpdated(prev => prev + 1);
   };
 
   const getPageNumbers = () => {
@@ -704,7 +716,7 @@ function Catalogue() {
            left: 0,
            right: 0,
            bottom: 0,
-           backgroundColor: 'rgba(248, 249, 250, 0.95)',
+           backgroundColor: 'rgba(248, 249, 250, 1)',
            display: 'flex',
            justifyContent: 'center',
            alignItems: 'center',
@@ -727,7 +739,6 @@ function Catalogue() {
 
         <div style={searchFilterStyle}>
           <div style={searchContainerStyle}>
-            <FaSearch style={searchIconStyle} />
             <input
               type="text"
               placeholder="Search games or accessories..."
@@ -736,6 +747,38 @@ function Catalogue() {
               onKeyPress={handleSearchKeyPress}
               style={searchInputStyle}
             />
+            <button
+              onClick={handleSearchClick}
+              style={{
+                position: 'absolute',
+                right: '0.5rem',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'transform 0.3s ease',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-50%) scale(1.2)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(-50%) scale(1)';
+              }}
+            >
+              <FaSearch
+                style={{
+                  color: '#00AEBB',
+                  fontSize: '1.5rem',
+                  transition: 'color 0.3s ease',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = '#F7CA66')}
+                onMouseLeave={(e) => (e.currentTarget.style.color = '#00AEBB')}
+              />
+            </button>
           </div>
 
           <button
@@ -788,6 +831,31 @@ function Catalogue() {
                      {category}
                    </button>
                  ))}
+              </div>
+              
+              <div style={{ marginTop: '1rem' }}>
+                <label style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  cursor: 'pointer',
+                  fontSize: '0.95rem',
+                  fontWeight: '500',
+                  color: '#1E232C'
+                }}>
+                  <input
+                    type="checkbox"
+                    checked={showOnSale}
+                    onChange={(e) => setShowOnSale(e.target.checked)}
+                    style={{
+                      marginRight: '0.5rem',
+                      width: '18px',
+                      height: '18px',
+                      cursor: 'pointer',
+                      accentColor: '#00AEBB'
+                    }}
+                  />
+                  Show only items on sale
+                </label>
               </div>
             </div>
 
@@ -1002,7 +1070,7 @@ function Catalogue() {
               Showing {paginatedGames.length} games
               {totalResults > 0 && ` of ${totalResults.toLocaleString()}`}
               {totalPages > 1 && ` (Page ${currentPage} of ${totalPages})`}
-              {activeSearchTerm && <span style={{ fontStyle: 'italic' }}> for "${activeSearchTerm}"</span>}
+              {activeSearchTerm && <span style={{ fontStyle: 'italic' }}> for "{activeSearchTerm}"</span>}
             </span>
           )}
         </div>
@@ -1093,6 +1161,23 @@ function Catalogue() {
                   )}
                   <span style={currentPriceStyle}>${priceInfo.currentPrice.toFixed(2)}</span>
                 </div>
+
+                {priceInfo.hasDiscount && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '1rem',
+                    left: '1rem',
+                    backgroundColor: '#27ae60',
+                    color: '#fff',
+                    padding: '0.4rem 0.8rem',
+                    borderRadius: '0.5rem',
+                    fontSize: '0.85rem',
+                    fontWeight: '700',
+                    zIndex: 10,
+                  }}>
+                    SALE
+                  </div>
+                )}
 
                 <div style={gameImageContainerStyle}>
                   {game.image?.original || game.image?.square_small ? (
@@ -1194,32 +1279,32 @@ function Catalogue() {
                       }}
                       style={{
                         ...wishlistButtonNewStyle,
-                        backgroundColor: favoritesService.isFavorite(user?.id, game.id) ? '#e74c3c' : '#fff',
-                        borderColor: favoritesService.isFavorite(user?.id, game.id) ? '#e74c3c' : '#ddd',
-                        color: favoritesService.isFavorite(user?.id, game.id) ? '#fff' : '#666',
+                        backgroundColor: isInWishlist ? '#3c89e7ff' : '#fff',
+                        borderColor: isInWishlist ? '#3c89e7ff' : '#ddd',
+                        color: isInWishlist ? '#fff' : '#666',
                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                         transform: 'translateY(0)',
-                        boxShadow: favoritesService.isFavorite(user?.id, game.id) ? '0 4px 12px rgba(231, 76, 60, 0.3)' : '0 2px 8px rgba(0,0,0,0.1)',
+                        boxShadow: isInWishlist ? '0 4px 12px rgba(60, 137, 231, 0.3)' : '0 2px 8px rgba(0,0,0,0.1)',
                       }}
-                      title={favoritesService.isFavorite(user?.id, game.id) ? "Remove from wishlist" : "Add to wishlist"}
+                      title={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
                       onMouseEnter={(e) => {
-                        if (favoritesService.isFavorite(user?.id, game.id)) {
+                        if (isInWishlist) {
                           e.target.style.transform = 'translateY(-2px) scale(1.02)';
-                          e.target.style.boxShadow = '0 8px 20px rgba(231, 76, 60, 0.4)';
-                          e.target.style.backgroundColor = '#c0392b';
+                          e.target.style.boxShadow = '0 6px 16px rgba(60, 137, 231, 0.4)';
+                          e.target.style.backgroundColor = '#3c89e7ff';
                         } else {
                           e.target.style.transform = 'translateY(-2px) scale(1.02)';
-                          e.target.style.boxShadow = '0 8px 20px rgba(231, 76, 60, 0.3)';
-                          e.target.style.backgroundColor = '#e74c3c';
-                          e.target.style.borderColor = '#e74c3c';
+                          e.target.style.boxShadow = '0 4px 12px rgba(60, 137, 231, 0.3)';
+                          e.target.style.backgroundColor = '#3c89e7ff';
+                          e.target.style.borderColor = '#3c89e7ff';
                           e.target.style.color = '#fff';
                         }
                       }}
                       onMouseLeave={(e) => {
-                        if (favoritesService.isFavorite(user?.id, game.id)) {
+                        if (isInWishlist) {
                           e.target.style.transform = 'translateY(0) scale(1)';
-                          e.target.style.boxShadow = '0 4px 12px rgba(231, 76, 60, 0.3)';
-                          e.target.style.backgroundColor = '#e74c3c';
+                          e.target.style.boxShadow = '0 4px 12px rgba(60, 137, 231, 0.3)';
+                          e.target.style.backgroundColor = '#3c89e7ff';
                         } else {
                           e.target.style.transform = 'translateY(0) scale(1)';
                           e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
@@ -1329,23 +1414,6 @@ function Catalogue() {
             marginTop: '2rem',
             marginBottom: '2rem'
           }}>
-            {/* First page button */}
-            <button
-              onClick={() => handlePageChange(1)}
-              disabled={currentPage === 1}
-              style={{
-                ...loadMoreButtonStyle,
-                padding: '0.5rem 1rem',
-                backgroundColor: currentPage === 1 ? '#ccc' : '#00AEBB',
-                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                opacity: currentPage === 1 ? 0.6 : 1
-              }}
-              title="First page"
-            >
-              &lt;&lt;
-            </button>
-
-            {/* Previous page button */}
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
@@ -1356,16 +1424,15 @@ function Catalogue() {
                 cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
                 opacity: currentPage === 1 ? 0.6 : 1
               }}
-              title="Previous page"
             >
-              &lt;
+              <FaChevronLeft style={{ marginRight: '0.25rem' }} />
+              Previous
             </button>
 
-            {/* Page numbers */}
             {getPageNumbers().map(pageNum => (
               <button
                 key={pageNum}
-                onClick={() => handlePageChange(pageNum)}
+                onClick={() => handlePageChangeAndScroll(pageNum)}
                 style={{
                   ...loadMoreButtonStyle,
                   padding: '0.5rem 0.75rem',
@@ -1380,7 +1447,7 @@ function Catalogue() {
 
             {/* Next page button */}
             <button
-              onClick={() => handlePageChange(currentPage + 1)}
+              onClick={() => handlePageChangeAndScroll(currentPage + 1)}
               disabled={currentPage === totalPages}
               style={{
                 ...loadMoreButtonStyle,

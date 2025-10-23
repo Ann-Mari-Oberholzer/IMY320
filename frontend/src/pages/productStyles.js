@@ -161,6 +161,24 @@ export const button = {
   boxShadow: "0 4px 12px rgba(247, 202, 102, 0.3)",
 };
 
+export const addToCartButtonStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  padding: '0.5rem 1rem',
+  backgroundColor: '#F7CA66',
+  color: '#fff',
+  border: 'none',
+  borderRadius: '0.5rem',
+  fontSize: '0.9rem',
+  fontWeight: '500',
+  cursor: 'pointer',
+  transition: 'all 0.3s ease',
+  whiteSpace: 'nowrap',
+  width: '160px',
+  marginTop: 'auto',
+};
+
 export const wishlistButton = {
   padding: "14px 16px",
   backgroundColor: "#fff",
@@ -378,10 +396,11 @@ export const carouselTrack = {
   gap: "2rem",
   flexWrap: "nowrap",
   width: "100%",
-  transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
-  overflow: "visible",
+  // transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+  overflow: "hidden",
   paddingLeft: "0px",
   marginLeft: "-20px",
+  paddingBottom: "20px",
 };
 
 export const carouselSlide = {
@@ -419,6 +438,24 @@ export const carouselButton = {
   justifyContent: "center",
   boxShadow: "0 4px 12px rgba(0, 174, 187, 0.3)",
   zIndex: 10,
+};
+
+export const wishlistButtonNewStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  padding: '0.5rem 1rem',
+  backgroundColor: '#fff',
+  color: '#666',
+  border: 'none',
+  borderRadius: '0.5rem',
+  fontSize: '0.9rem',
+  fontWeight: '500',
+  cursor: 'pointer',
+  transition: 'all 0.3s ease',
+  whiteSpace: 'nowrap',
+  width: '160px',
+  marginTop: 'auto',
 };
 
 export const carouselButtonLeft = {

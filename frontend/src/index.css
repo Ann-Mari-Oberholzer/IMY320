@@ -16,6 +16,13 @@ html, body {
   outline: none !important;
 }
 
+/* Force Chrome and Edge to always show the spinner */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  opacity: 1 !important;
+}
+
+
 #root {
   width: 100% !important;
   margin: 0 !important;

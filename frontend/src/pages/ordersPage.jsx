@@ -385,14 +385,6 @@ const OrdersPage = () => {
       <NavBar currentPage="orders" user={user} />
       
       <div style={contentStyle}>
-        <button
-          onClick={() => navigate('/')}
-          style={backButtonStyle}
-        >
-          <FaChevronLeft />
-          Back to Home
-        </button>
-        
         <div style={headerStyle}>
           <h1 style={titleStyle}>Your Orders</h1>
           <p style={subtitleStyle}>Track and manage your gaming purchases</p>
