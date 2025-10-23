@@ -15,6 +15,7 @@ import EditAddressPage from "./pages/EditAddressPage.jsx";
 import OrdersPage from "./pages/ordersPage.jsx";
 import { UserProvider, useUser } from "./contexts/UserContext";
 import { CartProvider } from "./contexts/CartContext";
+import "./globalButtonStyles.css";
 
 function AppContent() {
   const { user } = useUser();

@@ -324,6 +324,113 @@ app.post('/api/products', (req, res) => {
   res.json(createdProduct[createdProduct.length - 1]);
 });
 
+// Order routes
+app.get('/api/orders', (req, res) => {
+  const { userId } = req.query;
+  const router = jsonServer.router('db.json');
+
+  if (userId) {
+    const orders = router.db.get('orders').filter({ userId: parseInt(userId) }).value();
+    res.json(orders);
+  } else {
+    const orders = router.db.get('orders').value();
+    res.json(orders);
+  }
+});
+
+app.post('/api/orders', (req, res) => {
+  try {
+    const router = jsonServer.router('db.json');
+    const newOrder = {
+      id: Date.now(),
+      userId: req.body.userId,
+      products: req.body.products || [],
+      total: req.body.total,
+      status: req.body.status || 'processing',
+      orderDate: req.body.orderDate || new Date().toISOString()
+    };
+
+    const createdOrder = router.db.get('orders').push(newOrder).write();
+    const order = createdOrder[createdOrder.length - 1];
+
+    console.log('Order created:', order);
+    res.status(201).json(order);
+  } catch (error) {
+    console.error('Error creating order:', error);
+    res.status(500).json({ error: 'Failed to create order', details: error.message });
+  }
+});
+
+app.get('/api/orders/:id', (req, res) => {
+  const { id } = req.params;
+  const router = jsonServer.router('db.json');
+  const order = router.db.get('orders').find({ id: parseInt(id) }).value();
+
+  if (order) {
+    res.json(order);
+  } else {
+    res.status(404).json({ error: 'Order not found' });
+  }
+});
+
+// Favorites routes
+app.get('/api/favorites', (req, res) => {
+  const { userId } = req.query;
+  const router = jsonServer.router('db.json');
+
+  if (userId) {
+    const favorites = router.db.get('favorites').filter({ userId: parseInt(userId) }).value();
+    res.json(favorites);
+  } else {
+    const favorites = router.db.get('favorites').value();
+    res.json(favorites);
+  }
+});
+
+app.post('/api/favorites', (req, res) => {
+  try {
+    const router = jsonServer.router('db.json');
+    const { userId, productId } = req.body;
+
+    // Check if already exists
+    const existing = router.db.get('favorites')
+      .find({ userId: parseInt(userId), productId: parseInt(productId) })
+      .value();
+
+    if (existing) {
+      return res.json(existing);
+    }
+
+    const newFavorite = {
+      id: Date.now(),
+      userId: parseInt(userId),
+      productId: parseInt(productId)
+    };
+
+    const createdFavorite = router.db.get('favorites').push(newFavorite).write();
+    res.status(201).json(createdFavorite[createdFavorite.length - 1]);
+  } catch (error) {
+    console.error('Error adding to favorites:', error);
+    res.status(500).json({ error: 'Failed to add to favorites' });
+  }
+});
+
+app.delete('/api/favorites/:userId/:productId', (req, res) => {
+  try {
+    const { userId, productId } = req.params;
+    const router = jsonServer.router('db.json');
+
+    router.db.get('favorites')
+      .remove({ userId: parseInt(userId), productId: parseInt(productId) })
+      .write();
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error removing from favorites:', error);
+    res.status(500).json({ error: 'Failed to remove from favorites' });
+  }
+});
+
 // Health check
 app.get('/health', (_, res) => res.json({ ok: true }));
 

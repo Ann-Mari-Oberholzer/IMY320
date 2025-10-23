@@ -59,8 +59,7 @@ function AddProduct() {
     features: [],
     platform: '',
     image: '',
-    inStock: true,
-    rating: 4.0
+    inStock: true
   });
 
   // UI state
@@ -68,6 +67,8 @@ function AddProduct() {
   const [imagePreview, setImagePreview] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [alert, setAlert] = useState({ type: '', message: '' });
+  const alertTimeoutRef = React.useRef(null);
+  const isNavigatingRef = React.useRef(false);
 
   // Check authentication
   useEffect(() => {
@@ -76,12 +77,42 @@ function AddProduct() {
     }
   }, [user, navigate]);
 
+  // Clear alerts whenever step changes
+  useEffect(() => {
+    // Aggressively clear any alerts when step changes
+    if (alertTimeoutRef.current) {
+      clearTimeout(alertTimeoutRef.current);
+      alertTimeoutRef.current = null;
+    }
+    setAlert({ type: '', message: '' });
+
+    // Force clear any lingering alerts after a small delay
+    const clearDelay = setTimeout(() => {
+      setAlert({ type: '', message: '' });
+    }, 50);
+
+    return () => {
+      clearTimeout(clearDelay);
+    };
+  }, [currentStep]);
+
   // Apply global styles
   useEffect(() => {
     const styleElement = document.createElement("style");
-    styleElement.textContent = globalReset;
+    styleElement.textContent = globalReset + `
+      @keyframes slideIn {
+        from {
+          transform: translateY(-20px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+    `;
     document.head.appendChild(styleElement);
-    
+
     return () => {
       document.head.removeChild(styleElement);
     };
@@ -100,11 +131,62 @@ function AddProduct() {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      // Check file size (limit to 500KB)
+      const maxSize = 500 * 1024; // 500KB in bytes
+      if (file.size > maxSize) {
+        showAlert('error', `Image is too large (${(file.size / 1024).toFixed(0)}KB). Please use an image smaller than 500KB.`);
+        e.target.value = ''; // Clear the file input
+        return;
+      }
+
+      // Check file type
+      if (!file.type.startsWith('image/')) {
+        showAlert('error', 'Please upload an image file (JPG, PNG, GIF, etc.)');
+        e.target.value = '';
+        return;
+      }
+
       const reader = new FileReader();
       reader.onload = (e) => {
         const imageUrl = e.target.result;
-        setImagePreview(imageUrl);
-        setFormData(prev => ({ ...prev, image: imageUrl }));
+
+        // Create an image to resize it
+        const img = new Image();
+        img.onload = () => {
+          // Create canvas to resize image
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+
+          // Set max dimensions
+          const maxWidth = 800;
+          const maxHeight = 800;
+          let width = img.width;
+          let height = img.height;
+
+          // Calculate new dimensions
+          if (width > height) {
+            if (width > maxWidth) {
+              height *= maxWidth / width;
+              width = maxWidth;
+            }
+          } else {
+            if (height > maxHeight) {
+              width *= maxHeight / height;
+              height = maxHeight;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // Convert to base64 with compression
+          const compressedImage = canvas.toDataURL('image/jpeg', 0.7);
+
+          setImagePreview(compressedImage);
+          setFormData(prev => ({ ...prev, image: compressedImage }));
+        };
+        img.src = imageUrl;
       };
       reader.readAsDataURL(file);
     }
@@ -129,10 +211,40 @@ function AddProduct() {
     }));
   };
 
+  // Clear any existing alert timeout
+  const clearAlertTimeout = () => {
+    if (alertTimeoutRef.current) {
+      clearTimeout(alertTimeoutRef.current);
+      alertTimeoutRef.current = null;
+    }
+  };
+
   // Show alert message
   const showAlert = (type, message) => {
+    // Don't show alerts if we're currently navigating between steps
+    if (isNavigatingRef.current) {
+      return;
+    }
+
+    // Clear any existing timeout first
+    clearAlertTimeout();
+
     setAlert({ type, message });
-    setTimeout(() => setAlert({ type: '', message: '' }), 5000);
+    // Scroll to the alert message
+    setTimeout(() => {
+      const alertElement = document.querySelector('[data-alert]');
+      if (alertElement) {
+        alertElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }, 100);
+
+    // Store the timeout reference so we can clear it later
+    alertTimeoutRef.current = setTimeout(() => {
+      setAlert({ type: '', message: '' });
+      alertTimeoutRef.current = null;
+    }, 5000);
   };
 
   // Validate current step
@@ -152,7 +264,7 @@ function AddProduct() {
           return false;
         }
         return true;
-      
+
       case 2:
         if (!formData.description.trim()) {
           showAlert('error', 'Product description is required');
@@ -163,14 +275,11 @@ function AddProduct() {
           return false;
         }
         return true;
-      
+
       case 3:
-        if (!formData.image) {
-          showAlert('error', 'Product image is required');
-          return false;
-        }
+        // Don't validate image on step 3 - only validate on final submit
         return true;
-      
+
       default:
         return true;
     }
@@ -178,29 +287,80 @@ function AddProduct() {
 
   // Navigate between steps
   const nextStep = () => {
+    // Set navigation flag to prevent alerts from showing
+    isNavigatingRef.current = true;
+
+    // Clear any existing alerts BEFORE validating
+    clearAlertTimeout();
+    setAlert({ type: '', message: '' });
+
     if (validateStep(currentStep)) {
       setCurrentStep(prev => Math.min(prev + 1, totalSteps));
+
+      // Scroll to top of page
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
     }
+
+    // Reset navigation flag after a brief delay
+    setTimeout(() => {
+      isNavigatingRef.current = false;
+    }, 100);
   };
 
   const prevStep = () => {
+    // Set navigation flag to prevent alerts from showing
+    isNavigatingRef.current = true;
+
+    // Clear any existing alerts when going back
+    clearAlertTimeout();
+    setAlert({ type: '', message: '' });
     setCurrentStep(prev => Math.max(prev - 1, 1));
+
+    // Scroll to top of page
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+
+    // Reset navigation flag after a brief delay
+    setTimeout(() => {
+      isNavigatingRef.current = false;
+    }, 100);
   };
 
   // Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!validateStep(currentStep)) {
+    e.stopPropagation();
+
+    console.log('handleSubmit called, currentStep:', currentStep);
+
+    // Only allow submission on step 3
+    if (currentStep !== 3) {
+      console.log('Submit blocked - not on final step');
+      return;
+    }
+
+    // Validate all steps before submitting (but image check comes after)
+    if (!validateStep(1) || !validateStep(2)) {
+      console.log('Submit blocked - validation failed for steps 1 or 2');
+      return;
+    }
+
+    // Validate image on final submit - only when user clicks "Add Product"
+    if (!formData.image) {
+      console.log('Submit blocked - no image uploaded');
+      showAlert('error', 'Product image is required. Please upload an image.');
       return;
     }
 
     setIsSubmitting(true);
-    
+
     try {
       // Generate unique ID
       const productId = Date.now();
-      
+
       // Prepare product data
       const productData = {
         id: productId,
@@ -212,19 +372,25 @@ function AddProduct() {
         features: formData.features,
         image: formData.image,
         inStock: formData.inStock,
-        rating: parseFloat(formData.rating),
+        rating: 4.0, // Default rating for new products
+        // Add tags property (features as tags)
+        tags: formData.features,
         // Add platform for games
         ...(formData.category === 'games' && formData.platform ? { platform: formData.platform } : {}),
         // Add creation timestamp
         createdAt: new Date().toISOString()
       };
 
+      console.log('Submitting product data:', productData);
+
       // Save product via API
       const result = await apiServiceInstance.saveProduct(productData);
-      
+
+      console.log('Save product result:', result);
+
       if (result && !result.error) {
         showAlert('success', 'Product added successfully!');
-        
+
         // Reset form after short delay
         setTimeout(() => {
           setFormData({
@@ -236,25 +402,31 @@ function AddProduct() {
             features: [],
             platform: '',
             image: '',
-            inStock: true,
-            rating: 4.0
+            inStock: true
           });
           setImagePreview('');
           setCurrentStep(1);
-          
+
           // Navigate to products or catalogue page
           navigate('/catalogue');
         }, 2000);
-        
+
       } else {
-        throw new Error(result?.error || 'Failed to save product');
+        const errorMsg = result?.error || result?.message || 'Failed to save product';
+        console.error('Product save failed:', errorMsg);
+        throw new Error(errorMsg);
       }
-      
+
     } catch (error) {
       console.error('Error saving product:', error);
-      showAlert('error', error.message || 'Failed to add product. Please try again.');
-    } finally {
+      const errorMessage = error.message || error.toString() || 'Failed to add product. Please try again.';
+      showAlert('error', `Error: ${errorMessage}`);
       setIsSubmitting(false);
+    } finally {
+      // Only reset isSubmitting here if not already done in catch
+      if (isSubmitting) {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -286,26 +458,83 @@ function AddProduct() {
                 alignItems: 'center',
                 gap: '0.5rem'
               }}>
-                <div style={{
-                  width: '2rem',
-                  height: '2rem',
-                  borderRadius: '50%',
-                  backgroundColor: step <= currentStep ? '#00AEBB' : '#ddd',
-                  color: step <= currentStep ? 'white' : '#666',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontWeight: 'bold',
-                  fontSize: '0.9rem',
-                  transition: 'all 0.3s ease'
-                }}>
+                <div
+                  onClick={() => {
+                    // Set navigation flag to prevent alerts
+                    isNavigatingRef.current = true;
+
+                    clearAlertTimeout(); // Clear any pending timeout
+                    setAlert({ type: '', message: '' }); // Clear any alerts
+                    setCurrentStep(step);
+
+                    // Scroll to top of page
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    document.documentElement.scrollTop = 0;
+                    document.body.scrollTop = 0;
+
+                    // Reset navigation flag after a brief delay
+                    setTimeout(() => {
+                      isNavigatingRef.current = false;
+                    }, 100);
+                  }}
+                  style={{
+                    width: '2rem',
+                    height: '2rem',
+                    borderRadius: '50%',
+                    backgroundColor: step <= currentStep ? '#00AEBB' : '#ddd',
+                    color: step <= currentStep ? 'white' : '#666',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 'bold',
+                    fontSize: '0.9rem',
+                    transition: 'all 0.3s ease',
+                    cursor: 'pointer'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = 'scale(1.1)';
+                    e.target.style.boxShadow = '0 4px 8px rgba(0, 174, 187, 0.3)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = 'scale(1)';
+                    e.target.style.boxShadow = 'none';
+                  }}
+                >
                   {step}
                 </div>
-                <span style={{
-                  color: step <= currentStep ? '#00AEBB' : '#666',
-                  fontWeight: step === currentStep ? 'bold' : 'normal',
-                  fontSize: '0.9rem'
-                }}>
+                <span
+                  onClick={() => {
+                    // Set navigation flag to prevent alerts
+                    isNavigatingRef.current = true;
+
+                    clearAlertTimeout(); // Clear any pending timeout
+                    setAlert({ type: '', message: '' }); // Clear any alerts
+                    setCurrentStep(step);
+
+                    // Scroll to top of page
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    document.documentElement.scrollTop = 0;
+                    document.body.scrollTop = 0;
+
+                    // Reset navigation flag after a brief delay
+                    setTimeout(() => {
+                      isNavigatingRef.current = false;
+                    }, 100);
+                  }}
+                  style={{
+                    color: step <= currentStep ? '#00AEBB' : '#666',
+                    fontWeight: step === currentStep ? 'bold' : 'normal',
+                    fontSize: '0.9rem',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.textDecoration = 'underline';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.textDecoration = 'none';
+                  }}
+                >
                   {step === 1 ? 'Basic Info' : step === 2 ? 'Details' : 'Images'}
                 </span>
                 {step < 3 && (
@@ -323,15 +552,23 @@ function AddProduct() {
         </div>
 
         {alert.message && (
-          <div style={{
-            ...alertStyle,
-            backgroundColor: alert.type === 'error' ? '#e74c3c' : '#27ae60'
-          }}>
+          <div
+            data-alert
+            style={{
+              ...alertStyle,
+              backgroundColor: alert.type === 'error' ? '#e74c3c' : '#27ae60',
+              animation: 'slideIn 0.3s ease-out'
+            }}
+          >
             {alert.message}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} style={formStyle}>
+        <form onSubmit={handleSubmit} onKeyDown={(e) => {
+          if (e.key === 'Enter' && currentStep !== 3) {
+            e.preventDefault(); // Prevent form submission on Enter unless on final step
+          }
+        }} style={formStyle}>
           {/* Step 1: Basic Information */}
           {currentStep === 1 && (
             <>
@@ -395,20 +632,6 @@ function AddProduct() {
                     <option key={brand} value={brand} />
                   ))}
                 </datalist>
-              </div>
-
-              <div style={sectionStyle}>
-                <label style={labelStyle}>Rating</label>
-                <input
-                  type="number"
-                  name="rating"
-                  value={formData.rating}
-                  onChange={handleInputChange}
-                  min="1"
-                  max="5"
-                  step="0.1"
-                  style={inputStyle}
-                />
               </div>
             </>
           )}
@@ -521,6 +744,12 @@ function AddProduct() {
                     type="file"
                     accept="image/*"
                     onChange={handleImageChange}
+                    onKeyDown={(e) => {
+                      // Prevent Enter key from submitting form
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                      }
+                    }}
                     style={{ display: 'none' }}
                   />
                 </div>
@@ -546,7 +775,6 @@ function AddProduct() {
                 <p><strong>Price:</strong> R{formData.price}</p>
                 <p><strong>Category:</strong> {CATEGORIES.find(c => c.id === formData.category)?.name}</p>
                 <p><strong>Brand:</strong> {formData.brand}</p>
-                <p><strong>Rating:</strong> {formData.rating}/5</p>
                 <p><strong>Features:</strong> {formData.features.join(', ')}</p>
                 <p><strong>In Stock:</strong> {formData.inStock ? 'Yes' : 'No'}</p>
                 {formData.platform && <p><strong>Platform:</strong> {formData.platform}</p>}

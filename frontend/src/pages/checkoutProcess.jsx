@@ -4,6 +4,7 @@ import { useCart } from '../contexts/CartContext';
 import { useUser } from '../contexts/UserContext';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import LoadingScreen from '../components/LoadingScreen';
+import apiService from '../services/api';
 
 const globalReset = `
   html, body {
@@ -137,43 +138,78 @@ const CheckoutProcess = () => {
     if (currentStep < 4) {
       completeStep(currentStep);
       setCurrentStep(currentStep + 1);
+      // Scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
     }
   };
 
   const prevStep = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
+      // Scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
     }
   };
 
   const handleSubmit = async () => {
     setIsProcessing(true);
-    
+
     try {
       const orderSubtotal = subtotal;
       const orderShipping = shipping;
       const orderTotal = finalTotal;
-      
+
+      console.log('=== Starting Order Creation ===');
+      console.log('User ID:', user.id);
+      console.log('Cart Items:', cartItems);
+      console.log('Total:', orderTotal);
+
+      // Prepare order data
+      const orderItems = cartItems.map(item => ({
+        productId: item.productId,
+        quantity: item.quantity,
+        product: item.product,
+        price: item.product?.price || 0
+      }));
+
+      console.log('Prepared Order Items:', orderItems);
+
       setOrderData({
         items: [...cartItems],
         subtotal: orderSubtotal,
         shipping: orderShipping,
         total: orderTotal
       });
-      
+
+      // Simulate payment processing
+      console.log('Simulating payment...');
       await new Promise(resolve => setTimeout(resolve, 3000));
-      
+
+      // Create the order in the database
+      console.log('Sending order to backend...');
+      const createdOrder = await apiService.createOrder(user.id, orderItems, orderTotal);
+      console.log('Order created successfully:', createdOrder);
+
       completeStep(3);
       setCurrentStep(4);
-      
+
       await new Promise(resolve => setTimeout(resolve, 100));
+
+      console.log('Clearing cart...');
       await clearCart();
-      
+
       setIsProcessing(false);
       setShowOrderCompleteModal(true);
     } catch (error) {
-      console.error('Checkout failed:', error);
+      console.error('=== CHECKOUT ERROR ===');
+      console.error('Error object:', error);
+      console.error('Error message:', error.message);
       setIsProcessing(false);
+      alert(`There was an error processing your order: ${error.message || 'Please check console for details'}. Please try again.`);
     }
   };
 
@@ -247,31 +283,83 @@ const CheckoutProcess = () => {
           }}>
             Your order is confirmed and on its way!
           </p>
-          
-          <button
-            onClick={() => {
-              setShowOrderCompleteModal(false);
-              navigate('/catalogue');
-            }}
-            style={{
-              padding: '0.75rem 2rem',
-              borderRadius: '0.5rem',
-              fontSize: '1rem',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              border: 'none',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              backgroundColor: '#F7CA66',
-              color: '#fff',
-              margin: '0 auto',
-            }}
-          >
-            <FaGamepad />
-            Continue Shopping
-          </button>
+
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.75rem',
+            width: '100%'
+          }}>
+            <button
+              onClick={() => {
+                setShowOrderCompleteModal(false);
+                navigate('/orders');
+              }}
+              style={{
+                padding: '0.75rem 2rem',
+                borderRadius: '0.5rem',
+                fontSize: '1rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                border: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem',
+                backgroundColor: '#00AEBB',
+                color: '#fff',
+                width: '100%',
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'translateY(-2px)';
+                e.target.style.boxShadow = '0 8px 20px rgba(0, 174, 187, 0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'translateY(0)';
+                e.target.style.boxShadow = 'none';
+              }}
+            >
+              <FaBox />
+              View My Orders
+            </button>
+
+            <button
+              onClick={() => {
+                setShowOrderCompleteModal(false);
+                navigate('/catalogue');
+              }}
+              style={{
+                padding: '0.75rem 2rem',
+                borderRadius: '0.5rem',
+                fontSize: '1rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                border: '2px solid #F7CA66',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem',
+                backgroundColor: '#fff',
+                color: '#F7CA66',
+                width: '100%',
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = '#F7CA66';
+                e.target.style.color = '#fff';
+                e.target.style.transform = 'translateY(-2px)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = '#fff';
+                e.target.style.color = '#F7CA66';
+                e.target.style.transform = 'translateY(0)';
+              }}
+            >
+              <FaGamepad />
+              Continue Shopping
+            </button>
+          </div>
         </div>
       </div>
     );

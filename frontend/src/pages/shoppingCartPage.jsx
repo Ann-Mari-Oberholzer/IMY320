@@ -457,9 +457,8 @@ boxShadow: '0 8px 20px rgba(0, 174, 187, 0.4)',
 
 function ShoppingCartPage() {
 const { user } = useUser();
-const { cartItems: contextCartItems, updateCartItem, removeFromCart } = useCart();
+const { cartItems, updateQuantity, removeFromCart } = useCart();
 const navigate = useNavigate();
-const [cartItems, setCartItems] = useState(contextCartItems);
 const [removingItems, setRemovingItems] = useState(new Set());
 const [checkoutStarted, setCheckoutStarted] = useState(false);
 
@@ -467,7 +466,7 @@ useEffect(() => {
   const styleElement = document.createElement("style");
   styleElement.textContent = globalReset;
   document.head.appendChild(styleElement);
-  
+
   return () => {
     if (document.head.contains(styleElement)) {
       document.head.removeChild(styleElement);
@@ -475,32 +474,15 @@ useEffect(() => {
   };
 }, []);
 
-// Sync local cartItems with context cartItems
-useEffect(() => {
-  setCartItems(contextCartItems);
-}, [contextCartItems]);
-
-const handleUpdateQuantity = (productId, newQuantity) => {
+const handleUpdateQuantity = async (productId, newQuantity) => {
 if (newQuantity < 1) return;
-if (updateCartItem) {
-updateCartItem(productId, newQuantity);
-}
-setCartItems(items =>
-items.map(item =>
-item.productId === productId
-? { ...item, quantity: newQuantity }
-: item
-)
-);
+await updateQuantity(productId, newQuantity);
 };
 
-const handleRemoveItem = (productId) => {
+const handleRemoveItem = async (productId) => {
 setRemovingItems(prev => new Set([...prev, productId]));
-setTimeout(() => {
-if (removeFromCart) {
-removeFromCart(productId);
-}
-setCartItems(items => items.filter(item => item.productId !== productId));
+setTimeout(async () => {
+await removeFromCart(productId);
 setRemovingItems(prev => {
 const newSet = new Set(prev);
 newSet.delete(productId);

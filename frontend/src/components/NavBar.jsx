@@ -30,6 +30,11 @@ const Navbar = ({ currentPage = 'home', user = null, onLogout }) => {
     navigate('/orders');
   };
 
+  const handleAddProduct = () => {
+    setShowDropdown(false);
+    navigate('/addProduct');
+  };
+
   const getInitials = (name) => {
     if (!name) return 'U';
     return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
@@ -76,18 +81,11 @@ const Navbar = ({ currentPage = 'home', user = null, onLogout }) => {
           Store
         </span>
         
-        <span 
+        <span
           className={`nav-item ${currentPage === 'about' ? 'active' : ''}`}
           onClick={() => handleNavigation('/about')}
         >
           About
-        </span>
-
-        <span 
-          className={`nav-item ${currentPage === 'addProduct' ? 'active' : ''}`}
-          onClick={() => handleNavigation('/addProduct')}
-        >
-          Add Product
         </span>
 
         {user && (
@@ -140,13 +138,19 @@ const Navbar = ({ currentPage = 'home', user = null, onLogout }) => {
                   <span className="user-name">{user.name || user.email}</span>
                 </div>
                 <div className="dropdown-divider"></div>
-                <button 
+                <button
                   className="dropdown-item"
                   onClick={handleViewOrders}
                 >
                   View Orders
                 </button>
-                <button 
+                <button
+                  className="dropdown-item"
+                  onClick={handleAddProduct}
+                >
+                  Add Product
+                </button>
+                <button
                   className="dropdown-item"
                   onClick={handleLogout}
                 >

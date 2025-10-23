@@ -1,0 +1,155 @@
+/**
+ * Global Button Hover Effects
+ * Ensures consistent darker shade hover effects for all buttons across the application
+ */
+
+/* Primary Brand Blue Buttons (#00AEBB) */
+button[style*="background-color: rgb(0, 174, 187)"]:not([disabled]):hover,
+button[style*="backgroundColor: rgb(0, 174, 187)"]:not([disabled]):hover,
+button[style*="background-color:#00AEBB"]:not([disabled]):hover,
+button[style*="background:#00AEBB"]:not([disabled]):hover,
+button[style*="backgroundColor:#00AEBB"]:not([disabled]):hover,
+button[style*="backgroundColor: #00AEBB"]:not([disabled]):hover,
+button[style*='background-color: "#00AEBB"']:not([disabled]):hover,
+button[style*="background-color: '#00AEBB'"]:not([disabled]):hover {
+  background-color: #008a99 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 174, 187, 0.3);
+}
+
+/* Yellow/Gold Buttons (#F7CA66) */
+button[style*="background-color: rgb(247, 202, 102)"]:not([disabled]):hover,
+button[style*="backgroundColor: rgb(247, 202, 102)"]:not([disabled]):hover,
+button[style*="background-color:#F7CA66"]:not([disabled]):hover,
+button[style*="background:#F7CA66"]:not([disabled]):hover,
+button[style*="backgroundColor:#F7CA66"]:not([disabled]):hover,
+button[style*="backgroundColor: #F7CA66"]:not([disabled]):hover,
+button[style*='background-color: "#F7CA66"']:not([disabled]):hover,
+button[style*="background-color: '#F7CA66'"]:not([disabled]):hover {
+  background-color: #f4d03f !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(247, 202, 102, 0.3);
+}
+
+/* Success Green Buttons (#27ae60) */
+button[style*="background-color: rgb(39, 174, 96)"]:not([disabled]):hover,
+button[style*="backgroundColor: rgb(39, 174, 96)"]:not([disabled]):hover,
+button[style*="background-color:#27ae60"]:not([disabled]):hover,
+button[style*="background:#27ae60"]:not([disabled]):hover,
+button[style*="backgroundColor:#27ae60"]:not([disabled]):hover,
+button[style*="backgroundColor: #27ae60"]:not([disabled]):hover,
+button[style*='background-color: "#27ae60"']:not([disabled]):hover,
+button[style*="background-color: '#27ae60'"]:not([disabled]):hover {
+  background-color: #229954 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(39, 174, 96, 0.3);
+}
+
+/* Error/Danger Red Buttons (#e74c3c) */
+button[style*="background-color: rgb(231, 76, 60)"]:not([disabled]):hover,
+button[style*="backgroundColor: rgb(231, 76, 60)"]:not([disabled]):hover,
+button[style*="background-color:#e74c3c"]:not([disabled]):hover,
+button[style*="background:#e74c3c"]:not([disabled]):hover,
+button[style*="backgroundColor:#e74c3c"]:not([disabled]):hover,
+button[style*="backgroundColor: #e74c3c"]:not([disabled]):hover,
+button[style*='background-color: "#e74c3c"']:not([disabled]):hover,
+button[style*="background-color: '#e74c3c'"]:not([disabled]):hover {
+  background-color: #c0392b !important;
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 20px rgba(231, 76, 60, 0.4);
+}
+
+/* Dark Red Buttons (#c82333) */
+button[style*="background-color: rgb(200, 35, 51)"]:not([disabled]):hover,
+button[style*="backgroundColor: rgb(200, 35, 51)"]:not([disabled]):hover,
+button[style*="background-color:#c82333"]:not([disabled]):hover,
+button[style*="background:#c82333"]:not([disabled]):hover,
+button[style*="backgroundColor:#c82333"]:not([disabled]):hover,
+button[style*="backgroundColor: #c82333"]:not([disabled]):hover {
+  background-color: #a71d2a !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(200, 35, 51, 0.3);
+}
+
+/* White/Light Buttons */
+button[style*="background-color: rgb(255, 255, 255)"]:not([disabled]):hover,
+button[style*="backgroundColor: rgb(255, 255, 255)"]:not([disabled]):hover,
+button[style*="background-color:#ffffff"]:not([disabled]):hover,
+button[style*="background-color:#fff"]:not([disabled]):hover,
+button[style*="background:#ffffff"]:not([disabled]):hover,
+button[style*="background:#fff"]:not([disabled]):hover,
+button[style*="backgroundColor:#ffffff"]:not([disabled]):hover,
+button[style*="backgroundColor:#fff"]:not([disabled]):hover,
+button[style*="backgroundColor: #ffffff"]:not([disabled]):hover,
+button[style*="backgroundColor: #fff"]:not([disabled]):hover {
+  background-color: #f5f5f5 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Light Gray Buttons (#f8f9fa) */
+button[style*="background-color: rgb(248, 249, 250)"]:not([disabled]):hover,
+button[style*="backgroundColor: rgb(248, 249, 250)"]:not([disabled]):hover,
+button[style*="background-color:#f8f9fa"]:not([disabled]):hover,
+button[style*="background:#f8f9fa"]:not([disabled]):hover,
+button[style*="backgroundColor:#f8f9fa"]:not([disabled]):hover,
+button[style*="backgroundColor: #f8f9fa"]:not([disabled]):hover {
+  background-color: #e9ecef !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Medium Gray Buttons (#f0f0f0) */
+button[style*="background-color: rgb(240, 240, 240)"]:not([disabled]):hover,
+button[style*="backgroundColor: rgb(240, 240, 240)"]:not([disabled]):hover,
+button[style*="background-color:#f0f0f0"]:not([disabled]):hover,
+button[style*="background:#f0f0f0"]:not([disabled]):hover,
+button[style*="backgroundColor:#f0f0f0"]:not([disabled]):hover,
+button[style*="backgroundColor: #f0f0f0"]:not([disabled]):hover {
+  background-color: #e0e0e0 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Light Blue Buttons (#f0f7ff) */
+button[style*="background-color: rgb(240, 247, 255)"]:not([disabled]):hover,
+button[style*="backgroundColor: rgb(240, 247, 255)"]:not([disabled]):hover,
+button[style*="background-color:#f0f7ff"]:not([disabled]):hover,
+button[style*="background:#f0f7ff"]:not([disabled]):hover,
+button[style*="backgroundColor:#f0f7ff"]:not([disabled]):hover,
+button[style*="backgroundColor: #f0f7ff"]:not([disabled]):hover {
+  background-color: #00AEBB !important;
+  color: #fff !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 174, 187, 0.15);
+}
+
+/* Warning Yellow Buttons (#fff3cd) */
+button[style*="background-color: rgb(255, 243, 205)"]:not([disabled]):hover,
+button[style*="backgroundColor: rgb(255, 243, 205)"]:not([disabled]):hover,
+button[style*="background-color:#fff3cd"]:not([disabled]):hover,
+button[style*="background:#fff3cd"]:not([disabled]):hover,
+button[style*="backgroundColor:#fff3cd"]:not([disabled]):hover,
+button[style*="backgroundColor: #fff3cd"]:not([disabled]):hover {
+  background-color: #ffeaa7 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(255, 243, 205, 0.3);
+}
+
+/* Disabled buttons should not have hover effects */
+button[disabled],
+button:disabled {
+  cursor: not-allowed !important;
+  opacity: 0.6;
+}
+
+button[disabled]:hover,
+button:disabled:hover {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Ensure all transitions are smooth */
+button {
+  transition: all 0.3s ease;
+}

@@ -101,28 +101,71 @@ function ProductPage() {
         setLoading(true);
         setError("");
 
-        const response = await fetch(`${API_BASE}/api/games/${id}`);
-        
-        if (!response.ok) {
-          throw new Error(`Failed to fetch product: ${response.status}`);
+        // First try to fetch from custom products
+        let data = null;
+        let isCustomProduct = false;
+
+        try {
+          const customResponse = await fetch(`${API_BASE}/api/products/${id}`);
+          if (customResponse.ok) {
+            data = await customResponse.json();
+            isCustomProduct = true;
+            console.log('Found custom product:', data);
+          }
+        } catch (error) {
+          console.log('Not a custom product, trying API games...');
         }
 
-        const data = await response.json();
-        
+        // If not found in custom products, try API games
+        if (!data) {
+          const apiResponse = await fetch(`${API_BASE}/api/games/${id}`);
+          if (!apiResponse.ok) {
+            throw new Error(`Failed to fetch product: ${apiResponse.status}`);
+          }
+          data = await apiResponse.json();
+          console.log('Found API game:', data);
+        }
+
         // Check if we got valid product data
         if (!data || !data.id) {
           throw new Error('Invalid product data received');
         }
-        
+
+        // Transform custom product to match expected format
+        if (isCustomProduct) {
+          data = {
+            ...data,
+            name: data.name,
+            deck: data.description || data.deck,
+            image: data.image ? { original: data.image, square_small: data.image } : null,
+            original_release_date: data.createdAt,
+            platforms: data.platform ? [{ name: data.platform }] : [],
+            genres: data.tags?.map(tag => ({ name: tag })) ||
+                    data.features?.map(feature => ({ name: feature })) ||
+                    [{ name: data.category }],
+            isCustomProduct: true
+          };
+        }
+
         setProduct(data);
-        
-        // Generate price and rating only once when product is loaded
-        setPriceInfo(generateRandomPrice(data.id));
-        setRating(generateRandomRating(data.id));
-        
+
+        // For custom products, use their stored price and rating
+        if (isCustomProduct && data.price !== undefined) {
+          setPriceInfo({
+            currentPrice: parseFloat(data.price),
+            originalPrice: null,
+            hasDiscount: false
+          });
+          setRating(data.rating || 4.0);
+        } else {
+          // Generate price and rating for API games
+          setPriceInfo(generateRandomPrice(data.id));
+          setRating(generateRandomRating(data.id));
+        }
+
         // Ensure loading screen shows for at least 3 seconds
         await new Promise(resolve => setTimeout(resolve, 3000));
-        
+
       } catch (err) {
         setError(err.message || "Failed to load product");
         console.error("Error fetching product:", err);

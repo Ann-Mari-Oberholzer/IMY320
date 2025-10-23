@@ -402,30 +402,7 @@ export const globalResetUpdated = `
     }
   }
 
-  /* Hover effects for filter toggle button */
-  button[style*="background-color: rgb(0, 174, 187)"]:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0, 174, 187, 0.3);
-  }
-
-  /* Hover effects for add to cart button */
-  button[style*="background-color: rgb(247, 202, 102)"]:hover:not([disabled]) {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(247, 202, 102, 0.3);
-  }
-
-  /* Hover effects for pagination buttons (excluding disabled ones) */
-  button[style*="background-color: rgb(0, 174, 187)"]:not([disabled]):hover {
-    background-color: #F7CA66 !important;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(247, 202, 102, 0.3);
-  }
-
-  /* Current page button hover effect */
-  button[style*="background-color: rgb(247, 202, 102)"]:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(247, 202, 102, 0.3);
-  }
+  /* Note: Button hover effects are now handled globally in globalButtonStyles.css */
 
   /* Game card hover effects */
   .game-card:hover {

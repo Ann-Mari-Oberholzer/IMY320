@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import NavBar from '../components/NavBar';
 import Footer from '../components/Footer';
 import { useUser } from '../contexts/UserContext';
+import apiService from '../services/api';
 
 // Import styles from catalogue to maintain consistency
 import {
@@ -235,62 +236,40 @@ const OrdersPage = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Sample orders data - in a real app, this would come from an API
-  const sampleOrders = [
-    {
-      id: 'ORD-001',
-      date: '2024-01-15',
-      status: 'completed',
-      total: 89.99,
-      items: [
-        {
-          id: 1,
-          name: 'PlayStation 5 Console',
-          image: 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=300&h=300&fit=crop',
-          quantity: 1,
-          price: 89.99
-        }
-      ]
-    },
-    {
-      id: 'ORD-002',
-      date: '2024-01-10',
-      status: 'shipped',
-      total: 45.50,
-      items: [
-        {
-          id: 2,
-          name: 'Xbox Wireless Controller',
-          image: 'https://images.unsplash.com/photo-1621259182978-fbf93132d53d?w=300&h=300&fit=crop',
-          quantity: 2,
-          price: 22.75
-        }
-      ]
-    },
-    {
-      id: 'ORD-003',
-      date: '2024-01-08',
-      status: 'processing',
-      total: 129.99,
-      items: [
-        {
-          id: 3,
-          name: 'Nintendo Switch OLED',
-          image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=300&fit=crop',
-          quantity: 1,
-          price: 129.99
-        }
-      ]
-    }
-  ];
-
   useEffect(() => {
-    // Simulate API call
+    // Fetch orders from the API
     const loadOrders = async () => {
       setLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      setOrders(sampleOrders);
-      setLoading(false);
+      try {
+        const userOrders = await apiService.getUserOrders(user.id);
+
+        // Sort orders by date (newest first)
+        const sortedOrders = userOrders.sort((a, b) => {
+          return new Date(b.orderDate) - new Date(a.orderDate);
+        });
+
+        // Transform orders to match the display format
+        const transformedOrders = sortedOrders.map(order => ({
+          id: `ORD-${String(order.id).padStart(3, '0')}`,
+          date: order.orderDate,
+          status: order.status || 'processing',
+          total: order.total,
+          items: order.products.map(item => ({
+            id: item.productId,
+            name: item.product?.name || 'Product',
+            image: item.product?.image || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=300&h=300&fit=crop',
+            quantity: item.quantity,
+            price: item.price || item.product?.price || 0
+          }))
+        }));
+
+        setOrders(transformedOrders);
+      } catch (error) {
+        console.error('Failed to load orders:', error);
+        setOrders([]);
+      } finally {
+        setLoading(false);
+      }
     };
 
     if (user) {

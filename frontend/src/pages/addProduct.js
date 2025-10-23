@@ -134,10 +134,16 @@ export const addTagStyle = {
 };
 
 export const alertStyle = {
-  padding: "0.8rem 1rem",
-  borderRadius: "6px",
+  padding: "1.2rem 1.5rem",
+  borderRadius: "8px",
   color: "#fff",
-  marginBottom: "1rem",
+  marginBottom: "1.5rem",
+  fontSize: "1.1rem",
+  fontWeight: "600",
+  textAlign: "center",
+  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+  position: "relative",
+  zIndex: 1000,
 };
 
 export const buttonRowStyle = {

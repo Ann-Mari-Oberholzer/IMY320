@@ -58,19 +58,43 @@ class ApiService {
       // Check if product already exists
       const existingResponse = await fetch(`${API_BASE}/api/products/${product.id}`);
       if (existingResponse.ok) {
-        return; // Product already exists
+        const existingProduct = await existingResponse.json();
+        return existingProduct; // Product already exists, return it
       }
     } catch (error) {
       // Product doesn't exist, create it
+      console.log('Product does not exist, creating new product');
     }
 
     // Create new product
-    const response = await fetch(`${API_BASE}/api/products`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(product)
-    });
-    return response.json();
+    try {
+      const response = await fetch(`${API_BASE}/api/products`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(product)
+      });
+
+      if (!response.ok) {
+        // Handle 413 Payload Too Large
+        if (response.status === 413) {
+          throw new Error('Product data is too large. Please use a smaller image (under 500KB).');
+        }
+
+        // Try to parse error response
+        try {
+          const errorData = await response.json();
+          throw new Error(errorData.error || errorData.message || `Failed to create product: ${response.status}`);
+        } catch (parseError) {
+          // If response is not JSON (e.g., HTML error page)
+          throw new Error(`Server error (${response.status}): ${response.statusText}. Please try with a smaller image.`);
+        }
+      }
+
+      return response.json();
+    } catch (error) {
+      console.error('Error saving product:', error);
+      throw error;
+    }
   }
 
   // Cart operations
@@ -207,21 +231,43 @@ class ApiService {
       userId,
       products,
       total,
-      status: 'pending',
+      status: 'processing',
       orderDate: new Date().toISOString()
     };
 
-    const response = await fetch(`${API_BASE}/api/orders`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(order)
-    });
-    return response.json();
+    try {
+      const response = await fetch(`${API_BASE}/api/orders`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(order)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to create order: ${response.status}`);
+      }
+
+      const createdOrder = await response.json();
+      console.log('Order created successfully:', createdOrder);
+      return createdOrder;
+    } catch (error) {
+      console.error('Error creating order:', error);
+      throw error;
+    }
   }
 
   async getUserOrders(userId) {
-    const response = await fetch(`${API_BASE}/api/orders?userId=${userId}`);
-    return response.json();
+    try {
+      const response = await fetch(`${API_BASE}/api/orders?userId=${userId}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch orders: ${response.status}`);
+      }
+      const orders = await response.json();
+      console.log('Fetched orders:', orders);
+      return orders;
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      return [];
+    }
   }
 
   async getFavorites(userId) {

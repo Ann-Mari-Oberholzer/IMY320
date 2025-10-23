@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import NavBar from "../components/NavBar";
 import Footer from "../components/Footer";
 import { useUser } from "../contexts/UserContext";
-import { FaTrash, FaShoppingCart } from "react-icons/fa";
+import { FaTrash, FaShoppingCart, FaHeart, FaGamepad, FaStore } from "react-icons/fa";
 import apiServiceInstance from "../services/api";
 import favoritesService from "../services/FavouritesService";
 import { useNavigate } from "react-router-dom";
@@ -13,45 +13,45 @@ import {
   productGridStyle,
   productCardStyle,
   productImageStyle,
+  productImageContainerStyle,
+  productInfoStyle,
   productNameStyle,
+  productDescriptionStyle,
+  priceStyle,
   removeButtonStyle,
+  addToCartButtonStyle,
+  buttonContainerStyle,
   headerStyle,
   titleStyle,
-} from "./favourite.js"
-
-const addToCartButtonStyle = {
-  backgroundColor: "#00AEBB",
-  color: "white",
-  border: "none",
-  borderRadius: "5px",
-  padding: "8px 12px",
-  cursor: "pointer",
-  marginTop: "10px",
-  marginRight: "10px",
-  display: "flex",
-  alignItems: "center",
-  gap: "5px",
-  fontSize: "14px"
-};
-
-const priceStyle = {
-  fontSize: "18px",
-  fontWeight: "bold",
-  color: "#00AEBB",
-  margin: "10px 0"
-};
-
-const buttonContainerStyle = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  marginTop: "10px"
-};
+  subtitleStyle,
+  emptyStateStyle,
+  emptyStateIconStyle,
+  emptyStateTitleStyle,
+  emptyStateTextStyle,
+  browseButtonStyle,
+} from "./favourite.js";
 
 function Favourites() {
   const { user } = useUser();
   const [favourites, setFavourites] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Add bounce animation styles
+  useEffect(() => {
+    const styleElement = document.createElement("style");
+    styleElement.textContent = `
+      @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+        40% { transform: translateY(-10px); }
+        60% { transform: translateY(-5px); }
+      }
+    `;
+    document.head.appendChild(styleElement);
+
+    return () => {
+      document.head.removeChild(styleElement);
+    };
+  }, []);
 
   useEffect(() => {
     if (user?.id) {
@@ -108,11 +108,24 @@ function Favourites() {
     return (
       <div style={containerStyle}>
         <NavBar currentPage="favourites" user={user} />
-        <div style={headerStyle}>
-          <h1 style={titleStyle}>Favourites</h1>
-        </div>
         <div style={contentStyle}>
-          <p>Please log in to view your favorites.</p>
+          <div style={headerStyle}>
+            <h1 style={titleStyle}>My Wishlist</h1>
+            <p style={subtitleStyle}>Your favorite games and accessories</p>
+          </div>
+          <div style={emptyStateStyle}>
+            <FaHeart style={emptyStateIconStyle} />
+            <h2 style={emptyStateTitleStyle}>Please Log In</h2>
+            <p style={emptyStateTextStyle}>
+              You need to be logged in to view your wishlist.
+            </p>
+            <button
+              style={browseButtonStyle}
+              onClick={() => navigate('/login')}
+            >
+              Log In
+            </button>
+          </div>
         </div>
         <Footer />
       </div>
@@ -123,11 +136,24 @@ function Favourites() {
     return (
       <div style={containerStyle}>
         <NavBar currentPage="favourites" user={user} />
-        <div style={headerStyle}>
-          <h1 style={titleStyle}>Favourites</h1>
-        </div>
-        <div style={contentStyle}>
-          <p>Loading your favorites...</p>
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(248, 249, 250, 0.95)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 1000,
+          backdropFilter: 'blur(5px)'
+        }}>
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            <FaGamepad style={{ fontSize: '3rem', color: '#00AEBB', animation: 'bounce 1s infinite' }} />
+            <FaGamepad style={{ fontSize: '3rem', color: '#F7CA66', animation: 'bounce 1s infinite 0.2s' }} />
+            <FaGamepad style={{ fontSize: '3rem', color: '#00AEBB', animation: 'bounce 1s infinite 0.4s' }} />
+          </div>
         </div>
         <Footer />
       </div>
@@ -137,18 +163,29 @@ function Favourites() {
   return (
     <div style={containerStyle}>
       <NavBar currentPage="favourites" user={user} />
-      <div style={headerStyle}>
-        <h1 style={titleStyle}>My Wishlist</h1>
-      </div>
       <div style={contentStyle}>
+        <div style={headerStyle}>
+          <h1 style={titleStyle}>My Wishlist</h1>
+          <p style={subtitleStyle}>Your favorite games and accessories</p>
+        </div>
+
         {favourites.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '40px' }}>
-            <p style={{ fontSize: '18px', color: '#666' }}>
-              You haven't added any products to your favorites yet.
+          <div style={emptyStateStyle}>
+            <FaHeart style={emptyStateIconStyle} />
+            <h2 style={emptyStateTitleStyle}>Your Wishlist is Empty</h2>
+            <p style={emptyStateTextStyle}>
+              You haven't added any products to your wishlist yet.
             </p>
-            <p style={{ color: '#999' }}>
-              Browse our products and click the heart icon to add items to your favorites!
+            <p style={emptyStateTextStyle}>
+              Browse our catalogue and click the heart icon to save items for later!
             </p>
+            <button
+              style={browseButtonStyle}
+              onClick={() => navigate('/catalogue')}
+            >
+              <FaStore />
+              Browse Catalogue
+            </button>
           </div>
         ) : (
           <div style={productGridStyle}>
@@ -156,53 +193,72 @@ function Favourites() {
               <div
                 key={product.id}
                 style={productCardStyle}
-                onClick={() => navigate(`/product/${product.id}`)}
+                className="wishlist-card"
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.boxShadow = "0 4px 12px rgba(0, 174, 187, 0.3)";
-                  e.currentTarget.style.borderColor = "#00AEBB";
+                  e.currentTarget.style.transform = 'translateY(-4px)';
+                  e.currentTarget.style.boxShadow = "0 8px 25px rgba(0, 0, 0, 0.15)";
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.boxShadow = "none";
-                  e.currentTarget.style.borderColor = "#ccc";
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
                 }}
               >
-                <img
-                  src={product.image || '/images/placeholder.jpg'}
-                  alt={product.name || 'Product'}
-                  style={productImageStyle}
-                  onError={(e) => {
-                    e.target.src = '/images/placeholder.jpg';
-                  }}
-                />
-                <div style={productNameStyle}>{product.name || 'Unnamed Product'}</div>
-                <div style={priceStyle}>{formatPrice(product.price)}</div>
+                <div
+                  style={productImageContainerStyle}
+                  onClick={() => navigate(`/product/${product.id}`)}
+                >
+                  <img
+                    src={product.image || '/images/placeholder.jpg'}
+                    alt={product.name || 'Product'}
+                    style={productImageStyle}
+                    onError={(e) => {
+                      e.target.src = '/images/placeholder.jpg';
+                    }}
+                  />
+                </div>
 
-                {/* Buttons */}
-                <div style={buttonContainerStyle}>
-                  <button
-                    style={{
-                      ...addToCartButtonStyle,
-                      backgroundColor: product.inStock ? '#00AEBB' : '#ccc',
-                      cursor: product.inStock ? 'pointer' : 'not-allowed'
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      addToCart(product);
-                    }}
-                    disabled={!product.inStock}
+                <div style={productInfoStyle}>
+                  <h3
+                    style={productNameStyle}
+                    onClick={() => navigate(`/product/${product.id}`)}
                   >
-                    <FaShoppingCart /> Add to Cart
-                  </button>
-                  
-                  <button
-                    style={removeButtonStyle}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      removeFromFavourites(product.id);
-                    }}
-                  >
-                    <FaTrash />
-                  </button>
+                    {product.name || 'Unnamed Product'}
+                  </h3>
+
+                  {product.description && (
+                    <p style={productDescriptionStyle}>{product.description}</p>
+                  )}
+
+                  <div style={priceStyle}>{formatPrice(product.price)}</div>
+
+                  {/* Buttons */}
+                  <div style={buttonContainerStyle}>
+                    <button
+                      style={{
+                        ...addToCartButtonStyle,
+                        backgroundColor: product.inStock !== false ? '#F7CA66' : '#ccc',
+                        cursor: product.inStock !== false ? 'pointer' : 'not-allowed'
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        addToCart(product);
+                      }}
+                      disabled={product.inStock === false}
+                    >
+                      <FaShoppingCart /> Add to Cart
+                    </button>
+
+                    <button
+                      style={removeButtonStyle}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeFromFavourites(product.id);
+                      }}
+                      title="Remove from wishlist"
+                    >
+                      <FaTrash />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}

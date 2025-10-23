@@ -179,6 +179,7 @@ export const CartProvider = ({ children, user }) => {
     loading,
     addToCart,
     updateQuantity,
+    updateCartItem: updateQuantity, // Alias for backward compatibility
     removeFromCart,
     clearCart,
     loadCart,
