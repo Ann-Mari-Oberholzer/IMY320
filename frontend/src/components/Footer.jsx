@@ -23,8 +23,8 @@ const Footer = () => {
         <div className="footer-nav">
           <a href="/" className="footer-link">Home</a>
           <a href="/about" className="footer-link">About</a>
-          <a href="#services" className="footer-link">Services</a>
-          <a href="#contact" className="footer-link">Contact</a>
+          <a href="/underConstruction" className="footer-link">Services</a>
+          <a href="/underConstruction" className="footer-link">Contact</a>
         </div>
 
         {/* Social Media */}

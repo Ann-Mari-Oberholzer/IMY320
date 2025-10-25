@@ -605,6 +605,42 @@ export const similarListItem = {
   display: "none", // Deprecated - using cards now
 };
 
+// Quantity control styles from ShoppingCartPage
+export const quantityControlsStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  border: '2px solid #e9ecef',
+  borderRadius: '0.5rem',
+  overflow: 'hidden',
+  backgroundColor: '#fff',
+};
+
+export const quantityButtonStyle = {
+  padding: '0.4rem 0.6rem',
+  backgroundColor: '#f8f9fa',
+  border: 'none',
+  cursor: 'pointer',
+  fontSize: '0.9rem',
+  fontWeight: '600',
+  color: '#666',
+  transition: 'all 0.3s ease',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  minWidth: '32px',
+};
+
+export const quantityInputStyle = {
+  width: '40px',
+  padding: '0.4rem 0.2rem',
+  textAlign: 'center',
+  border: 'none',
+  fontSize: '0.9rem',
+  fontWeight: '600',
+  outline: 'none',
+  backgroundColor: '#fff',
+};
+
 // Media queries for responsive design
 export const mediaQueries = `
   @media (max-width: 1024px) {

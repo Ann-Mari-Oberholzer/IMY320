@@ -193,7 +193,7 @@ function LandingPage() {
     color: hoveredCategoryIndex === index ? "#000000" : (isHeading ? pastelHeading.color : pastelText.color)
   });
 
-  // Loading screen component for featured games - exact same as shopping cart checkout
+  // Unified LoadingScreen component
   const LoadingScreen = () => (
     <div style={{
       position: 'fixed',
@@ -216,37 +216,12 @@ function LandingPage() {
     </div>
   );
 
+  if (loading) return <LoadingScreen />;
+
+
   return (
     <div style={page} className="landing-page-container">
-      
-       {loading && (
-         <div style={{
-           position: 'fixed',
-           top: 0,
-           left: 0,
-           right: 0,
-           bottom: 0,
-           backgroundColor: 'rgba(248, 249, 250, 1)',
-           display: 'flex',
-           justifyContent: 'center',
-           alignItems: 'center',
-           zIndex: 1000,
-           backdropFilter: 'blur(5px)'
-         }}>
-           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-             <FaGamepad style={{ fontSize: '3rem', color: '#00AEBB', animation: 'bounce 1s infinite' }} />
-             <FaGamepad style={{ fontSize: '3rem', color: '#F7CA66', animation: 'bounce 1s infinite 0.2s' }} />
-             <FaGamepad style={{ fontSize: '3rem', color: '#00AEBB', animation: 'bounce 1s infinite 0.4s' }} />
-           </div>
-         </div>
-       )}
-      
-      {/* NAVIGATION - Replace the old nav with the new NavBar component */}
-      <NavBar 
-        currentPage="home" 
-        user={user} 
-        onLogout={handleLogout}
-      />
+      <NavBar currentPage="home" user={user} onLogout={handleLogout} />
 
       {/* HERO SECTION */}
       <section style={heroSection}>

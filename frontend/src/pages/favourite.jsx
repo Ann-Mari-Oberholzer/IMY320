@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import NavBar from "../components/NavBar";
 import Footer from "../components/Footer";
 import { useUser } from "../contexts/UserContext";
-import { FaTrash, FaShoppingCart, FaHeart, FaGamepad, FaStore } from "react-icons/fa";
-import apiServiceInstance from "../services/api";
+import { useCart } from "../contexts/CartContext";
+import { FaTrash, FaShoppingCart, FaHeart, FaGamepad, FaStore, FaGamepad, FaCheck } from "react-icons/fa";
 import favoritesService from "../services/FavouritesService";
 import { useNavigate } from "react-router-dom";
 
@@ -33,6 +33,7 @@ import {
 
 function Favourites() {
   const { user } = useUser();
+  const { addToCart, removeFromCart, cart } = useCart();
   const [favourites, setFavourites] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -59,14 +60,14 @@ function Favourites() {
     }
   }, [user]);
 
-  const navigate = useNavigate();
-  
   const loadFavorites = () => {
     try {
       const userFavorites = favoritesService.getFavorites(user.id);
+      console.log("Loaded favorites:", userFavorites); // Debug: Log favorites
       setFavourites(userFavorites);
     } catch (error) {
-      console.error('Error loading favorites:', error);
+      console.error("Error loading favorites:", error);
+      alert("Failed to load favorites: " + error.message);
     } finally {
       setLoading(false);
     }
@@ -74,33 +75,64 @@ function Favourites() {
 
   const removeFromFavourites = (productId) => {
     if (!user?.id) return;
-    
+
     try {
+      console.log("Removing from favorites:", productId); // Debug: Log removal
       favoritesService.removeFromFavorites(user.id, productId);
       setFavourites(prev => prev.filter(product => product.id !== productId));
     } catch (error) {
-      console.error('Error removing from favorites:', error);
+      console.error("Error removing from favorites:", error);
+      alert("Failed to remove item from favorites: " + error.message);
     }
   };
 
-  const addToCart = async (product) => {
+  const handleAddToCart = async (product) => {
+    console.log("Add to cart clicked for product:", product); // Debug: Log product
     if (!user?.id) {
-      alert('Please log in to add items to cart');
+      alert("Please log in to add items to cart");
+      navigate("/login");
       return;
     }
 
     try {
-      await apiServiceInstance.addToCartWithProduct(user.id, product, 1);
-      alert(`${product.name} added to cart!`);
+      const productData = {
+        id: product.id,
+        name: product.name,
+        description: product.description || "No description available",
+        image: product.image || "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=300&h=300&fit=crop",
+        price: product.price,
+        originalPrice: product.originalPrice,
+        tags: product.tags || [],
+        hasDiscount: product.hasDiscount,
+      };
+      console.log("Adding to cart:", productData); // Debug: Log productData
+      const success = await addToCart(productData, 1);
+      if (success) {
+        setAddedToCart(prev => ({ ...prev, [product.id]: true }));
+        removeFromFavourites(product.id); // Remove from wishlist
+      } else {
+        throw new Error("addToCart returned false");
+      }
     } catch (error) {
-      console.error('Error adding to cart:', error);
-      alert('Failed to add item to cart');
+      console.error("Error adding to cart:", error);
+      alert(`Failed to add ${product.name} to cart: ${error.message}`);
+    }
+  };
+
+  const handleRemoveFromCart = (productId) => {
+    console.log("Remove from cart clicked for productId:", productId); // Debug: Log productId
+    try {
+      removeFromCart(productId);
+      setAddedToCart(prev => ({ ...prev, [productId]: false }));
+    } catch (error) {
+      console.error("Error removing from cart:", error);
+      alert("Failed to remove item from cart: " + error.message);
     }
   };
 
   const formatPrice = (price) => {
-    if (typeof price === 'string') return price;
-    if (price === null || price === undefined || isNaN(price)) return 'Price not available';
+    if (typeof price === "string") return price;
+    if (price === null || price === undefined || isNaN(price)) return "Price not available";
     return `$${price.toFixed(2)}`;
   };
 
@@ -170,11 +202,9 @@ function Favourites() {
         </div>
 
         {favourites.length === 0 ? (
-          <div style={emptyStateStyle}>
-            <FaHeart style={emptyStateIconStyle} />
-            <h2 style={emptyStateTitleStyle}>Your Wishlist is Empty</h2>
-            <p style={emptyStateTextStyle}>
-              You haven't added any products to your wishlist yet.
+          <div style={{ textAlign: "center", padding: "40px" }}>
+            <p style={{ fontSize: "18px", color: "#666" }}>
+              You haven't added any products to your favorites yet.
             </p>
             <p style={emptyStateTextStyle}>
               Browse our catalogue and click the heart icon to save items for later!
@@ -270,6 +300,5 @@ function Favourites() {
   );
 }
 
-// Export the favorites service for use in other components
 export { favoritesService };
 export default Favourites;

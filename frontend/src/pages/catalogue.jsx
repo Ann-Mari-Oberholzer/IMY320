@@ -137,8 +137,6 @@ const enhancedSelectStyles = {
   },
 };
 
-
-
 function Catalogue() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -191,6 +189,31 @@ function Catalogue() {
       setActiveSearchTerm(searchParam);
     }
   }, [location.search]);
+
+  // Sync addedToCart with cart context
+  useEffect(() => {
+    if (cart) {
+      const cartState = {};
+      cart.forEach(item => { cartState[item.id] = true; });
+      setAddedToCart(cartState);
+    }
+  }, [cart]);
+
+  // Restore scroll position and page number
+  useEffect(() => {
+    const savedScroll = sessionStorage.getItem('catalogueScroll');
+    const savedPage = sessionStorage.getItem('cataloguePage');
+    if (savedScroll && savedPage && location.state?.fromProduct) {
+      const pageNum = Number(savedPage);
+      setCurrentPage(pageNum);
+      fetchGames(activeSearchTerm, selectedCategory, sortBy, pageNum);
+      setTimeout(() => {
+        window.scrollTo({ top: Number(savedScroll), behavior: 'auto' });
+      }, 0);
+      sessionStorage.removeItem('catalogueScroll');
+      sessionStorage.removeItem('cataloguePage');
+    }
+  }, [location.state, activeSearchTerm, selectedCategory, sortBy, fetchGames]);
 
   // Handle tag click - update search and filter
   const handleTagClick = (tagName, event) => {
@@ -437,6 +460,7 @@ function Catalogue() {
   const handleGamesPerPageChange = (newGamesPerPage) => {
     setGamesPerPage(newGamesPerPage);
     setCurrentPage(1);
+    window.scrollTo({ top: 0, behavior: 'smooth' }); 
   };
 
   // Filter and sort all games
@@ -646,25 +670,9 @@ function Catalogue() {
 
   // Update pagination when filtered games or games per page changes
   useEffect(() => {
-    const totalFiltered = filteredAndSortedGames.length;
-    setTotalResults(totalFiltered);
-    setTotalPages(Math.ceil(totalFiltered / gamesPerPage) || 1);
-
-    // Reset to page 1 if current page is out of bounds
-    if (currentPage > Math.ceil(totalFiltered / gamesPerPage)) {
-      setCurrentPage(1);
-    }
-  }, [filteredAndSortedGames.length, gamesPerPage, currentPage]);
-
-  // Scroll to top when page changes
-  useEffect(() => {
-    if (catalogueTopRef.current) {
-      catalogueTopRef.current.scrollIntoView({ behavior: 'instant', block: 'start' });
-    }
-    window.scrollTo(0, 0);
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
-  }, [currentPage]);
+    setCurrentPage(1);
+    fetchGames(activeSearchTerm, selectedCategory, sortBy, 1);
+  }, [gamesPerPage, activeSearchTerm, selectedCategory, sortBy, fetchGames]);
 
    useEffect(() => {
      const styleElement = document.createElement("style");
@@ -709,27 +717,27 @@ function Catalogue() {
     <div style={containerStyle}>
       <NavBar currentPage="catalogue" user={user} />
       
-       {loading && (
-         <div style={{
-           position: 'fixed',
-           top: 0,
-           left: 0,
-           right: 0,
-           bottom: 0,
-           backgroundColor: 'rgba(248, 249, 250, 1)',
-           display: 'flex',
-           justifyContent: 'center',
-           alignItems: 'center',
-           zIndex: 1000,
-           backdropFilter: 'blur(5px)'
-         }}>
-           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-             <FaGamepad style={{ fontSize: '3rem', color: '#00AEBB', animation: 'bounce 1s infinite' }} />
-             <FaGamepad style={{ fontSize: '3rem', color: '#F7CA66', animation: 'bounce 1s infinite 0.2s' }} />
-             <FaGamepad style={{ fontSize: '3rem', color: '#00AEBB', animation: 'bounce 1s infinite 0.4s' }} />
-           </div>
-         </div>
-       )}
+      {loading && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(248, 249, 250, 1)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 1000,
+          backdropFilter: 'blur(5px)'
+        }}>
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            <FaGamepad style={{ fontSize: '3rem', color: '#00AEBB', animation: 'bounce 1s infinite' }} />
+            <FaGamepad style={{ fontSize: '3rem', color: '#F7CA66', animation: 'bounce 1s infinite 0.2s' }} />
+            <FaGamepad style={{ fontSize: '3rem', color: '#00AEBB', animation: 'bounce 1s infinite 0.4s' }} />
+          </div>
+        </div>
+      )}
       
       <div style={contentStyle}>
         <div ref={catalogueTopRef} style={headerStyle}>
@@ -1152,7 +1160,10 @@ function Catalogue() {
                 key={game.id}
                 style={gameCardStyle}
                 className="game-card"
-                onClick={() => navigate(`/product/${game.id}`)}
+                onClick={() => {
+                  saveScrollPosition();
+                  navigate(`/product/${game.id}`, { state: { fromProduct: true } });
+                }}
                 title="Click to view product details"
               >
                 <div style={priceContainerStyle} className="price-container">
@@ -1426,7 +1437,7 @@ function Catalogue() {
               }}
             >
               <FaChevronLeft style={{ marginRight: '0.25rem' }} />
-              Previous
+              First
             </button>
 
             {getPageNumbers().map(pageNum => (
