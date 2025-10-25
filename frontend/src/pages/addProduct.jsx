@@ -38,7 +38,8 @@ const CATEGORIES = [
 const BRANDS = [
   'SteelSeries', 'Razer', 'HyperX', 'Logitech', 'Corsair',
   'Sony', 'Microsoft', 'Nintendo', 'Valve',
-  'CD Projekt Red', 'FromSoftware', 'EA Sports', 'Avalanche Software', 'Insomniac Games'
+  'CD Projekt Red', 'FromSoftware', 'EA Sports', 'Avalanche Software', 'Insomniac Games',
+  'Other'
 ];
 
 function AddProduct() {
@@ -67,6 +68,8 @@ function AddProduct() {
   const [imagePreview, setImagePreview] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [alert, setAlert] = useState({ type: '', message: '' });
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [showCustomBrand, setShowCustomBrand] = useState(false);
   const alertTimeoutRef = React.useRef(null);
   const isNavigatingRef = React.useRef(false);
 
@@ -109,6 +112,15 @@ function AddProduct() {
           transform: translateY(0);
           opacity: 1;
         }
+      }
+      
+      /* Hide Grammarly extension */
+      grammarly-extension {
+        display: none !important;
+      }
+      
+      [data-grammarly-shadow-root] {
+        display: none !important;
       }
     `;
     document.head.appendChild(styleElement);
@@ -249,40 +261,79 @@ function AddProduct() {
 
   // Validate current step
   const validateStep = (step) => {
+    const errors = {};
+    let firstErrorField = null;
+    
     switch (step) {
       case 1:
         if (!formData.name.trim()) {
-          showAlert('error', 'Product name is required');
-          return false;
+          errors.name = 'Product name is required';
+          if (!firstErrorField) firstErrorField = 'name';
         }
         if (!formData.price || parseFloat(formData.price) <= 0) {
-          showAlert('error', 'Valid price is required');
-          return false;
+          errors.price = 'Valid price is required';
+          if (!firstErrorField) firstErrorField = 'price';
         }
         if (!formData.brand.trim()) {
-          showAlert('error', 'Brand is required');
-          return false;
+          errors.brand = 'Brand is required';
+          if (!firstErrorField) firstErrorField = 'brand';
         }
-        return true;
+        break;
 
       case 2:
         if (!formData.description.trim()) {
-          showAlert('error', 'Product description is required');
-          return false;
+          errors.description = 'Product description is required';
+          if (!firstErrorField) firstErrorField = 'description';
         }
         if (formData.features.length === 0) {
-          showAlert('error', 'At least one feature is required');
-          return false;
+          errors.features = 'At least one feature is required';
+          if (!firstErrorField) firstErrorField = 'features';
         }
-        return true;
+        break;
 
       case 3:
         // Don't validate image on step 3 - only validate on final submit
-        return true;
+        break;
 
       default:
-        return true;
+        break;
     }
+    
+    setFieldErrors(errors);
+    
+    // Scroll to first error field if there are errors
+    if (firstErrorField) {
+      setTimeout(() => {
+        // Try to find by name attribute first
+        let errorElement = document.querySelector(`[name="${firstErrorField}"]`);
+        
+        // If not found, try to find by data-field attribute (for special cases like features)
+        if (!errorElement) {
+          errorElement = document.querySelector(`[data-field="${firstErrorField}"]`);
+        }
+        
+        if (errorElement) {
+          // Scroll to show the error message and field
+          const errorContainer = errorElement.closest('[style*="margin"]') || errorElement.parentElement;
+          if (errorContainer) {
+            errorContainer.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'center',
+              inline: 'nearest'
+            });
+          }
+          
+          // Focus the field if it's an input/textarea/select
+          if (errorElement.tagName === 'INPUT' || 
+              errorElement.tagName === 'TEXTAREA' || 
+              errorElement.tagName === 'SELECT') {
+            setTimeout(() => errorElement.focus(), 400);
+          }
+        }
+      }, 100);
+    }
+    
+    return Object.keys(errors).length === 0;
   };
 
   // Navigate between steps
@@ -295,6 +346,7 @@ function AddProduct() {
     setAlert({ type: '', message: '' });
 
     if (validateStep(currentStep)) {
+      setFieldErrors({}); // Clear errors when moving forward
       setCurrentStep(prev => Math.min(prev + 1, totalSteps));
 
       // Scroll to top of page
@@ -313,9 +365,10 @@ function AddProduct() {
     // Set navigation flag to prevent alerts from showing
     isNavigatingRef.current = true;
 
-    // Clear any existing alerts when going back
+    // Clear any existing alerts and errors when going back
     clearAlertTimeout();
     setAlert({ type: '', message: '' });
+    setFieldErrors({});
     setCurrentStep(prev => Math.max(prev - 1, 1));
 
     // Scroll to top of page
@@ -372,7 +425,7 @@ function AddProduct() {
         features: formData.features,
         image: formData.image,
         inStock: formData.inStock,
-        rating: 4.0, // Default rating for new products
+        rating: null, // No rating for new products - customers will leave ratings
         // Add tags property (features as tags)
         tags: formData.features,
         // Add platform for games
@@ -389,27 +442,12 @@ function AddProduct() {
       console.log('Save product result:', result);
 
       if (result && !result.error) {
-        showAlert('success', 'Product added successfully!');
+        showAlert('success', 'Product added successfully! Redirecting to product page...');
 
-        // Reset form after short delay
+        // Navigate to the newly created product page after short delay
         setTimeout(() => {
-          setFormData({
-            name: '',
-            price: '',
-            category: 'headphones',
-            brand: '',
-            description: '',
-            features: [],
-            platform: '',
-            image: '',
-            inStock: true
-          });
-          setImagePreview('');
-          setCurrentStep(1);
-
-          // Navigate to products or catalogue page
-          navigate('/catalogue');
-        }, 2000);
+          navigate(`/product/${productId}`);
+        }, 1500);
 
       } else {
         const errorMsg = result?.error || result?.message || 'Failed to save product';
@@ -574,34 +612,68 @@ function AddProduct() {
             <>
               <div style={sectionStyle}>
                 <label style={labelStyle}>Product Name *</label>
+                {fieldErrors.name && (
+                  <div style={{
+                    color: '#e74c3c',
+                    fontSize: '0.85rem',
+                    marginBottom: '0.5rem',
+                    padding: '0.5rem',
+                    backgroundColor: '#ffebee',
+                    borderRadius: '0.25rem',
+                    border: '1px solid #e74c3c',
+                    animation: 'slideIn 0.3s ease-out'
+                  }}>
+                    ⚠️ {fieldErrors.name}
+                  </div>
+                )}
                 <input
                   type="text"
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
                   placeholder="Enter product name"
-                  style={inputStyle}
+                  style={{
+                    ...inputStyle,
+                    borderColor: fieldErrors.name ? '#e74c3c' : '#ddd'
+                  }}
                   required
                 />
               </div>
 
               <div style={sectionStyle}>
-                <label style={labelStyle}>Price ($) *</label>
+                <label style={labelStyle}>Price (R) * <span style={{fontSize: '0.8rem', color: '#666'}}>(Must be greater than R0)</span></label>
+                {fieldErrors.price && (
+                  <div style={{
+                    color: '#e74c3c',
+                    fontSize: '0.85rem',
+                    marginBottom: '0.5rem',
+                    padding: '0.5rem',
+                    backgroundColor: '#ffebee',
+                    borderRadius: '0.25rem',
+                    border: '1px solid #e74c3c',
+                    animation: 'slideIn 0.3s ease-out'
+                  }}>
+                    ⚠️ {fieldErrors.price}
+                  </div>
+                )}
                 <input
                   type="number"
                   name="price"
                   value={formData.price}
                   onChange={handleInputChange}
-                  placeholder="0.00"
-                  min="0"
+                  placeholder="e.g., 299.99"
+                  min="0.01"
                   step="0.01"
-                  style={inputStyle}
+                  style={{
+                    ...inputStyle,
+                    borderColor: fieldErrors.price ? '#e74c3c' : '#ddd'
+                  }}
                   required
                 />
               </div>
 
               <div style={sectionStyle}>
-                <label style={labelStyle}>Category *</label>
+                <label style={labelStyle}>Category * <span style={{fontSize: '0.8rem', color: '#666'}}>(e.g., Headphones, Consoles, Games)</span></label>
                 <select
                   name="category"
                   value={formData.category}
@@ -617,21 +689,59 @@ function AddProduct() {
 
               <div style={sectionStyle}>
                 <label style={labelStyle}>Brand *</label>
-                <input
-                  type="text"
+                {fieldErrors.brand && (
+                  <div style={{
+                    color: '#e74c3c',
+                    fontSize: '0.85rem',
+                    marginBottom: '0.5rem',
+                    padding: '0.5rem',
+                    backgroundColor: '#ffebee',
+                    borderRadius: '0.25rem',
+                    border: '1px solid #e74c3c',
+                    animation: 'slideIn 0.3s ease-out'
+                  }}>
+                    ⚠️ {fieldErrors.brand}
+                  </div>
+                )}
+                <select
                   name="brand"
-                  value={formData.brand}
-                  onChange={handleInputChange}
-                  placeholder="Select or enter brand"
-                  list="brands"
-                  style={inputStyle}
+                  value={formData.brand === 'Other' || showCustomBrand ? 'Other' : formData.brand}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value === 'Other') {
+                      setShowCustomBrand(true);
+                      setFormData(prev => ({ ...prev, brand: '' }));
+                    } else {
+                      setShowCustomBrand(false);
+                      setFormData(prev => ({ ...prev, brand: value }));
+                    }
+                  }}
+                  style={{
+                    ...inputStyle,
+                    borderColor: fieldErrors.brand ? '#e74c3c' : '#ddd'
+                  }}
                   required
-                />
-                <datalist id="brands">
+                >
+                  <option value="">Select a brand</option>
                   {BRANDS.map(brand => (
-                    <option key={brand} value={brand} />
+                    <option key={brand} value={brand}>{brand}</option>
                   ))}
-                </datalist>
+                </select>
+                {showCustomBrand && (
+                  <input
+                    type="text"
+                    name="customBrand"
+                    value={formData.brand}
+                    onChange={(e) => setFormData(prev => ({ ...prev, brand: e.target.value }))}
+                    placeholder="Enter custom brand name"
+                    style={{
+                      ...inputStyle,
+                      marginTop: '0.5rem',
+                      borderColor: fieldErrors.brand ? '#e74c3c' : '#ddd'
+                    }}
+                    required
+                  />
+                )}
               </div>
             </>
           )}
@@ -641,12 +751,29 @@ function AddProduct() {
             <>
               <div style={sectionStyle}>
                 <label style={labelStyle}>Description *</label>
+                {fieldErrors.description && (
+                  <div style={{
+                    color: '#e74c3c',
+                    fontSize: '0.85rem',
+                    marginBottom: '0.5rem',
+                    padding: '0.5rem',
+                    backgroundColor: '#ffebee',
+                    borderRadius: '0.25rem',
+                    border: '1px solid #e74c3c',
+                    animation: 'slideIn 0.3s ease-out'
+                  }}>
+                    ⚠️ {fieldErrors.description}
+                  </div>
+                )}
                 <textarea
                   name="description"
                   value={formData.description}
                   onChange={handleInputChange}
                   placeholder="Enter product description"
-                  style={textareaStyle}
+                  style={{
+                    ...textareaStyle,
+                    borderColor: fieldErrors.description ? '#e74c3c' : '#ddd'
+                  }}
                   required
                 />
               </div>
@@ -667,6 +794,20 @@ function AddProduct() {
 
               <div style={sectionStyle}>
                 <label style={labelStyle}>Features *</label>
+                {fieldErrors.features && (
+                  <div style={{
+                    color: '#e74c3c',
+                    fontSize: '0.85rem',
+                    marginBottom: '0.5rem',
+                    padding: '0.5rem',
+                    backgroundColor: '#ffebee',
+                    borderRadius: '0.25rem',
+                    border: '1px solid #e74c3c',
+                    animation: 'slideIn 0.3s ease-out'
+                  }}>
+                    ⚠️ {fieldErrors.features}
+                  </div>
+                )}
                 <div style={addTagStyle}>
                   <input
                     type="text"
@@ -674,6 +815,7 @@ function AddProduct() {
                     onChange={(e) => setNewFeature(e.target.value)}
                     placeholder="Add a feature"
                     style={inputStyle}
+                    data-field="features"
                     onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addFeature())}
                   />
                   <button

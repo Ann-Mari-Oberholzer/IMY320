@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { FaSearch, FaFilter, FaStar, FaShoppingCart, FaHeart, FaGamepad, FaChevronLeft, FaChevronRight, FaChevronDown, FaChevronUp, FaCheck, FaTimes, FaPlus, FaMinus } from 'react-icons/fa';
+import { FaSearch, FaFilter, FaStar, FaShoppingCart, FaHeart, FaGamepad, FaChevronDown, FaChevronUp, FaCheck, FaTimes } from 'react-icons/fa';
 import NavBar from '../components/NavBar';
 import Footer from '../components/Footer';
 import { useUser } from '../contexts/UserContext';
@@ -16,7 +16,6 @@ import {
   subtitleStyle,
   searchFilterStyle,
   searchContainerStyle,
-  searchIconStyle,
   searchInputStyle,
   filterToggleStyle,
   filtersStyle,
@@ -40,7 +39,6 @@ import {
   gameRatingStyle,
   starStyle,
   ratingTextStyle,
-  gamePriceRowStyle,
   priceContainerStyle,
   originalPriceStyle,
   currentPriceStyle,
@@ -141,7 +139,7 @@ function Catalogue() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useUser();
-  const { addToCart, updateQuantity, removeFromCart, cartItems, getCartItem } = useCart();
+  const { addToCart, cartItems } = useCart();
   const [searchTerm, setSearchTerm] = useState("");
   const [activeSearchTerm, setActiveSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -152,7 +150,6 @@ function Catalogue() {
 
   // Pagination state
   const [allGames, setAllGames] = useState([]); // Store all fetched games
-  const [games, setGames] = useState([]); // Display games for current page
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -162,9 +159,7 @@ function Catalogue() {
 
   // Cart interaction state
   const [addedToCart, setAddedToCart] = useState({});
-  const [cartQuantities, setCartQuantities] = useState({}); // Track quantity for each game in cart
   const [showDropdown, setShowDropdown] = useState({}); // Track which dropdowns are open
-  const [selectedQuantity, setSelectedQuantity] = useState({}); // Track selected quantity before adding to cart
 
   // Cache for generated prices and ratings
   const [gameDataCache, setGameDataCache] = useState({});
@@ -178,6 +173,8 @@ function Catalogue() {
   const [priceRange, setPriceRange] = useState("all");
   const [selectedBrand, setSelectedBrand] = useState("all");
   const [minRating, setMinRating] = useState(0); // 0 means no filter
+  const [, setWishlistUpdated] = useState(0);
+  const [showOnSale, setShowOnSale] = useState(false);
 
 
   // Handle URL parameters on component mount
@@ -192,12 +189,12 @@ function Catalogue() {
 
   // Sync addedToCart with cart context
   useEffect(() => {
-    if (cart) {
+    if (cartItems) {
       const cartState = {};
-      cart.forEach(item => { cartState[item.id] = true; });
+      cartItems.forEach(item => { cartState[item.id] = true; });
       setAddedToCart(cartState);
     }
-  }, [cart]);
+  }, [cartItems]);
 
   // Restore scroll position and page number
   useEffect(() => {
@@ -206,14 +203,15 @@ function Catalogue() {
     if (savedScroll && savedPage && location.state?.fromProduct) {
       const pageNum = Number(savedPage);
       setCurrentPage(pageNum);
-      fetchGames(activeSearchTerm, selectedCategory, sortBy, pageNum);
+      // fetchGames will be called by other effects when dependencies change
       setTimeout(() => {
         window.scrollTo({ top: Number(savedScroll), behavior: 'auto' });
       }, 0);
       sessionStorage.removeItem('catalogueScroll');
       sessionStorage.removeItem('cataloguePage');
     }
-  }, [location.state, activeSearchTerm, selectedCategory, sortBy, fetchGames]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.state]);
 
   // Handle tag click - update search and filter
   const handleTagClick = (tagName, event) => {
@@ -238,6 +236,11 @@ function Catalogue() {
     setActiveSearchTerm(searchTerm);
     setCurrentPage(1);
     setLoading(true);
+  };
+
+  const saveScrollPosition = () => {
+    sessionStorage.setItem('catalogueScroll', window.scrollY.toString());
+    sessionStorage.setItem('cataloguePage', currentPage.toString());
   };
 
   const handleAddToCart = async (game, quantity = 1) => {
@@ -294,7 +297,6 @@ function Catalogue() {
       // After 2 seconds, hide the confirmation and show yellow button again
       setTimeout(() => {
         setAddedToCart(prev => ({ ...prev, [game.id]: false }));
-        setSelectedQuantity(prev => ({ ...prev, [game.id]: 1 })); // Reset to 1
       }, 2000);
     }
   };
@@ -433,7 +435,7 @@ function Catalogue() {
     }
   }, []);
 
-  const handlePageChange = async (newPage) => {
+  const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages && newPage !== currentPage) {
       // Scroll to top using multiple methods to ensure it works
       if (catalogueTopRef.current) {
@@ -443,12 +445,7 @@ function Catalogue() {
       document.documentElement.scrollTop = 0;
       document.body.scrollTop = 0;
 
-      setLoading(true);
       setCurrentPage(newPage);
-
-      // Show loading animation for consistent UX
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      setLoading(false);
     }
   };
 
@@ -471,7 +468,10 @@ function Catalogue() {
 
     const matchesCategory = selectedCategory === "All" ||
       game.genres?.some(genre => genre.name === selectedCategory) ||
-      game.platforms?.some(platform => platform.name === selectedCategory);
+      game.platforms?.some(platform => platform.name === selectedCategory) ||
+      (game.isCustomProduct && game.originalProduct?.category?.toLowerCase().includes(selectedCategory.toLowerCase())) ||
+      (game.isCustomProduct && game.originalProduct?.tags?.some(tag => tag.toLowerCase() === selectedCategory.toLowerCase())) ||
+      (game.isCustomProduct && game.originalProduct?.features?.some(feature => feature.toLowerCase() === selectedCategory.toLowerCase()));
 
     // Price filter
     const gamePrice = game.isCustomProduct && game.originalProduct?.price
@@ -490,41 +490,50 @@ function Catalogue() {
       (gameBrand && gameBrand === selectedBrand);
 
     // Rating filter
-    const gameRating = game.isCustomProduct && game.originalProduct?.rating
+    const gameRating = game.isCustomProduct && game.originalProduct?.rating !== null && game.originalProduct?.rating !== undefined
       ? parseFloat(game.originalProduct.rating)
-      : getGameData(game.id).rating;
-    const matchesRating = minRating === 0 || gameRating >= minRating;
+      : (game.isCustomProduct ? null : getGameData(game.id).rating);
+    // If minRating is 0 (no filter), show all. Otherwise, only show games with ratings >= minRating
+    // Products with null ratings are excluded when a rating filter is applied
+    const matchesRating = minRating === 0 || (gameRating !== null && gameRating >= minRating);
 
-    return matchesSearch && matchesCategory && matchesPrice && matchesBrand && matchesRating;
+    // On Sale filter
+    const isOnSale = game.isCustomProduct 
+      ? false // Custom products don't have sales
+      : getGameData(game.id).priceInfo.hasDiscount;
+    const matchesOnSale = !showOnSale || isOnSale;
+
+    return matchesSearch && matchesCategory && matchesPrice && matchesBrand && matchesRating && matchesOnSale;
   }).sort((a, b) => {
     // Client-side sorting based on the selected sort option
     switch (sortBy) {
       case "rating": {
         // Sort by highest rating
-        // For custom products, use their stored rating, or generate one if missing
+        // For custom products, use their stored rating (can be null for new products)
         let ratingA, ratingB;
 
         if (a.isCustomProduct) {
-          ratingA = a.originalProduct?.rating
+          ratingA = a.originalProduct?.rating !== null && a.originalProduct?.rating !== undefined
             ? parseFloat(a.originalProduct.rating)
-            : getGameData(a.id).rating;
+            : null;
         } else {
           ratingA = getGameData(a.id).rating;
         }
 
         if (b.isCustomProduct) {
-          ratingB = b.originalProduct?.rating
+          ratingB = b.originalProduct?.rating !== null && b.originalProduct?.rating !== undefined
             ? parseFloat(b.originalProduct.rating)
-            : getGameData(b.id).rating;
+            : null;
         } else {
           ratingB = getGameData(b.id).rating;
         }
 
-        // Ensure we have valid numbers for comparison (default to 0 if invalid)
-        const finalRatingA = isNaN(ratingA) || ratingA === undefined ? 0 : ratingA;
-        const finalRatingB = isNaN(ratingB) || ratingB === undefined ? 0 : ratingB;
+        // Products with null ratings go to the end
+        if (ratingA === null && ratingB === null) return 0;
+        if (ratingA === null) return 1;
+        if (ratingB === null) return -1;
 
-        return finalRatingB - finalRatingA; // Descending order
+        return ratingB - ratingA; // Descending order
       }
       case "price-high": {
         // Sort by price: highest to lowest
@@ -564,26 +573,27 @@ function Catalogue() {
         let ratingA, ratingB;
 
         if (a.isCustomProduct) {
-          ratingA = a.originalProduct?.rating
+          ratingA = a.originalProduct?.rating !== null && a.originalProduct?.rating !== undefined
             ? parseFloat(a.originalProduct.rating)
-            : getGameData(a.id).rating;
+            : null;
         } else {
           ratingA = getGameData(a.id).rating;
         }
 
         if (b.isCustomProduct) {
-          ratingB = b.originalProduct?.rating
+          ratingB = b.originalProduct?.rating !== null && b.originalProduct?.rating !== undefined
             ? parseFloat(b.originalProduct.rating)
-            : getGameData(b.id).rating;
+            : null;
         } else {
           ratingB = getGameData(b.id).rating;
         }
 
-        // Ensure we have valid numbers for comparison (default to 0 if invalid)
-        const finalRatingA = isNaN(ratingA) || ratingA === undefined ? 0 : ratingA;
-        const finalRatingB = isNaN(ratingB) || ratingB === undefined ? 0 : ratingB;
+        // Products with null ratings go to the end
+        if (ratingA === null && ratingB === null) return 0;
+        if (ratingA === null) return 1;
+        if (ratingB === null) return -1;
 
-        return finalRatingB - finalRatingA; // Descending order
+        return ratingB - ratingA; // Descending order
       }
     }
   });
@@ -592,6 +602,12 @@ function Catalogue() {
   const startIndex = (currentPage - 1) * gamesPerPage;
   const endIndex = startIndex + gamesPerPage;
   const paginatedGames = filteredAndSortedGames.slice(startIndex, endIndex);
+
+  // Update total pages based on filtered games
+  useEffect(() => {
+    const calculatedTotalPages = Math.ceil(filteredAndSortedGames.length / gamesPerPage);
+    setTotalPages(calculatedTotalPages > 0 ? calculatedTotalPages : 1);
+  }, [filteredAndSortedGames.length, gamesPerPage]);
 
   const toggleWishlist = (game) => {
     if (!user?.id) {
@@ -661,18 +677,13 @@ function Catalogue() {
   useEffect(() => {
     setCurrentPage(1);
     fetchGames(activeSearchTerm, "All");
-  }, [activeSearchTerm, fetchGames]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeSearchTerm]);
 
-  // Reset to page 1 when category changes (without re-fetching)
+  // Reset to page 1 when category, sort, or games per page changes (without re-fetching)
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedCategory]);
-
-  // Update pagination when filtered games or games per page changes
-  useEffect(() => {
-    setCurrentPage(1);
-    fetchGames(activeSearchTerm, selectedCategory, sortBy, 1);
-  }, [gamesPerPage, activeSearchTerm, selectedCategory, sortBy, fetchGames]);
+  }, [selectedCategory, sortBy, gamesPerPage]);
 
    useEffect(() => {
      const styleElement = document.createElement("style");
@@ -705,6 +716,44 @@ function Catalogue() {
            transform: scale(1.2);
          }
        }
+       
+       @keyframes cartSuccessAnimation {
+         0% {
+           transform: scale(1);
+           background-color: #F7CA66;
+         }
+         50% {
+           transform: scale(1.1);
+           background-color: #27ae60;
+         }
+         100% {
+           transform: scale(1);
+           background-color: #27ae60;
+         }
+       }
+       
+       @keyframes checkmarkPop {
+         0% {
+           transform: scale(0);
+           opacity: 0;
+         }
+         50% {
+           transform: scale(1.3);
+         }
+         100% {
+           transform: scale(1);
+           opacity: 1;
+         }
+       }
+       
+       @keyframes shimmer {
+         0% {
+           background-position: -1000px 0;
+         }
+         100% {
+           background-position: 1000px 0;
+         }
+       }
      `;
      document.head.appendChild(styleElement);
      
@@ -713,31 +762,78 @@ function Catalogue() {
      };
    }, []);
 
+  // Skeleton Card Component
+  const SkeletonCard = () => (
+    <div style={{
+      ...gameCardStyle,
+      pointerEvents: 'none',
+      position: 'relative',
+      overflow: 'hidden'
+    }}>
+      {/* Shimmer overlay */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)',
+        animation: 'shimmer 1.5s infinite',
+        zIndex: 1
+      }} />
+      
+      {/* Price skeleton */}
+      <div style={{
+        position: 'absolute',
+        top: '1rem',
+        right: '1rem',
+        width: '80px',
+        height: '24px',
+        backgroundColor: '#e0e0e0',
+        borderRadius: '0.5rem'
+      }} />
+      
+      {/* Image skeleton */}
+      <div style={{
+        width: '100%',
+        height: '200px',
+        backgroundColor: '#e0e0e0',
+        borderRadius: '0.5rem 0.5rem 0 0'
+      }} />
+      
+      {/* Content skeleton */}
+      <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        {/* Title skeleton */}
+        <div style={{ width: '80%', height: '20px', backgroundColor: '#e0e0e0', borderRadius: '0.25rem' }} />
+        
+        {/* Description skeleton */}
+        <div style={{ width: '100%', height: '14px', backgroundColor: '#e0e0e0', borderRadius: '0.25rem' }} />
+        <div style={{ width: '90%', height: '14px', backgroundColor: '#e0e0e0', borderRadius: '0.25rem' }} />
+        
+        {/* Tags skeleton */}
+        <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+          <div style={{ width: '60px', height: '22px', backgroundColor: '#e0e0e0', borderRadius: '1rem' }} />
+          <div style={{ width: '70px', height: '22px', backgroundColor: '#e0e0e0', borderRadius: '1rem' }} />
+        </div>
+        
+        {/* Rating skeleton */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
+          <div style={{ width: '16px', height: '16px', backgroundColor: '#e0e0e0', borderRadius: '50%' }} />
+          <div style={{ width: '40px', height: '16px', backgroundColor: '#e0e0e0', borderRadius: '0.25rem' }} />
+        </div>
+        
+        {/* Buttons skeleton */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.5rem' }}>
+          <div style={{ width: '100%', height: '40px', backgroundColor: '#e0e0e0', borderRadius: '0.5rem' }} />
+          <div style={{ width: '100%', height: '40px', backgroundColor: '#e0e0e0', borderRadius: '0.5rem' }} />
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div style={containerStyle}>
       <NavBar currentPage="catalogue" user={user} />
-      
-      {loading && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(248, 249, 250, 1)',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          zIndex: 1000,
-          backdropFilter: 'blur(5px)'
-        }}>
-          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-            <FaGamepad style={{ fontSize: '3rem', color: '#00AEBB', animation: 'bounce 1s infinite' }} />
-            <FaGamepad style={{ fontSize: '3rem', color: '#F7CA66', animation: 'bounce 1s infinite 0.2s' }} />
-            <FaGamepad style={{ fontSize: '3rem', color: '#00AEBB', animation: 'bounce 1s infinite 0.4s' }} />
-          </div>
-        </div>
-      )}
       
       <div style={contentStyle}>
         <div ref={catalogueTopRef} style={headerStyle}>
@@ -1083,7 +1179,13 @@ function Catalogue() {
           )}
         </div>
 
-        {paginatedGames.length === 0 && !loading ? (
+        {loading ? (
+          <div style={gamesGridStyle}>
+            {Array.from({ length: gamesPerPage > 20 ? 20 : gamesPerPage }).map((_, index) => (
+              <SkeletonCard key={`skeleton-${index}`} />
+            ))}
+          </div>
+        ) : paginatedGames.length === 0 ? (
           <div style={{
             display: 'flex',
             flexDirection: 'column',
@@ -1094,8 +1196,9 @@ function Catalogue() {
             backgroundColor: '#fff',
             borderRadius: '1rem',
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-            margin: '0 auto',
+            margin: '0 auto 3rem auto',
             maxWidth: '400px',
+            minHeight: '400px'
           }}>
             <FaGamepad style={{ fontSize: '3rem', color: '#ddd', marginBottom: '1rem' }} />
             <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1E232C', marginBottom: '0.75rem' }}>
@@ -1143,7 +1246,7 @@ function Catalogue() {
             // Use custom product price if available, otherwise generate random price
             let rating, priceInfo;
             if (game.isCustomProduct && game.originalProduct) {
-              rating = game.originalProduct.rating || 4.0;
+              rating = game.originalProduct.rating; // Can be null for new products
               priceInfo = {
                 currentPrice: game.originalProduct.price,
                 originalPrice: null,
@@ -1154,6 +1257,8 @@ function Catalogue() {
               rating = gameData.rating;
               priceInfo = gameData.priceInfo;
             }
+
+            const isInWishlist = favoritesService.isFavorite(user?.id, game.id);
 
             return (
               <div
@@ -1279,7 +1384,9 @@ function Catalogue() {
 
                   <div style={gameRatingStyle}>
                     <FaStar style={starStyle} />
-                    <span style={ratingTextStyle}>{rating}</span>
+                    <span style={ratingTextStyle}>
+                      {rating !== null && rating !== undefined ? rating : "No ratings yet"}
+                    </span>
                   </div>
 
                   <div style={buttonColumnStyle}>
@@ -1335,10 +1442,12 @@ function Catalogue() {
                             ...addToCartButtonStyle,
                             backgroundColor: '#27ae60',
                             cursor: 'default',
+                            animation: 'cartSuccessAnimation 0.5s ease-out',
+                            transform: 'scale(1)',
                           }}
                           disabled
                         >
-                          <FaCheck style={{ marginRight: '0.5rem' }} />
+                          <FaCheck style={{ marginRight: '0.5rem', animation: 'checkmarkPop 0.3s ease-out 0.2s backwards' }} />
                           Added to Cart
                         </button>
                       ) : (
@@ -1425,6 +1534,23 @@ function Catalogue() {
             marginTop: '2rem',
             marginBottom: '2rem'
           }}>
+            {/* First page button */}
+            <button
+              onClick={() => handlePageChange(1)}
+              disabled={currentPage === 1}
+              style={{
+                ...loadMoreButtonStyle,
+                padding: '0.5rem 1rem',
+                backgroundColor: currentPage === 1 ? '#ccc' : '#00AEBB',
+                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                opacity: currentPage === 1 ? 0.6 : 1
+              }}
+              title="First page"
+            >
+              &lt;&lt;
+            </button>
+
+            {/* Previous page button */}
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
@@ -1435,9 +1561,9 @@ function Catalogue() {
                 cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
                 opacity: currentPage === 1 ? 0.6 : 1
               }}
+              title="Previous page"
             >
-              <FaChevronLeft style={{ marginRight: '0.25rem' }} />
-              First
+              &lt;
             </button>
 
             {getPageNumbers().map(pageNum => (

@@ -149,6 +149,49 @@ function ProductPage() {
         setLoading(true);
         setError("");
 
+        // First, try to fetch from custom products
+        try {
+          const customResponse = await fetch(`${API_BASE}/api/products`);
+          if (customResponse.ok) {
+            const customProducts = await customResponse.json();
+            const customProduct = customProducts.find(p => p.id === parseInt(id));
+            
+            if (customProduct) {
+              // Transform custom product to match expected format
+              const transformedProduct = {
+                id: customProduct.id,
+                name: customProduct.name,
+                deck: customProduct.description,
+                image: {
+                  original: customProduct.image,
+                  square_small: customProduct.image
+                },
+                original_release_date: customProduct.createdAt,
+                platforms: customProduct.platform ? [{ name: customProduct.platform }] : [],
+                genres: customProduct.tags?.map(tag => ({ name: tag })) ||
+                        customProduct.features?.map(feature => ({ name: feature })) ||
+                        [{ name: customProduct.category }],
+                isCustomProduct: true,
+                originalProduct: customProduct
+              };
+              
+              setProduct(transformedProduct);
+              setPriceInfo({
+                currentPrice: parseFloat(customProduct.price),
+                originalPrice: null,
+                hasDiscount: false
+              });
+              setRating(customProduct.rating); // Can be null for new products
+              await new Promise(resolve => setTimeout(resolve, 3000));
+              setLoading(false);
+              return;
+            }
+          }
+        } catch (customError) {
+          console.log('No custom product found, checking API games');
+        }
+
+        // If not a custom product, fetch from API
         const response = await fetch(`${API_BASE}/api/games/${id}`);
         if (!response.ok) {
           throw new Error(`Failed to fetch product: ${response.status}`);
@@ -437,7 +480,7 @@ function ProductPage() {
               color: "#1E232C",
             }}>
               <FaStar style={{ color: '#F7CA66', fontSize: '0.7rem' }} />
-              {rating}
+              {rating !== null && rating !== undefined ? rating : "No ratings yet"}
             </div>
           </div>
         </div>
@@ -904,9 +947,11 @@ function ProductPage() {
                     color: '#1E232C',
                     fontSize: '1.1rem'
                   }}>
-                    {rating}
+                    {rating !== null && rating !== undefined ? rating : "No ratings yet"}
                   </span>
-                  <span style={{color: '#999', fontSize: '0.9rem'}}>(150 reviews)</span>
+                  {rating !== null && rating !== undefined && (
+                    <span style={{color: '#999', fontSize: '0.9rem'}}>(150 reviews)</span>
+                  )}
                 </div>
                 <div style={{
                   backgroundColor: '#f8f9fa',
@@ -1224,7 +1269,9 @@ function ProductPage() {
                 <li style={productInfoListItem}>
                   <span style={productInfoLabel}>Rating:</span>
                   <span style={productInfoValue}>
-                    {rating} / 5.0 ({Math.floor(Math.random() * 500) + 100} reviews)
+                    {rating !== null && rating !== undefined 
+                      ? `${rating} / 5.0 (${Math.floor(Math.random() * 500) + 100} reviews)` 
+                      : "No ratings yet"}
                   </span>
                 </li>
                 <li style={productInfoListItem}>

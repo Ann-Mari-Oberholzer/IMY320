@@ -3,7 +3,7 @@ import NavBar from "../components/NavBar";
 import Footer from "../components/Footer";
 import { useUser } from "../contexts/UserContext";
 import { useCart } from "../contexts/CartContext";
-import { FaTrash, FaShoppingCart, FaHeart, FaGamepad, FaStore, FaGamepad, FaCheck } from "react-icons/fa";
+import { FaTrash, FaShoppingCart, FaHeart, FaGamepad, FaStore, FaCheck } from "react-icons/fa";
 import favoritesService from "../services/FavouritesService";
 import { useNavigate } from "react-router-dom";
 
@@ -34,8 +34,10 @@ import {
 function Favourites() {
   const { user } = useUser();
   const { addToCart, removeFromCart, cart } = useCart();
+  const navigate = useNavigate();
   const [favourites, setFavourites] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [addedToCart, setAddedToCart] = useState({});
 
   // Add bounce animation styles
   useEffect(() => {
