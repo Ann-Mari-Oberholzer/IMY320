@@ -60,6 +60,13 @@ const AboutUs = () => {
       specialty: 'u21824241',
       // avatar: '🃏'
       avatar: '🏆'
+    },
+       {
+      name: 'Sipho Sehlapelo',
+      role: 'Frontend Engineer',
+      specialty: 'u23535212',
+      // avatar: '🃏'
+      avatar: '🏆'
     }
   ];
 

@@ -428,13 +428,14 @@ const CheckoutProcess = () => {
       maxWidth: '1200px',
       margin: '0 auto',
       padding: '0 1rem',
+       alignItems: 'stretch',
     }}>
       <div style={{
         backgroundColor: '#fff',
         borderRadius: '1rem',
         padding: '2rem',
         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-        height: 'fit-content',
+        minHeight: '600px',
       }}>
         {children}
       </div>
@@ -450,9 +451,12 @@ const CheckoutProcess = () => {
       borderRadius: '1rem',
       padding: '1.5rem',
       boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-      height: 'fit-content',
-      position: 'sticky',
+      minHeight: '614px', // Match the left card's minimum height
+      height: 'fit-content', // Keep fit-content for proper sizing
+      position: 'sticky', 
       top: '2rem',
+      display: 'flex',
+      flexDirection: 'column',
     }}>
       <h3 style={{
         fontSize: '1.2rem',
