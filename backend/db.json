@@ -72,6 +72,32 @@
         "Adventure"
       ],
       "hasDiscount": false
+    },
+    {
+      "id": 4,
+      "name": "Mission Critical",
+      "description": "Put simply, Mission Critical was one of the best adventures of 1995.",
+      "image": "https://www.gamespot.com/a/uploads/original/mig/5/7/0/5/2215705-g00770r2t3r.jpg",
+      "price": 11,
+      "originalPrice": null,
+      "tags": [
+        "Adventure"
+      ],
+      "hasDiscount": false
+    },
+    {
+      "id": 5,
+      "name": "Links LS: Legends in Sports 1997 Edition",
+      "description": "With this update, Links LS can rightfully reclaim its status as the king of golf sims.",
+      "image": "https://www.gamespot.com/a/uploads/original/box/2/8/5-28.jpg",
+      "price": 12,
+      "originalPrice": null,
+      "tags": [
+        "Golf",
+        "Simulation",
+        "Sports"
+      ],
+      "hasDiscount": false
     }
   ],
   "categories": [
@@ -98,6 +124,13 @@
       "password": "password123",
       "name": "Test",
       "createdAt": "2025-10-26T10:45:38.346Z"
+    },
+    {
+      "id": 1761589316598,
+      "email": "test@example.com",
+      "password": "@Password123",
+      "name": "Test",
+      "createdAt": "2025-10-27T18:21:56.598Z"
     }
   ],
   "orders": [
@@ -246,6 +279,51 @@
       "total": 70,
       "status": "processing",
       "orderDate": "2025-10-26T16:20:21.244Z"
+    },
+    {
+      "id": 1761594831685,
+      "userId": 1761589316598,
+      "products": [
+        {
+          "productId": 4,
+          "quantity": 1,
+          "product": {
+            "id": 4,
+            "name": "Mission Critical",
+            "description": "Put simply, Mission Critical was one of the best adventures of 1995.",
+            "image": "https://www.gamespot.com/a/uploads/original/mig/5/7/0/5/2215705-g00770r2t3r.jpg",
+            "price": 11,
+            "originalPrice": null,
+            "tags": [
+              "Adventure"
+            ],
+            "hasDiscount": false
+          },
+          "price": 11
+        },
+        {
+          "productId": 5,
+          "quantity": 1,
+          "product": {
+            "id": 5,
+            "name": "Links LS: Legends in Sports 1997 Edition",
+            "description": "With this update, Links LS can rightfully reclaim its status as the king of golf sims.",
+            "image": "https://www.gamespot.com/a/uploads/original/box/2/8/5-28.jpg",
+            "price": 12,
+            "originalPrice": null,
+            "tags": [
+              "Golf",
+              "Simulation",
+              "Sports"
+            ],
+            "hasDiscount": false
+          },
+          "price": 12
+        }
+      ],
+      "total": 28.990000000000002,
+      "status": "processing",
+      "orderDate": "2025-10-27T19:53:51.209Z"
     }
   ],
   "cart": [
@@ -257,6 +335,11 @@
     {
       "id": 1761475603760,
       "userId": 1761475538346,
+      "products": []
+    },
+    {
+      "id": 1761589493712,
+      "userId": 1761589316598,
       "products": []
     }
   ],

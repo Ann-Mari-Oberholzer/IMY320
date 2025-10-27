@@ -14,7 +14,7 @@ On another terminal:
 
 ### Test user details
 - Email: test@example.com
-- Password: password123
+- Password: @Password123
 
 ---
 
