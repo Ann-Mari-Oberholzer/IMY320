@@ -48,6 +48,30 @@
         "action"
       ],
       "createdAt": "2025-10-25T09:08:01.356Z"
+    },
+    {
+      "id": 2,
+      "name": "Return of Arcade",
+      "description": "For nostalgia buffs, these old games are worth your time and money, though you will miss the feel of the arcade controller.",
+      "image": "https://www.gamespot.com/a/uploads/original/box/1/8/2-18.jpg",
+      "price": 60,
+      "originalPrice": null,
+      "tags": [
+        "Compilation"
+      ],
+      "hasDiscount": false
+    },
+    {
+      "id": 3,
+      "name": "The Dig",
+      "description": "In almost every sense, The Dig represents a leap backwards from LucasArts' previous group of adventure games.",
+      "image": "https://www.gamespot.com/a/uploads/original/mig/0/0/4/6/2210046-the_dig_box_front_6570x8280.jpg",
+      "price": 10,
+      "originalPrice": null,
+      "tags": [
+        "Adventure"
+      ],
+      "hasDiscount": false
     }
   ],
   "categories": [
@@ -67,7 +91,15 @@
       "description": "Top-rated games across all platforms"
     }
   ],
-  "users": [],
+  "users": [
+    {
+      "id": 1761475538346,
+      "email": "Test@gmail.com",
+      "password": "password123",
+      "name": "Test",
+      "createdAt": "2025-10-26T10:45:38.346Z"
+    }
+  ],
   "orders": [
     {
       "id": 1761382664133,
@@ -125,12 +157,106 @@
       "total": 60,
       "status": "processing",
       "orderDate": "2025-10-25T09:10:42.166Z"
+    },
+    {
+      "id": 1761475649076,
+      "userId": 1761475538346,
+      "products": [
+        {
+          "productId": 1,
+          "quantity": 1,
+          "product": {
+            "id": 1,
+            "name": "Command & Conquer",
+            "description": "Overall Command & Conquer is a great strategy game and easily the best available on the PlayStation.",
+            "image": "https://www.gamespot.com/a/uploads/original/mig/0/9/6/2/2210962-cncbox.jpg",
+            "price": 59,
+            "originalPrice": 69.03,
+            "tags": [
+              "Real-Time",
+              "Strategy"
+            ],
+            "hasDiscount": true
+          },
+          "price": 59
+        },
+        {
+          "productId": 2,
+          "quantity": 1,
+          "product": {
+            "id": 2,
+            "name": "Return of Arcade",
+            "description": "For nostalgia buffs, these old games are worth your time and money, though you will miss the feel of the arcade controller.",
+            "image": "https://www.gamespot.com/a/uploads/original/box/1/8/2-18.jpg",
+            "price": 60,
+            "originalPrice": null,
+            "tags": [
+              "Compilation"
+            ],
+            "hasDiscount": false
+          },
+          "price": 60
+        }
+      ],
+      "total": 119,
+      "status": "processing",
+      "orderDate": "2025-10-26T10:47:29.022Z"
+    },
+    {
+      "id": 1761495621514,
+      "userId": 1761475538346,
+      "products": [
+        {
+          "productId": 2,
+          "quantity": 1,
+          "product": {
+            "id": 2,
+            "name": "Return of Arcade",
+            "description": "For nostalgia buffs, these old games are worth your time and money, though you will miss the feel of the arcade controller.",
+            "image": "https://www.gamespot.com/a/uploads/original/box/1/8/2-18.jpg",
+            "price": 60,
+            "originalPrice": null,
+            "tags": [
+              "Compilation"
+            ],
+            "hasDiscount": false,
+            "inStock": true,
+            "rating": 4
+          },
+          "price": 60
+        },
+        {
+          "productId": 3,
+          "quantity": 1,
+          "product": {
+            "id": 3,
+            "name": "The Dig",
+            "description": "In almost every sense, The Dig represents a leap backwards from LucasArts' previous group of adventure games.",
+            "image": "https://www.gamespot.com/a/uploads/original/mig/0/0/4/6/2210046-the_dig_box_front_6570x8280.jpg",
+            "price": 10,
+            "originalPrice": null,
+            "tags": [
+              "Adventure"
+            ],
+            "hasDiscount": false
+          },
+          "price": 10
+        }
+      ],
+      "total": 70,
+      "status": "processing",
+      "orderDate": "2025-10-26T16:20:21.244Z"
     }
   ],
   "cart": [
     {
       "id": 1761382601236,
       "userId": 1,
+      "products": []
+    },
+    {
+      "id": 1761475603760,
+      "userId": 1761475538346,
       "products": []
     }
   ],
