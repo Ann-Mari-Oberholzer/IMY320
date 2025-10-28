@@ -49,6 +49,19 @@ function Register() {
     return strength;
   };
 
+  const getPasswordFeedback = () => {
+  const feedback = [];
+
+  if (password.length < 6) feedback.push("at least 6 characters");
+  if (!password.match(/[A-Z]/)) feedback.push("an uppercase letter (A–Z)");
+  if (!password.match(/[0-9]/)) feedback.push("a number (0–9)");
+  if (!password.match(/[^A-Za-z0-9]/)) feedback.push("a special character (!@#$ etc.)");
+
+  if (feedback.length === 0) return "";
+  return "Add: " + feedback.join(" • ");
+};
+
+
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
@@ -276,12 +289,17 @@ function Register() {
               <div style={{ 
                 fontSize: "0.8rem", 
                 color: passwordStrength < 2 ? "#e74c3c" : 
-                       passwordStrength < 4 ? "#f39c12" : "#27ae60",
+                      passwordStrength < 4 ? "#f39c12" : "#27ae60",
                 transition: 'color 0.3s ease',
-                fontWeight: '500'
+                fontWeight: '500',
+                marginTop: "0.3rem"
               }}>
-                {passwordStrength < 2 ? "Weak" :
-                  passwordStrength < 4 ? "Moderate" : "Strong"} password
+                {passwordStrength < 2
+                  ? "Weak password"
+                  : passwordStrength < 4
+                    ? "Moderate password"
+                    : "Strong password 😊"}
+                {getPasswordFeedback() && ` — ${getPasswordFeedback()}`}
               </div>
             </div>
 
