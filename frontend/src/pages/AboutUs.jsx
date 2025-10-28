@@ -51,7 +51,7 @@ const AboutUs = () => {
     {
       name: 'Moyahabo Hamese',
       role: 'Frontend Engineer',
-      specialty: '21532941',
+      specialty: 'u21532941',
       avatar: '🏆'
     },
     {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaPlus, FaTimes, FaUpload } from 'react-icons/fa';
+import { FaPlus, FaTimes, FaUpload, FaBox, FaTrophy } from 'react-icons/fa';
 import NavBar from '../components/NavBar';
 import Footer from '../components/Footer';
 import { useUser } from '../contexts/UserContext';
@@ -72,6 +72,122 @@ function AddProduct() {
   const [showCustomBrand, setShowCustomBrand] = useState(false);
   const alertTimeoutRef = React.useRef(null);
   const isNavigatingRef = React.useRef(false);
+  const [showOrderCompleteModal, setShowOrderCompleteModal] = useState(false);
+
+  const ItemAddedModal = () => {
+    if (!showOrderCompleteModal) return null;
+
+    return (
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        backdropFilter: 'blur(10px)',
+        WebkitBackdropFilter: 'blur(10px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1000,
+        padding: '1rem',
+      }}>
+        <div style={{
+          backgroundColor: '#fff',
+          borderRadius: '1rem',
+          padding: '2rem',
+          maxWidth: '400px',
+          width: '100%',
+          textAlign: 'center',
+          boxShadow: '0 20px 40px rgba(0, 0, 0, 0.15)',
+          animation: 'modalSlideIn 0.3s ease-out',
+          position: 'relative',
+          border: '1px solid rgba(255, 255, 255, 0.2)',
+        }}>
+          <button
+            onClick={() => setShowOrderCompleteModal(false)}
+            style={{
+              position: 'absolute',
+              top: '1rem',
+              right: '1rem',
+              background: 'none',
+              border: 'none',
+              fontSize: '1.5rem',
+              color: '#999',
+              cursor: 'pointer',
+              padding: '0.25rem',
+              borderRadius: '50%',
+            }}
+          >
+            <FaTimes />
+          </button>
+
+          <FaTrophy style={{ fontSize: '3rem', color: '#27ae60', marginBottom: '1rem' }} />
+          <h2 style={{
+            fontSize: '1.5rem',
+            fontWeight: '700',
+            color: '#1E232C',
+            marginBottom: '0.5rem',
+            background: 'linear-gradient(90deg, #00AEBB, #F7CA66)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+          }}>
+            Item added successfully!
+          </h2>
+          <p style={{
+            fontSize: '1rem',
+            color: '#666',
+            marginBottom: '2rem',
+            lineHeight: '1.5',
+          }}>
+            Your item is on the catalogue now.
+          </p>
+
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.75rem',
+            width: '100%'
+          }}>
+            <button
+              onClick={() => {
+                setShowOrderCompleteModal(false);
+                navigate('/catalogue');
+              }}
+              style={{
+                padding: '0.75rem 2rem',
+                borderRadius: '0.5rem',
+                fontSize: '1rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                border: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem',
+                backgroundColor: '#00AEBB',
+                color: '#fff',
+                width: '100%',
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'translateY(-2px)';
+                e.target.style.boxShadow = '0 8px 20px rgba(0, 174, 187, 0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'translateY(0)';
+                e.target.style.boxShadow = 'none';
+              }}
+            >
+              <FaBox />
+              View Catalogue
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   // Check authentication
   useEffect(() => {
@@ -442,12 +558,12 @@ function AddProduct() {
       console.log('Save product result:', result);
 
       if (result && !result.error) {
-        showAlert('success', 'Product added successfully! Redirecting to product page...');
+        setShowOrderCompleteModal(true);
 
         // Navigate to the newly created product page after short delay
         setTimeout(() => {
           navigate(`/product/${productId}`);
-        }, 1500);
+        }, 3000);
 
       } else {
         const errorMsg = result?.error || result?.message || 'Failed to save product';
@@ -612,6 +728,13 @@ function AddProduct() {
             <>
               <div style={sectionStyle}>
                 <label style={labelStyle}>Product Name *</label>
+                <div
+                  style={{
+                    height: '2px',
+                    background: 'linear-gradient(to right, transparent, #aaa, transparent)',
+                    margin: '1.2rem 0'
+                  }}
+                ></div>
                 {fieldErrors.name && (
                   <div style={{
                     color: '#e74c3c',
@@ -642,6 +765,13 @@ function AddProduct() {
 
               <div style={sectionStyle}>
                 <label style={labelStyle}>Price (R) * <span style={{fontSize: '0.8rem', color: '#666'}}>(Must be greater than R0)</span></label>
+                <div
+                  style={{
+                    height: '2px',
+                    background: 'linear-gradient(to right, transparent, #aaa, transparent)',
+                    margin: '1.2rem 0'
+                  }}
+                ></div>
                 {fieldErrors.price && (
                   <div style={{
                     color: '#e74c3c',
@@ -674,6 +804,13 @@ function AddProduct() {
 
               <div style={sectionStyle}>
                 <label style={labelStyle}>Category * <span style={{fontSize: '0.8rem', color: '#666'}}>(e.g., Headphones, Consoles, Games)</span></label>
+                <div
+                  style={{
+                    height: '2px',
+                    background: 'linear-gradient(to right, transparent, #aaa, transparent)',
+                    margin: '1.2rem 0'
+                  }}
+                ></div>
                 <select
                   name="category"
                   value={formData.category}
@@ -689,6 +826,13 @@ function AddProduct() {
 
               <div style={sectionStyle}>
                 <label style={labelStyle}>Brand *</label>
+                <div
+                  style={{
+                    height: '2px',
+                    background: 'linear-gradient(to right, transparent, #aaa, transparent)',
+                    margin: '1.2rem 0'
+                  }}
+                ></div>
                 {fieldErrors.brand && (
                   <div style={{
                     color: '#e74c3c',
@@ -751,6 +895,13 @@ function AddProduct() {
             <>
               <div style={sectionStyle}>
                 <label style={labelStyle}>Description *</label>
+                <div
+                  style={{
+                    height: '2px',
+                    background: 'linear-gradient(to right, transparent, #aaa, transparent)',
+                    margin: '1.2rem 0'
+                  }}
+                ></div>
                 {fieldErrors.description && (
                   <div style={{
                     color: '#e74c3c',
@@ -781,6 +932,13 @@ function AddProduct() {
               {formData.category === 'games' && (
                 <div style={sectionStyle}>
                   <label style={labelStyle}>Platform</label>
+                  <div
+                    style={{
+                      height: '2px',
+                      background: 'linear-gradient(to right, transparent, #aaa, transparent)',
+                      margin: '1.2rem 0'
+                    }}
+                  ></div>
                   <input
                     type="text"
                     name="platform"
@@ -794,6 +952,14 @@ function AddProduct() {
 
               <div style={sectionStyle}>
                 <label style={labelStyle}>Features *</label>
+                <div
+                  style={{
+                    height: '2px',
+                    background: 'linear-gradient(to right, transparent, #aaa, transparent)',
+                    margin: '1.2rem 0'
+                  }}
+                ></div>
+
                 {fieldErrors.features && (
                   <div style={{
                     color: '#e74c3c',
@@ -808,6 +974,7 @@ function AddProduct() {
                     ⚠️ {fieldErrors.features}
                   </div>
                 )}
+
                 <div style={addTagStyle}>
                   <input
                     type="text"
@@ -816,7 +983,12 @@ function AddProduct() {
                     placeholder="Add a feature"
                     style={inputStyle}
                     data-field="features"
-                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addFeature())}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        addFeature();
+                      }
+                    }}
                   />
                   <button
                     type="button"
@@ -830,8 +1002,9 @@ function AddProduct() {
                     <FaPlus />
                   </button>
                 </div>
-                
-                <div style={tagsContainerStyle}>
+
+                {/* Added margin to separate the input and the feature list */}
+                <div style={{ ...tagsContainerStyle, marginTop: '1rem' }}>
                   {formData.features.map((feature, index) => (
                     <span key={index} style={tagStyle}>
                       {feature}
@@ -843,7 +1016,8 @@ function AddProduct() {
                           border: 'none',
                           color: 'white',
                           marginLeft: '0.3rem',
-                          cursor: 'pointer'
+                          marginTop: '0.2rem',
+                          cursor: 'pointer',
                         }}
                       >
                         <FaTimes />
@@ -872,37 +1046,62 @@ function AddProduct() {
             <>
               <div style={sectionStyle}>
                 <label style={labelStyle}>Product Image *</label>
+
                 <div
                   style={{
                     ...fileUploadStyle,
-                    borderColor: formData.image ? '#00AEBB' : '#ddd'
+                    position: 'relative',
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                    borderColor: formData.image ? '#00AEBB' : '#ccc',
+                    backgroundColor: '#fafafa',
+                    padding: '1rem',
+                    borderRadius: '0.5rem',
+                    transition: 'border-color 0.3s ease, background-color 0.3s ease',
                   }}
                   onClick={() => document.getElementById('imageInput').click()}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f0f0f0')}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#fafafa')}
                 >
-                  <FaUpload style={{ fontSize: '2rem', color: '#666', marginBottom: '0.5rem' }} />
-                  <p>{formData.image ? 'Click to change image' : 'Click to upload image'}</p>
+                  {imagePreview ? (
+                    <>
+                      <img
+                        src={imagePreview}
+                        alt="Product preview"
+                        style={{
+                          width: '100%',
+                          height: 'auto',
+                          maxHeight: '200px',
+                          objectFit: 'contain',
+                          borderRadius: '0.5rem',
+                          marginBottom: '0.5rem',
+                        }}
+                      />
+                      <p style={{ color: '#555', fontSize: '0.9rem' }}>
+                        Click to change image
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <FaUpload style={{ fontSize: '2rem', color: '#888', marginBottom: '0.5rem' }} />
+                      <p style={{ color: '#555', fontSize: '0.95rem', marginBottom: '0.3rem' }}>
+                        Click to upload an image
+                      </p>
+                      <p style={{ color: '#999', fontSize: '0.8rem' }}>
+                        JPG, PNG or GIF (max 5MB)
+                      </p>
+                    </>
+                  )}
+
                   <input
                     id="imageInput"
                     type="file"
                     accept="image/*"
                     onChange={handleImageChange}
-                    onKeyDown={(e) => {
-                      // Prevent Enter key from submitting form
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                      }
-                    }}
+                    onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}
                     style={{ display: 'none' }}
                   />
                 </div>
-                
-                {imagePreview && (
-                  <img
-                    src={imagePreview}
-                    alt="Product preview"
-                    style={imagePreviewStyle}
-                  />
-                )}
               </div>
 
               {/* Product Summary */}
@@ -953,6 +1152,7 @@ function AddProduct() {
         </form>
       </div>
 
+      <ItemAddedModal />
       <Footer />
     </div>
   );

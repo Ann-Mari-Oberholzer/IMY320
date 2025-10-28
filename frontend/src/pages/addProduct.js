@@ -69,12 +69,13 @@ export const formStyle = {
 export const sectionStyle = {
   display: "flex",
   flexDirection: "column",
-  gap: "1rem",
+  // gap: "1rem",
 };
 
 export const labelStyle = {
   fontWeight: "bold",
-  marginBottom: "0.5rem",
+  // marginBottom: "0.5rem",
+  fontSize: "18px",
 };
 
 export const inputStyle = {
@@ -119,7 +120,7 @@ export const tagsContainerStyle = {
 export const tagStyle = {
   background: "#00AEBB",
   color: "#fff",
-  padding: "0.3rem 0.7rem",
+  padding: "0.5rem 0.5rem 0.5rem 0.5rem",
   borderRadius: "20px",
   display: "flex",
   alignItems: "center",
@@ -156,26 +157,29 @@ export const buttonRowStyle = {
 export const backButtonStyle = {
   background: "#ccc",
   color: "#000",
-  padding: "0.5rem 1rem",
+  padding: "1rem 2rem",
   border: "none",
   borderRadius: "6px",
   fontWeight: "bold",
+  fontSize: "17px",
 };
 
 export const nextButtonStyle = {
   background: "#00AEBB",
   color: "#fff",
-  padding: "0.5rem 1rem",
+  padding: "1rem 2rem",
   border: "none",
   borderRadius: "6px",
   fontWeight: "bold",
+  fontSize: "17px",
 };
 
 export const submitButtonStyle = {
   background: "#27ae60",
   color: "#fff",
-  padding: "0.5rem 1.5rem",
+  padding: "1rem 2rem",
   border: "none",
   borderRadius: "6px",
   fontWeight: "bold",
+  fontSize: "17px",
 };

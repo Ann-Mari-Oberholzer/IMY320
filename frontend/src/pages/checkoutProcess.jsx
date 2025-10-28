@@ -428,14 +428,14 @@ const CheckoutProcess = () => {
       maxWidth: '1200px',
       margin: '0 auto',
       padding: '0 1rem',
-       alignItems: 'stretch',
+      alignItems: 'stretch',
     }}>
       <div style={{
         backgroundColor: '#fff',
         borderRadius: '1rem',
         padding: '2rem',
         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-        minHeight: '600px',
+        maxHeight: '700px',
       }}>
         {children}
       </div>
@@ -449,11 +449,11 @@ const CheckoutProcess = () => {
     <div style={{
       backgroundColor: '#fff',
       borderRadius: '1rem',
-      padding: '1.5rem',
+      padding: '2rem',
       boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-      minHeight: '614px', // Match the left card's minimum height
-      height: 'fit-content', // Keep fit-content for proper sizing
-      position: 'sticky', 
+      maxHeight: '700px', // Match the left card's minimum height
+      // height: 'fit-content', // Keep fit-content for proper sizing
+      // position: 'sticky', 
       top: '2rem',
       display: 'flex',
       flexDirection: 'column',
@@ -667,7 +667,7 @@ const CheckoutProcess = () => {
         )}
 
         {currentStep === 2 && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '2rem' }}>
             <button
               onClick={prevStep}
               style={{
@@ -1241,7 +1241,7 @@ const CheckoutProcess = () => {
         padding: '2rem',
         backgroundColor: '#f8f9fa',
         borderRadius: '1rem',
-        border: '2px solid #27ae60'
+        border: '2px solid #27ae60',
       }}>
         <FaBox style={{ fontSize: '3rem', color: '#27ae60', marginBottom: '1rem' }} />
         <h2 style={{

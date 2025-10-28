@@ -172,6 +172,7 @@ display: 'flex',
 flexDirection: 'column',
 gap: '0.75rem',
 minWidth: 0, // Allows text to wrap properly
+marginBottom: '1.4rem',
 };
 
 const itemTitleStyle = {
@@ -755,7 +756,7 @@ return (
                         onMouseEnter={(e) => {
                           e.target.style.transform = 'translateY(-2px) scale(1.02)';
                           e.target.style.boxShadow = '0 8px 20px rgba(220, 53, 69, 0.3)';
-                          e.target.style.backgroundColor = '#c82333';
+                          e.target.style.backgroundColor = '#fff';
                           e.target.style.borderColor = '#c82333';
                         }}
                         onMouseLeave={(e) => {
