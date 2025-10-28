@@ -1319,46 +1319,34 @@ function Catalogue() {
 
                <div style={gameImageContainerStyle}>
   <img
-    src={getGameImage(game) || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=300&h=300&fit=crop'}
-    alt={game.name}
-    style={{ 
-      width: '100%', 
-      height: '100%', 
-      objectFit: 'cover' 
-    }}
-    onError={(e) => {
-      // Multiple fallback options
-      const fallbacks = [
-        'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=300&h=300&fit=crop', // Gaming controller
-        'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=300&h=300&fit=crop', // Gaming setup
-        'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=300&h=300&fit=crop', // Gaming keyboard
-        'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=300&h=300&fit=crop'  // Another gaming image
-      ];
-      
-      const currentSrc = e.target.src;
-      const currentFallbackIndex = fallbacks.findIndex(url => url === currentSrc);
-      
-      if (currentFallbackIndex === -1 || currentFallbackIndex >= fallbacks.length - 1) {
-        // Show placeholder if no more fallbacks or already using last fallback
-        e.target.style.display = 'none';
-        // Show the gamepad icon placeholder
-        const placeholder = document.createElement('div');
-        placeholder.style.cssText = `
-          width: 100%;
-          height: 100%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background-color: #e9ecef;
-        `;
-        placeholder.innerHTML = '<i class="fas fa-gamepad" style="font-size: 3rem; color: #adb5bd;"></i>';
-        e.target.parentNode.appendChild(placeholder);
-      } else {
-        // Try next fallback image
-        e.target.src = fallbacks[currentFallbackIndex + 1];
-      }
-    }}
-  />
+  src={getGameImage(game) || '/default-game-placeholder.jpg'}
+  alt={game.name}
+  style={{ 
+    width: '100%', 
+    height: '100%', 
+    objectFit: 'cover' 
+  }}
+  onError={(e) => {
+    // Use single fallback image
+    if (e.target.src !== window.location.origin + '/default-game-placeholder.jpg') {
+      e.target.src = '/default-game-placeholder.jpg';
+    } else {
+      // If even the placeholder fails, show icon
+      e.target.style.display = 'none';
+      const placeholder = document.createElement('div');
+      placeholder.style.cssText = `
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #e9ecef;
+      `;
+      placeholder.innerHTML = '<i class="fas fa-gamepad" style="font-size: 3rem; color: #adb5bd;"></i>';
+      e.target.parentNode.appendChild(placeholder);
+    }
+  }}
+/>
 </div>
 
                 <div style={gameInfoStyle}>
