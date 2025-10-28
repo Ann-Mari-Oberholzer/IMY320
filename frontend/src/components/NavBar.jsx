@@ -4,12 +4,20 @@ import { useCart } from '../contexts/CartContext';
 import '../NavBar.css';
 import { FaHeart, FaShoppingCart } from 'react-icons/fa';
 
-const Navbar = ({ currentPage = 'home', user = null, onLogout }) => {
+const Navbar = ({ currentPage = 'home', onLogout }) => {
   const navigate = useNavigate();
   const { getCartItemCount } = useCart();
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
+  const [user, setUser] = useState(null);
   
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
+
   // Only get cart count when user is logged in
   const cartItemCount = user ? getCartItemCount() : 0;
 
@@ -18,6 +26,9 @@ const Navbar = ({ currentPage = 'home', user = null, onLogout }) => {
   };
 
   const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setUser(null);
     if (onLogout) {
       onLogout();
     }

@@ -184,6 +184,13 @@
       "password": "password123",
       "name": "Test",
       "createdAt": "2025-10-26T10:45:38.346Z"
+    },
+    {
+      "id": 1761645605025,
+      "email": "annie@gmail.com",
+      "password": "@nN!30Be",
+      "name": "Annie",
+      "createdAt": "2025-10-28T10:00:05.025Z"
     }
   ],
   "orders": [
@@ -332,6 +339,32 @@
       "total": 70,
       "status": "processing",
       "orderDate": "2025-10-26T16:20:21.244Z"
+    },
+    {
+      "id": 1761645742912,
+      "userId": 1761645605025,
+      "products": [
+        {
+          "productId": 3,
+          "quantity": 5,
+          "product": {
+            "id": 3,
+            "name": "The Dig",
+            "description": "In almost every sense, The Dig represents a leap backwards from LucasArts' previous group of adventure games.",
+            "image": "https://www.gamespot.com/a/uploads/original/mig/0/0/4/6/2210046-the_dig_box_front_6570x8280.jpg",
+            "price": 10,
+            "originalPrice": null,
+            "tags": [
+              "Adventure"
+            ],
+            "hasDiscount": false
+          },
+          "price": 10
+        }
+      ],
+      "total": 55.99,
+      "status": "processing",
+      "orderDate": "2025-10-28T10:02:22.870Z"
     }
   ],
   "cart": [
@@ -343,6 +376,11 @@
     {
       "id": 1761475603760,
       "userId": 1761475538346,
+      "products": []
+    },
+    {
+      "id": 1761645645885,
+      "userId": 1761645605025,
       "products": []
     }
   ],
